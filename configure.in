@@ -212,6 +212,5 @@ AC_OUTPUT([
 Makefile
 src/Makefile
 src/dlgedit/Makefile
-src/dlgedit/examples/Makefile
 src/questedit/Makefile
 ])

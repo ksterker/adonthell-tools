@@ -85,8 +85,8 @@ AM_CPPFLAGS = -D_VERSION_=\"0.9pre\" $(GTK_CFLAGS) $(ADONTHELL_CFLAGS)
 
 dlgedit_LDADD = $(GTK_LIBS) $(ADONTHELL_LIBS)
 
-$(top_builddir)/lex.loadlg.cc: $(top_builddir)/loadlg.l
-	flex -o$(top_builddir)/lex.loadlg.cc $(top_builddir)/loadlg.l
+lex.loadlg.cc: $(top_srcdir)/src/dlgedit/loadlg.l
+	flex -olex.loadlg.cc $<
 
-$(top_builddir)/lex.loadcfg.cc: $(top_builddir)/loadcfg.l
-	flex -o$(top_builddir)/lex.loadcfg.cc l$(top_builddir)/oadcfg.l
+lex.loadcfg.cc: $(top_srcdir)/src/dlgedit/loadcfg.l
+	flex -olex.loadcfg.cc $<
