@@ -1,7 +1,7 @@
 /*
-   $Id: gui_modal_dialog.h,v 1.1 2004/07/25 15:52:23 ksterker Exp $
+   $Id: gui_modal_dialog.h,v 1.2 2004/08/02 07:39:24 ksterker Exp $
 
-   Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
+   Copyright (C) 2002/2004 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
 
    Dlgedit is free software; you can redistribute it and/or modify
@@ -51,7 +51,7 @@ public:
      * @return the state of pressedOK. This should be set to <b>true</b> if the dialog
      * was closed via the OK button. By default it is <b>false</b>.
      */
-    bool run ();
+    virtual bool run ();
     /**
      * Indicate whether the OK button of the dialog has been pressed.
      * @param button Set this to <b>true</b> if the OK button has been pressed,

@@ -1,7 +1,7 @@
 /*
-   $Id: gui_file.h,v 1.1 2004/07/25 15:52:23 ksterker Exp $
+   $Id: gui_file.h,v 1.2 2004/08/02 07:39:24 ksterker Exp $
 
-   Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
+   Copyright (C) 2002/2004 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
 
    Dlgedit is free software; you can redistribute it and/or modify
@@ -35,18 +35,13 @@
 class GuiFile : public GuiModalDialog
 {
 public:
-    GuiFile (int type, const std::string &file, const std::string &title);
+    GuiFile (GtkFileChooserAction action, const std::string &file, const std::string &title);
     ~GuiFile ();
 
-    std::string getSelection ()           { return file_; }
-    void setSelection (std::string file)  { file_ = file; }
+    bool run ();
+    void add_filter (const std::string & pattern, const std::string & name);
+    std::string getSelection ()           { return File; }
 
 private:
-    std::string file_;              // the file the user has selected
+    std::string File;              // the file the user has selected
 };
-
-
-/**
- * Callback to intercept pressing of fileselection's okay button
- */
-void on_ok_button_pressed (GtkButton *button, gpointer user_data);

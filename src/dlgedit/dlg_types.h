@@ -1,5 +1,5 @@
 /*
-   $Id: dlg_types.h,v 1.1 2004/07/25 15:52:23 ksterker Exp $
+   $Id: dlg_types.h,v 1.2 2004/08/02 07:39:24 ksterker Exp $
 
    Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -102,16 +102,6 @@ enum menu_item
     REVERT          = 9,
     MAX_ITEM        = 10
 };
-
-/**
- * Load node of file selction box.
- */
-#define FS_LOAD     1
-
-/**
- * Save mode of file selction box.
- */
-#define FS_SAVE     2
 
 /**
  * Defines for the various parts of a dialogue source file.

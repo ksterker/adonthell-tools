@@ -1,7 +1,7 @@
 /*
-   $Id: gui_settings.cc,v 1.1 2004/07/25 15:52:23 ksterker Exp $ 
+   $Id: gui_settings.cc,v 1.2 2004/08/02 07:39:24 ksterker Exp $ 
 
-   Copyright (C) 2002/2003 Kai Sterker <kaisterker@linuxgames.com>
+   Copyright (C) 2002/2003/2004 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
 
    Dlgedit is free software; you can redistribute it and/or modify
@@ -58,7 +58,7 @@ void on_browse_basedir_clicked (GtkButton * button, gpointer user_data)
     // otherwise revert to directory last opened
     if (dir == "") dir = GuiDlgedit::window->directory ();
     
-    GuiFile fs (FS_LOAD, "Select base directory", dir + "/");
+    GuiFile fs (GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER, "Select base directory", dir + "/");
 
     // File selection closed with OK
     if (fs.run ())

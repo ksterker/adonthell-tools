@@ -1,5 +1,5 @@
 /*
-   $Id: cfg_io.h,v 1.1 2004/07/25 15:52:22 ksterker Exp $
+   $Id: cfg_io.h,v 1.2 2004/08/02 07:39:24 ksterker Exp $
    
    Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com

@@ -1,7 +1,7 @@
 /*
-   $Id: gui_dlgedit_events.cc,v 1.1 2004/07/25 15:52:23 ksterker Exp $
+   $Id: gui_dlgedit_events.cc,v 1.2 2004/08/02 07:39:24 ksterker Exp $
    
-   Copyright (C) 1999/2002 Kai Sterker <kaisterker@linuxgames.com>
+   Copyright (C) 1999/2002/2004 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
 
    Dlgedit is free software; you can redistribute it and/or modify
@@ -48,7 +48,8 @@ void on_file_new_activate (GtkMenuItem * menuitem, gpointer user_data)
 void on_file_load_activate (GtkMenuItem * menuitem, gpointer user_data)
 {
     GuiDlgedit *dlgedit = (GuiDlgedit *) user_data;
-    GuiFile fs (FS_LOAD, "Load dialogue source", dlgedit->directory ());
+    GuiFile fs (GTK_FILE_CHOOSER_ACTION_OPEN, "Load dialogue source", dlgedit->directory ());
+    fs.add_filter ("*"FILE_EXT, "Adonthell Dialogue Source");
 
     // File selection closed with OK
     if (fs.run ()) dlgedit->loadDialogue (fs.getSelection ());
@@ -69,7 +70,8 @@ void on_file_load_recent_activate (GtkMenuItem * menuitem, gpointer user_data)
 void on_file_save_as_activate (GtkMenuItem * menuitem, gpointer user_data)
 {
     GuiDlgedit *dlgedit = (GuiDlgedit *) user_data;
-    GuiFile fs (FS_SAVE, "Save dialogue source", dlgedit->filename ());
+    GuiFile fs (GTK_FILE_CHOOSER_ACTION_SAVE, "Save dialogue source", dlgedit->filename ());
+    fs.add_filter ("*"FILE_EXT, "Adonthell Dialogue Source");
 
     // File selection closed with OK
     if (fs.run ()) dlgedit->saveDialogue (fs.getSelection ());
@@ -124,8 +126,9 @@ void on_dialogue_functions_activate (GtkMenuItem * menuitem, gpointer user_data)
 void on_dialogue_preview_activate (GtkMenuItem * menuitem, gpointer user_data)
 {
     GuiDlgedit *dlgedit = (GuiDlgedit *) user_data;
-    GuiFile fs (FS_LOAD, "Select message catalogue (.mo)", dlgedit->directory ());
-
+    GuiFile fs (GTK_FILE_CHOOSER_ACTION_OPEN, "Select translation", dlgedit->directory ());
+    fs.add_filter ("*.mo", "Gettext Message Catalogue");
+    
     // start translation preview
     if (dlgedit->mode () != L10N_PREVIEW)
     {

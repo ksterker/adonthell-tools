@@ -1,5 +1,5 @@
 /*
-   $Id: gui_graph.cc,v 1.1 2004/07/25 15:52:23 ksterker Exp $
+   $Id: gui_graph.cc,v 1.2 2004/08/02 07:39:24 ksterker Exp $
 
    Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -228,7 +228,9 @@ bool GuiGraph::newModule (DlgPoint &point)
     if (dir == "") dir = GuiDlgedit::window->directory ();
     
     // allow the user to select a module
-    GuiFile fs = GuiFile (FS_LOAD, "Select sub-dialogue to add", dir + "/");
+    GuiFile fs = GuiFile (GTK_FILE_CHOOSER_ACTION_OPEN, "Select sub-dialogue to add", dir + "/");
+    fs.add_filter ("*"FILE_EXT, "Adonthell Dialogue Source");
+
     if (fs.run ())
     {
         DlgModule *subdlg = GuiDlgedit::window->loadSubdialogue (fs.getSelection());
