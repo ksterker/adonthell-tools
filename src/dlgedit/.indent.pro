@@ -1,0 +1,1 @@
+-l256 -bad -bap -ncdb -d0 -bl -bli0 -pcs -ncs -di1 -i4 -cli0 -nsc -nbc -nlp -ci4 -ts0
