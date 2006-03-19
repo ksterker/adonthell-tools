@@ -1,5 +1,5 @@
 /*
-   $Id: dlg_module_entry.cc,v 1.1 2004/07/25 15:52:22 ksterker Exp $
+   $Id: dlg_module_entry.cc,v 1.2 2006/03/19 20:27:19 ksterker Exp $
 
    Copyright (C) 2002/2004 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -27,7 +27,10 @@
  */
 
 #include <algorithm>
+#include "dlg_cmdline.h"
 #include "dlg_module_entry.h"
+#include "base/base.h"
+#include "rpg/quest.h"
 
 // ctor
 DlgModuleEntry::DlgModuleEntry ()
@@ -45,7 +48,6 @@ void DlgModuleEntry::init ()
     methods_ = "";
     
     itc = characters.end ();
-    itq = quests.end ();
 }
 
 // reset everything to initial state
@@ -53,7 +55,6 @@ void DlgModuleEntry::clear ()
 {
     // empty character and quest array
     characters.clear ();
-    quests.clear ();
     
     init ();
 }
@@ -69,10 +70,12 @@ bool DlgModuleEntry::setProject (std::string p)
         
         // empty character and quest array
         characters.clear ();
-        quests.clear ();
         
         if (p != "none")
         {
+            // set path
+            base::Paths.init (p,  DlgCmdline::datadir);
+
             retval &= loadCharacters ();
             retval &= loadQuests ();
         }
@@ -125,34 +128,17 @@ bool DlgModuleEntry::loadCharacters ()
 // load the quest names
 bool DlgModuleEntry::loadQuests ()
 {
-    /*
-    // look for a character file
-    std::string file = game::find_file (project_ + "/quest.data");
-    if (file == "") return false;
+    // clean previously loaded quest tree
+    rpg::quest::cleanup ();
     
-    // open the file
-    igzstream in;
-    in.open (file);
-    
-    // version check
-    if (!fileops::get_version (in, 1, 1, file))
-        return false;
-
-    ::quest myquest;
-    char ctemp;
-
-    // save the name of each Quest
-    while (ctemp << in)
+    // try loading quest tree
+    if (!rpg::quest::get_state ())
     {
-        myquest.load (in);
-        addQuest (myquest.name);
+        fprintf (stderr, "*** failed loading 'quest.data' from '%s/%s'\n", 
+                 DlgCmdline::datadir.c_str(), project_.c_str());
+        return false;
     }
-    
-    // close file
-    in.close ();
-    */
-    itq = quests.begin ();
-    
+
     return true; 
 }
 
@@ -167,17 +153,6 @@ void DlgModuleEntry::addCharacter (std::string character)
     characters.insert (i, character);
 }
 
-// add a quest
-void DlgModuleEntry::addQuest (std::string quest)
-{
-    std::vector<std::string>::iterator i;
-    
-    for (i = quests.begin (); i != quests.end (); i++)
-        if (quest < *i) break;
-    
-    quests.insert (i, quest);
-}
-
 // check whether a certain character exists
 bool DlgModuleEntry::isCharacter (const std::string &character)
 {
@@ -190,7 +165,7 @@ bool DlgModuleEntry::isCharacter (const std::string &character)
 // check whether a certain quest exists
 bool DlgModuleEntry::isQuest (const std::string &quest)
 {
-    if (find (quests.begin (), quests.end (), quest) == quests.end ())
+    if (rpg::quest::get_part (quest) == NULL)
         return false;
     
     return true;
@@ -211,6 +186,7 @@ std::string DlgModuleEntry::character ()
     return character;
 }
 
+/*
 // iterate over the existing quests
 std::string DlgModuleEntry::quest ()
 {
@@ -225,3 +201,4 @@ std::string DlgModuleEntry::quest ()
     
     return quest;
 }
+*/

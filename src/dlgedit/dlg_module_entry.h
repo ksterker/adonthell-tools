@@ -1,5 +1,5 @@
 /*
-   $Id: dlg_module_entry.h,v 1.1 2004/07/25 15:52:22 ksterker Exp $
+   $Id: dlg_module_entry.h,v 1.2 2006/03/19 20:27:19 ksterker Exp $
 
    Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -153,7 +153,7 @@ public:
      * @return the quest name or the empty string ("") when the 
      *      end of the list is reached.
      */
-    std::string quest ();
+    // std::string quest ();
     //@}
         
 private:
@@ -161,7 +161,6 @@ private:
     bool loadQuests ();
     
     void addCharacter (std::string c);
-    void addQuest (std::string q);
 
     std::string project_;           // project the dialogue belongs to
     std::string imports_;           // additional import statements
@@ -171,9 +170,7 @@ private:
     std::string description_;       // Description of the dialogue
     
     std::vector<std::string> characters;
-    std::vector<std::string> quests;
     std::vector<std::string>::iterator itc;
-    std::vector<std::string>::iterator itq;
 };
 
 #endif // DLG_MODULE_ENTRY_H
