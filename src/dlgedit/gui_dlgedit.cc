@@ -1,5 +1,5 @@
 /*
-   $Id: gui_dlgedit.cc,v 1.2 2007/08/09 07:50:06 ksterker Exp $
+   $Id: gui_dlgedit.cc,v 1.3 2007/08/09 14:41:22 ksterker Exp $
 
    Copyright (C) 2002/2003 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -418,7 +418,7 @@ void GuiDlgedit::newDialogue ()
 void GuiDlgedit::loadDialogue (const std::string &f)
 {
     // make sure that file has an absolute path
-    std::string file = (f[0] == '/' ? f : directory_ + std::string ("/") + f);
+    std::string file = ((f[0] == '/' || f[1] == ':') ? f : directory_ + std::string ("/") + f);
     
     // test if we have a valid dialogue
     if (!checkDialogue (file))

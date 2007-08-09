@@ -1,5 +1,5 @@
 /*
-   $Id: cfg_io.cc,v 1.3 2007/08/09 07:50:06 ksterker Exp $
+   $Id: cfg_io.cc,v 1.4 2007/08/09 14:41:22 ksterker Exp $
 
    Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -39,10 +39,14 @@ extern int parse_cfgfile (std::string&, int&);
 // ctor; load config
 CfgIO::CfgIO ()
 {
+#ifndef WIN32
     Dlgeditrc = std::string (getenv ("HOME")) + "/.adonthell/dlgeditrc";
-       
+#else
+    Dlgeditrc = std::string ("./dlgeditrc");
+#endif
+    
     // loadcfgin is declared in lex.loadcfg.cc
-    loadcfgin = g_fopen (Dlgeditrc.c_str (), "r");
+    loadcfgin = g_fopen (Dlgeditrc.c_str (), "rb");
 
     // open succeeded -> read configuration
     if (loadcfgin)
