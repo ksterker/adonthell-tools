@@ -1,5 +1,5 @@
 /*
-   $Id: dlg_compiler.cc,v 1.1 2004/07/25 15:52:22 ksterker Exp $
+   $Id: dlg_compiler.cc,v 1.2 2007/08/09 07:50:06 ksterker Exp $
 
    Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -732,7 +732,7 @@ bool DlgCompiler::checkConditions (DlgCircle *circle)
 }
 
 // get the keyword the statement begins with
-token DlgCompiler::getKeyword (const std::string &statement)
+DlgCompiler::token DlgCompiler::getKeyword (const std::string &statement)
 {
     if (strncmp ("if ", statement.c_str (), 3) == 0)
         return IF;
@@ -745,7 +745,7 @@ token DlgCompiler::getKeyword (const std::string &statement)
 }
 
 // splits a string into tokens
-token DlgCompiler::getToken (const std::string &token)
+DlgCompiler::token DlgCompiler::getToken (const std::string &token)
 {
     static unsigned int i;
     

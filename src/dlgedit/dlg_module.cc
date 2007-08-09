@@ -1,5 +1,5 @@
 /*
-   $Id: dlg_module.cc,v 1.1 2004/07/25 15:52:22 ksterker Exp $
+   $Id: dlg_module.cc,v 1.2 2007/08/09 07:50:06 ksterker Exp $
 
    Copyright (C) 2002/2003 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -183,6 +183,7 @@ DlgModule* DlgModule::getModule (int id)
     for (i = nodes.begin (); i != nodes.end (); i++)
         if ((*i)->type () == MODULE) 
         {
+        	// FIXME shouldn't this be (*i)->getModule(id) ???
             module = getModule (id);
             if (module) return module;
         }

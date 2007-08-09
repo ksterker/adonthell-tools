@@ -1,5 +1,5 @@
 /*
-   $Id: cfg_data.cc,v 1.1 2004/07/25 15:52:22 ksterker Exp $
+   $Id: cfg_data.cc,v 1.2 2007/08/09 07:50:06 ksterker Exp $
    
    Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -29,6 +29,7 @@
 #include <stdio.h>
 #include <algorithm>
 #include <sys/stat.h>
+#include <glib/gstdio.h>
 #include <dirent.h>
 #include "cfg_data.h"
 #include "dlg_cmdline.h"
@@ -68,7 +69,7 @@ void CfgData::addFile (const std::string &file)
     else 
     {
         // check whether the file exists at all
-        FILE* test = fopen (file.c_str (), "r");
+        FILE* test = g_fopen (file.c_str (), "r");
         if (!test) return;
         else fclose (test);
         

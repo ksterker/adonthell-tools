@@ -1,5 +1,5 @@
 /*
-   $Id: gui_dlgedit_events.cc,v 1.2 2004/08/02 07:39:24 ksterker Exp $
+   $Id: gui_dlgedit_events.cc,v 1.3 2007/08/09 07:50:06 ksterker Exp $
    
    Copyright (C) 1999/2002/2004 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -161,17 +161,19 @@ void on_window_activate (GtkMenuItem * menuitem, gpointer user_data)
 }
 
 // Display help text associated with a menuitem to the statusbar 
-void on_display_help (GtkWidget *widget, GdkEventCrossing *event, gpointer user_data)
+gboolean on_display_help (GtkWidget *widget, GdkEventCrossing *event, gpointer user_data)
 {
     int id = GPOINTER_TO_INT (gtk_object_get_data (GTK_OBJECT (widget), "help-id"));
     GuiMessages *message = (GuiMessages *) user_data;
     
     message->display (id);
+    return FALSE;
 }
 
 // Clear text displayed by the statusbar 
-void on_clear_help (GtkWidget *widget, GdkEventCrossing *event, gpointer user_data)
+gboolean on_clear_help (GtkWidget *widget, GdkEventCrossing *event, gpointer user_data)
 {
     GuiMessages *message = (GuiMessages *) user_data;
     message->clear ();
+    return FALSE;
 }

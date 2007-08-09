@@ -1,5 +1,5 @@
 /*
-   $Id: gui_dlgedit_events.h,v 1.1 2004/07/25 15:52:23 ksterker Exp $
+   $Id: gui_dlgedit_events.h,v 1.2 2007/08/09 07:50:07 ksterker Exp $
    
    Copyright (C) 1999/2002 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -47,7 +47,7 @@ void on_dialogue_player_activate (GtkMenuItem *, gpointer);
 void on_window_activate (GtkMenuItem *, gpointer);
 
 // Statusbar callbacks
-void on_display_help (GtkWidget *widget, GdkEventCrossing *event, gpointer user_data);
-void on_clear_help (GtkWidget *widget, GdkEventCrossing *event, gpointer user_data);
+gboolean on_display_help (GtkWidget *widget, GdkEventCrossing *event, gpointer user_data);
+gboolean on_clear_help (GtkWidget *widget, GdkEventCrossing *event, gpointer user_data);
 
 #endif // GUI_DLGEDIT_EVENTS_H

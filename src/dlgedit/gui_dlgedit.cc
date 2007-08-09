@@ -1,5 +1,5 @@
 /*
-   $Id: gui_dlgedit.cc,v 1.1 2004/07/25 15:52:23 ksterker Exp $
+   $Id: gui_dlgedit.cc,v 1.2 2007/08/09 07:50:06 ksterker Exp $
 
    Copyright (C) 2002/2003 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -30,9 +30,15 @@
 #include <config.h>
 #endif
 
+#ifdef WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
+
 #include <algorithm>
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
+#include <glib/gstdio.h>
 #include <stdio.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -133,7 +139,7 @@ GuiDlgedit::GuiDlgedit ()
             
     // Menu Accelerators
     GtkAccelGroup *accel_group = gtk_accel_group_new ();
-    gtk_window_add_accel_group (GTK_WINDOW(wnd), accel_group);
+    // gtk_window_add_accel_group (GTK_WINDOW(wnd), accel_group);
     
     // Main Windows Menu
     menu = gtk_menu_bar_new ();
@@ -686,7 +692,7 @@ void GuiDlgedit::previewTranslation (const std::string &catalogue)
     }
     
     // see if the file exists at all
-    FILE *exists = fopen (catalogue.c_str (), "rb");
+    FILE *exists = g_fopen (catalogue.c_str (), "rb");
 
     if (!exists)
     {
@@ -710,19 +716,33 @@ void GuiDlgedit::previewTranslation (const std::string &catalogue)
     }
     
     // create temporary locale directory
+#ifndef WIN32
     if (mkdir ("/tmp/locale/", 0750) ||
         mkdir ("/tmp/locale/xy", 0750) ||
         mkdir ("/tmp/locale/xy/LC_MESSAGES", 0750))
+#else
+    if (mkdir ("tmp/locale/") ||
+        mkdir ("tmp/locale/xy") ||
+        mkdir ("tmp/locale/xy/LC_MESSAGES"))
+#endif
     {
         message->display (-131);
         return;
     }
             
+#ifndef WIN32
     // create a symlink to the given catalogue
     symlink (catalogue.c_str (), "/tmp/locale/xy/LC_MESSAGES/preview.mo");
     
     // set the language to use  
     setenv ("LANGUAGE", "xy", 1);
+#else
+    // create a symlink to the given catalogue
+    // VISTA only: CreateSymbolicLink ()
+    
+    // set the language to use  
+    SetEnvironmentVariable ("LANGUAGE", "xy");
+#endif
     
 #ifdef ENABLE_NLS
     {
@@ -801,7 +821,7 @@ void GuiDlgedit::updateProject ()
 bool GuiDlgedit::checkDialogue (const std::string &file)
 {
     // first, open the file
-    FILE *test = fopen (file.c_str (), "rb");
+    FILE *test = g_fopen (file.c_str (), "rb");
 
     if (!test)
         return false;

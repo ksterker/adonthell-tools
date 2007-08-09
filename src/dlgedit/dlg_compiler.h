@@ -1,5 +1,5 @@
 /*
-   $Id: dlg_compiler.h,v 1.1 2004/07/25 15:52:22 ksterker Exp $
+   $Id: dlg_compiler.h,v 1.2 2007/08/09 07:50:06 ksterker Exp $
 
    Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -32,52 +32,6 @@
 #include "dlg_module.h"
 #include "dlg_circle.h"
 
-/**
- * Python tokens
- */ 
-enum token 
-{ 
-    EQ      = 0, 
-    NEQ     = 1, 
-    LT      = 2, 
-    LEQ     = 3, 
-    GT      = 4, 
-    GEQ     = 5, 
-    ASSIGN  = 6, 
-    ACCESS  = 7, 
-    COLON   = 8, 
-    IF      = 9, 
-    ELIF    = 10, 
-    ELSE    = 11, 
-    PASS    = 12, 
-    RETURN  = 13, 
-    BAND    = 14, 
-    BOR     = 15, 
-    NOT     = 16, 
-    ADD     = 17, 
-    SUB     = 18, 
-    MUL     = 19, 
-    DIV     = 20, 
-    QUOT    = 21, 
-    SQUOT   = 22, 
-    LBRACE  = 23, 
-    RBRACE  = 24, 
-    LBRACKET= 25, 
-    RBRACKET= 26, 
-    COMMA   = 27, 
-    COMMENT = 28, 
-    MOD     = 29, 
-    AND     = 30, 
-    OR      = 31, 
-    XOR     = 32,
-    FIXED   = 33,
-    VARIABLE= 34,
-    CONSTANT= 35,
-    NONE    = 36
-};
-
-#define NUM_OPS 33
-#define NUM_FXD 5
     
 /**
  * It transforms the dialogue into the Python script needed by
@@ -97,6 +51,53 @@ enum token
 class DlgCompiler
 {
 public:
+	/**
+	 * Python tokens
+	 */ 
+	enum token 
+	{ 
+	    EQ      = 0, 
+	    NEQ     = 1, 
+	    LT      = 2, 
+	    LEQ     = 3, 
+	    GT      = 4, 
+	    GEQ     = 5, 
+	    ASSIGN  = 6, 
+	    ACCESS  = 7, 
+	    COLON   = 8, 
+	    IF      = 9, 
+	    ELIF    = 10, 
+	    ELSE    = 11, 
+	    PASS    = 12, 
+	    RETURN  = 13, 
+	    BAND    = 14, 
+	    BOR     = 15, 
+	    NOT     = 16, 
+	    ADD     = 17, 
+	    SUB     = 18, 
+	    MUL     = 19, 
+	    DIV     = 20, 
+	    QUOT    = 21, 
+	    SQUOT   = 22, 
+	    LBRACE  = 23, 
+	    RBRACE  = 24, 
+	    LBRACKET= 25, 
+	    RBRACKET= 26, 
+	    COMMA   = 27, 
+	    COMMENT = 28, 
+	    MOD     = 29, 
+	    AND     = 30, 
+	    OR      = 31, 
+	    XOR     = 32,
+	    FIXED   = 33,
+	    VARIABLE= 34,
+	    CONSTANT= 35,
+	    NONE    = 36
+	};
+
+	#define NUM_OPS 33
+	#define NUM_FXD 5
+	
     /**
      * Instantiate the compiler.
      * @param module Module to be compiled

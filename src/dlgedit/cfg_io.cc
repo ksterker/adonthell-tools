@@ -1,5 +1,5 @@
 /*
-   $Id: cfg_io.cc,v 1.2 2004/08/02 07:39:24 ksterker Exp $
+   $Id: cfg_io.cc,v 1.3 2007/08/09 07:50:06 ksterker Exp $
 
    Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -27,6 +27,7 @@
  */
 
 #include <stdio.h>
+#include <glib/gstdio.h>
 #include "cfg_io.h"
 #include "dlg_types.h"
 
@@ -41,7 +42,7 @@ CfgIO::CfgIO ()
     Dlgeditrc = std::string (getenv ("HOME")) + "/.adonthell/dlgeditrc";
        
     // loadcfgin is declared in lex.loadcfg.cc
-    loadcfgin = fopen (Dlgeditrc.c_str (), "r");
+    loadcfgin = g_fopen (Dlgeditrc.c_str (), "r");
 
     // open succeeded -> read configuration
     if (loadcfgin)
