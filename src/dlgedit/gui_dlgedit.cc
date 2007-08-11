@@ -1,5 +1,5 @@
 /*
-   $Id: gui_dlgedit.cc,v 1.3 2007/08/09 14:41:22 ksterker Exp $
+   $Id: gui_dlgedit.cc,v 1.4 2007/08/11 14:05:40 ksterker Exp $
 
    Copyright (C) 2002/2003 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -36,6 +36,7 @@
 #endif
 
 #include <algorithm>
+#include <gdk-pixbuf/gdk-pixbuf.h>
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 #include <glib/gstdio.h>
@@ -121,8 +122,6 @@ GuiDlgedit::GuiDlgedit ()
     GtkWidget *submenu;
     GtkWidget *menuitem;
     GtkWidget *hpaned, *vpaned;
-    GdkPixmap *icon;
-    GdkBitmap *mask;
     
     window = this;
     number = 0;
@@ -139,7 +138,6 @@ GuiDlgedit::GuiDlgedit ()
             
     // Menu Accelerators
     GtkAccelGroup *accel_group = gtk_accel_group_new ();
-    // gtk_window_add_accel_group (GTK_WINDOW(wnd), accel_group);
     
     // Main Windows Menu
     menu = gtk_menu_bar_new ();
@@ -366,10 +364,9 @@ GuiDlgedit::GuiDlgedit ()
     gtk_widget_set_usize (status_mode, 150, -2);
     
     // set the editor's icon    
-    gtk_widget_realize (wnd);
-    icon = gdk_pixmap_create_from_xpm_d (wnd->window, &mask, NULL, icon_xpm);
-    gdk_window_set_icon (wnd->window, wnd->window, icon, mask);
-
+    GdkPixbuf *icon = gdk_pixbuf_new_from_xpm_data ((const char**) icon_xpm);
+    gtk_window_set_icon (GTK_WINDOW(wnd), icon);
+    
     // Display MainWindow
     gtk_widget_show (wnd);
 

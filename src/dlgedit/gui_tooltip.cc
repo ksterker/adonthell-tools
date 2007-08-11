@@ -1,5 +1,5 @@
 /*
-   $Id: gui_tooltip.cc,v 1.1 2004/07/25 15:52:23 ksterker Exp $
+   $Id: gui_tooltip.cc,v 1.2 2007/08/11 14:05:41 ksterker Exp $
 
    Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -40,7 +40,7 @@ GuiTooltip::GuiTooltip (DlgNode *n)
     // the actual tooltip
     tooltip = gtk_window_new (GTK_WINDOW_POPUP);
     gtk_object_set_data (GTK_OBJECT (tooltip), "tip_window", tooltip);
-    gtk_window_set_policy (GTK_WINDOW (tooltip), FALSE, FALSE, FALSE);
+    gtk_window_set_resizable (GTK_WINDOW (tooltip), FALSE);
 
     // get the text
     switch (n->type ())

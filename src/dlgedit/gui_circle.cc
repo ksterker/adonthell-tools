@@ -1,7 +1,7 @@
 /*
-   $Id: gui_circle.cc,v 1.1 2004/07/25 15:52:23 ksterker Exp $ 
+   $Id: gui_circle.cc,v 1.2 2007/08/11 14:05:40 ksterker Exp $ 
 
-   Copyright (C) 2002/2004 Kai Sterker <kaisterker@linuxgames.com>
+   Copyright (C) 2002/2004/2007 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
 
    Dlgedit is free software; you can redistribute it and/or modify
@@ -74,7 +74,6 @@ GuiCircle::GuiCircle (node_type *t, DlgCircleEntry *e, DlgModuleEntry *dme) : Gu
     gtk_window_set_title (GTK_WINDOW (window), "Edit Dialogue Node");
     gtk_window_set_position (GTK_WINDOW (window), GTK_WIN_POS_MOUSE);
     gtk_window_set_modal (GTK_WINDOW (window), TRUE);
-    gtk_window_set_policy (GTK_WINDOW (window), FALSE, FALSE, FALSE);
     gtk_window_set_resizable (GTK_WINDOW (window), FALSE);
     
     vbox1 = gtk_vbox_new (FALSE, 0);
@@ -376,7 +375,8 @@ GuiCircle::GuiCircle (node_type *t, DlgCircleEntry *e, DlgModuleEntry *dme) : Gu
     gtk_signal_connect (GTK_OBJECT (ok_button), "clicked", GTK_SIGNAL_FUNC (on_circle_ok_button_pressed), this);
     gtk_signal_connect (GTK_OBJECT (cancel_button), "clicked", GTK_SIGNAL_FUNC (gtk_main_quit), NULL);
     gtk_signal_connect (GTK_OBJECT (window), "delete_event", GTK_SIGNAL_FUNC (gtk_main_quit), NULL);
-
+    gtk_signal_connect (GTK_OBJECT (window), "destroy", GTK_SIGNAL_FUNC (gtk_widget_destroyed), &window);
+    
     // give focus to the text entry
     gtk_widget_grab_focus (text_view);
     gtk_widget_grab_default (text_view);

@@ -1,5 +1,5 @@
 /*
-   $Id: gui_error.cc,v 1.1 2004/07/25 15:52:23 ksterker Exp $ 
+   $Id: gui_error.cc,v 1.2 2007/08/11 14:05:41 ksterker Exp $ 
 
    Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -98,7 +98,6 @@ GuiError::GuiError ()
     gtk_object_set_data (GTK_OBJECT (window), "window", window);
     gtk_widget_set_usize (window, 400, 320);
     gtk_window_set_title (GTK_WINDOW (window), "Error Console");
-    gtk_window_set_policy (GTK_WINDOW (window), FALSE, FALSE, FALSE);
     gtk_window_set_resizable (GTK_WINDOW (window), FALSE);
 
     vbox = gtk_vbox_new (FALSE, 0);

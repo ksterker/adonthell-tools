@@ -1,5 +1,5 @@
 /*
-   $Id: gui_settings.cc,v 1.2 2004/08/02 07:39:24 ksterker Exp $ 
+   $Id: gui_settings.cc,v 1.3 2007/08/11 14:05:41 ksterker Exp $ 
 
    Copyright (C) 2002/2003/2004 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -130,7 +130,6 @@ GuiSettings::GuiSettings ()
     gtk_widget_set_usize (window, 400, 320);
     gtk_window_set_title (GTK_WINDOW (window), "Settings");
     gtk_window_set_position (GTK_WINDOW (window), GTK_WIN_POS_CENTER);
-    gtk_window_set_policy (GTK_WINDOW (window), FALSE, FALSE, FALSE);
     gtk_window_set_resizable (GTK_WINDOW (window), FALSE);
 
     vbox = gtk_vbox_new (FALSE, 2);

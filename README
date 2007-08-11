@@ -1,7 +1,7 @@
 
 
-                          ADONTHELL TOOLS 0.4 
-                           
+                          ADONTHELL TOOLS 0.4
+
 
 License:
 ========
@@ -18,7 +18,7 @@ License:
 
    You should have received a copy of the GNU General Public License
    along with TYK; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place, Suite 330, Boston, 
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston,
    MA  02111-1307  USA
 
 
@@ -43,14 +43,9 @@ Contact:
 
 You can reach us in various ways:
 
-Email:         adonthell-project@linuxgames.com
-Mailing list:  adonthell-general@mail.freesoftware.fsf.org
+Mailing list:  adonthell-general@nongnu.org
 Web site:      http://adonthell.linuxgames.com
 Tech support:  http://savannah.nongnu.org/support/?group_id=702
-
-
-If you want to rate Adonthell, feel free to do so at
-    http://www.happypenguin.org/show?Adonthell
 
 
 Reporting Bugs:
@@ -58,8 +53,8 @@ Reporting Bugs:
 
 We hope you'll never have to, but if you discover a problem, we
 would like to hear about it. Please use the Development mailing list
-(adonthell-devel@mail.freesoftware.fsf.org) for that. You can 
-subscribe to the mailing lists at 
+(adonthell-devel@nongnu.org) for that. You can
+subscribe to the mailing lists at
 
     http://adonthell.linuxgames.com/contact/mailinglist.php
 
