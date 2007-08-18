@@ -1,5 +1,5 @@
 /*
-   $Id: dlg_compiler.h,v 1.2 2007/08/09 07:50:06 ksterker Exp $
+   $Id: dlg_compiler.h,v 1.3 2007/08/18 21:22:16 ksterker Exp $
 
    Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -32,6 +32,8 @@
 #include "dlg_module.h"
 #include "dlg_circle.h"
 
+#define NUM_OPS 33
+#define NUM_FXD 5
     
 /**
  * It transforms the dialogue into the Python script needed by
@@ -92,12 +94,13 @@ public:
 	    FIXED   = 33,
 	    VARIABLE= 34,
 	    CONSTANT= 35,
-	    NONE    = 36
+	    NONE    = 36,
+            LOCAL_VAR=37,
+            CHARACTER=38,
+            QUEST    =39,
+            UNKNOWN  =40
 	};
 
-	#define NUM_OPS 33
-	#define NUM_FXD 5
-	
     /**
      * Instantiate the compiler.
      * @param module Module to be compiled

@@ -1,7 +1,7 @@
 /*
-   $Id: dlg_compiler.cc,v 1.2 2007/08/09 07:50:06 ksterker Exp $
+   $Id: dlg_compiler.cc,v 1.3 2007/08/18 21:22:16 ksterker Exp $
 
-   Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
+   Copyright (C) 2002/2006 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
 
    Dlgedit is free software; you can redistribute it and/or modify
@@ -33,6 +33,8 @@
 #include "dlg_types.h"
 #include "dlg_arrow.h"
 #include "gui_error.h"
+
+#define _DEBUG_ 1
 
 // Operators that may appear in Python code
 std::string DlgCompiler::operators[NUM_OPS] = { "==", "!=", "<", "<=", ">", 
@@ -131,7 +133,8 @@ void DlgCompiler::run ()
 void DlgCompiler::writeHeader (const std::string &theClass)
 {
     // imports
-    file << "import dialogue\n";
+    file << "import dialogue\n"
+         << "from adonthell import rpg";
     
     // custom imports
     if (dialogue->entry ()->imports () != "")
@@ -313,13 +316,15 @@ std::string DlgCompiler::inflateCode (std::string code)
 {
     unsigned int i, begin = 0, pos, prefix, suffix;
     std::string token, stripped, last_op = "";
+    const std::string the_player("the_player");
+    const std::string the_npc("the_npc");
     bool is_local = true;
 
 #ifdef _DEBUG_
     std::cout << ">>> " << code << std::endl;
 #endif
     // replace the_npc/the_player with self.the_npc/self.the_player
-    pos = code.find ("the_npc", 0);
+    pos = code.find (the_npc, 0);
 
     while (pos != code.npos)
     {
@@ -329,10 +334,10 @@ std::string DlgCompiler::inflateCode (std::string code)
             pos += 5;
         }
 
-        pos = code.find ("the_npc", pos+7);
+        pos = code.find (the_npc, pos + the_npc.size());
     }
 
-    pos = code.find ("the_player", 0);
+    pos = code.find (the_player, 0);
 
     while (pos != code.npos)
     {
@@ -342,7 +347,7 @@ std::string DlgCompiler::inflateCode (std::string code)
             pos += 5;
         }
 
-        pos = code.find ("the_player", pos+10);
+        pos = code.find (the_player, pos + the_player.size());
     }
 
     // scan the string from left to right
@@ -362,7 +367,7 @@ std::string DlgCompiler::inflateCode (std::string code)
                 for (prefix = 0; prefix < token.length() && token[prefix] == ' '; prefix++);
                 for (suffix = token.length()-1; suffix >= 0 && token[suffix] == ' '; suffix--);
                 stripped = token.substr (prefix, suffix-prefix+1);
-
+                
                 // have to be careful with textual operators and keywords
                 if (i == BAND || i == BOR || i == NOT || i == RETURN ||
                     i == PASS || i == IF || i == ELIF || i == ELSE)
@@ -387,6 +392,44 @@ std::string DlgCompiler::inflateCode (std::string code)
                 }
 
                 // see whether we've got a variable and act accordingly
+                switch (getToken (stripped))
+                {
+                    // token is 'self'
+                    case LOCAL_VAR:
+                    {
+                        is_local = true;
+                        break;
+                    }
+                    // token is a character name
+                    case CHARACTER:
+                    {
+                        code.insert (begin+prefix+stripped.length(), "\")");
+                        code.insert (begin+prefix, "rpg.character.get_character(\"");
+
+                        is_local = false;
+                        pos += 31;
+                    
+                        break;
+                    }
+                    // token is a quest
+                    case QUEST:
+                    {
+                        // find end of quest
+                        
+                        break;
+                    }
+                    // token type cannot be determined
+                    case UNKNOWN:
+                    {
+                        break;
+                    }
+                    // all the rest
+                    default:
+                    {
+                        break;
+                    }
+                }
+                
                 if (getToken (stripped) == VARIABLE)
                 {
                     // make sure we don't have a local variable
@@ -409,12 +452,13 @@ std::string DlgCompiler::inflateCode (std::string code)
                         }
                     }
 
-                    // variable left of '.'
-                    if (i == ACCESS && last_op != ".")
+                    // variable left of '.', '==', '!=' or '=' might be a quest
+                    if (i == ACCESS || i == EQ || i == NEQ || i == ASSIGN)
                     {
                         // check whether we access the quest- or character array
                         if (dialogue->entry ()->isQuest (stripped))
                         {
+                            
                             code.insert (begin+prefix+stripped.length(), "\")");
                             code.insert (begin+prefix, "adonthell.gamedata_get_quest(\"");
                             pos += 32;
@@ -424,8 +468,8 @@ std::string DlgCompiler::inflateCode (std::string code)
                         if (dialogue->entry ()->isCharacter (stripped))
                         {
                             code.insert (begin+prefix+stripped.length(), "\")");
-                            code.insert (begin+prefix, "adonthell.gamedata_get_character(\"");
-                            pos += 36;
+                            code.insert (begin+prefix, "rpg.character.get_character(\"");
+                            pos += 31;
                             is_local = false;
                         }
                     }
@@ -434,7 +478,7 @@ std::string DlgCompiler::inflateCode (std::string code)
 
                 // these are shortcuts for access to the character array, so
                 // we handle them similar
-                if (stripped == "the_npc" || stripped == "the_player")
+                if (stripped == the_npc || stripped == the_player)
                     is_local = false;
 
                 // a trailing comma operator ends an expression
@@ -758,6 +802,10 @@ DlgCompiler::token DlgCompiler::getToken (const std::string &token)
         if (token == operators[i])
             return NONE;
 
+    // 'self'
+    if (token == "self")
+        return LOCAL_VAR;
+    
     // Fixed: (i.e. something that never needs expanding)
     for (i = 0; i < NUM_FXD; i++)
         if (token == fixed[i])
@@ -767,6 +815,12 @@ DlgCompiler::token DlgCompiler::getToken (const std::string &token)
     if (isdigit (token[0]) || (token[0] == '-' && isdigit (token[token.length()-1])))
         return CONSTANT;
 
-    // Variable:
-    return VARIABLE;
+    // character
+    if (dialogue->entry ()->isCharacter (token))
+        return CHARACTER;
+    
+    // quest
+    
+    // unknown token
+    return UNKNOWN;
 }
