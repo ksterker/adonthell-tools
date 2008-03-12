@@ -1,5 +1,5 @@
 /*
-   $Id: dlg_circle_entry.cc,v 1.1 2004/07/25 15:52:22 ksterker Exp $
+   $Id: dlg_circle_entry.cc,v 1.2 2008/03/12 21:21:19 ksterker Exp $
 
    Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -60,7 +60,7 @@ std::string DlgCircleEntry::text ()
 // set the dialogue text
 void DlgCircleEntry::setText (std::string t)
 {
-    unsigned int pos = 0;
+    unsigned long pos = 0;
     text_ = t;
 
     // Make text safe:
