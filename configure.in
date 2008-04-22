@@ -24,6 +24,12 @@ AC_PROG_CXX
 AC_PROG_CXXCPP
 AC_PROG_MAKE_SET
 
+dnl ****
+dnl i18n
+dnl ****
+
+AM_GNU_GETTEXT([external])
+
 dnl *********
 dnl Endianess
 dnl *********
@@ -208,7 +214,8 @@ fi
 AM_CONDITIONAL(PY_FRAMEWORK, test x$fw != x)
 
 
-AC_OUTPUT([
+AC_OUTPUT([ 
+po/Makefile.in
 Makefile
 src/Makefile
 src/dlgedit/Makefile

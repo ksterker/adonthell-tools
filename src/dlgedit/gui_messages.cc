@@ -1,5 +1,5 @@
 /*
-   $Id: gui_messages.cc,v 1.1 2004/07/25 15:52:23 ksterker Exp $
+   $Id: gui_messages.cc,v 1.2 2008/04/22 17:39:12 ksterker Exp $
 
    Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -65,7 +65,7 @@ GuiMessages::GuiMessages (GtkWidget *sb)
     
     messages[120]   = " Release LEFT mouse button to attach Arrow to this Circle";
     
-    messages[130]   = " All editing functions are disabled.  Press CTRL+P to leave preview mode";
+    messages[130]   = " All editing functions are disabled.  Press CTRL+V to leave preview mode";
             
     // Report Success
     messages[200]   = " Loading successful";
