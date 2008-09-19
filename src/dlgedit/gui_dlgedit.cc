@@ -1,5 +1,5 @@
 /*
-   $Id: gui_dlgedit.cc,v 1.4 2007/08/11 14:05:40 ksterker Exp $
+   $Id: gui_dlgedit.cc,v 1.5 2008/09/19 18:09:39 ksterker Exp $
 
    Copyright (C) 2002/2003 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -43,7 +43,7 @@
 #include <stdio.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <stdio.h>
+#include <cstring>
 #include "gettext.h"
 #include "cfg_data.h"
 #include "dlg_cmdline.h"
@@ -435,7 +435,7 @@ void GuiDlgedit::loadDialogue (const std::string &f)
     std::string filename = g_basename (file.c_str ());
     
     // remove file extension
-    unsigned int pos = filename.rfind (FILE_EXT);
+    unsigned long pos = filename.rfind (FILE_EXT);
     if (pos != filename.npos) filename.erase (pos);
 
     // the new dialogue
@@ -473,7 +473,7 @@ DlgModule* GuiDlgedit::loadSubdialogue (const std::string &file)
     std::string filename = g_basename (file.c_str ());
 
     // remove file extension
-    unsigned int pos = filename.rfind (FILE_EXT);
+    unsigned long pos = filename.rfind (FILE_EXT);
     if (pos != filename.npos) filename.erase (pos);
 
     // the sub-dialogue
@@ -538,7 +538,7 @@ void GuiDlgedit::saveDialogue (const std::string &file)
     std::string filename = g_basename (file.c_str ());
     
     // remove file extension
-    unsigned int pos = filename.rfind (FILE_EXT);
+    unsigned long pos = filename.rfind (FILE_EXT);
     if (pos != filename.npos) filename.erase (pos);
 
     // try to save file

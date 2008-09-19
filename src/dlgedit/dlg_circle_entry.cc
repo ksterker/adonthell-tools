@@ -1,5 +1,5 @@
 /*
-   $Id: dlg_circle_entry.cc,v 1.2 2008/03/12 21:21:19 ksterker Exp $
+   $Id: dlg_circle_entry.cc,v 1.3 2008/09/19 18:09:39 ksterker Exp $
 
    Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -30,6 +30,7 @@
 #include <config.h>
 #endif
 
+#include <cstring>
 #include <algorithm>
 #include "gettext.h"
 #include "gui_dlgedit.h"

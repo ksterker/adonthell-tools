@@ -1,5 +1,5 @@
 /*
-   $Id: dlg_module.cc,v 1.2 2007/08/09 07:50:06 ksterker Exp $
+   $Id: dlg_module.cc,v 1.3 2008/09/19 18:09:39 ksterker Exp $
 
    Copyright (C) 2002/2003 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -579,7 +579,7 @@ std::string DlgModule::relativeName ()
     std::string m_path = path_;             // module path
     std::string r_path = "";                // module's path relative to parent
     
-    unsigned int pos = 0;
+    unsigned long pos = 0;
     
     // find the part of the filename that matches
     while (pos < m_path.length () && pos < p_path.length () &&
@@ -604,7 +604,7 @@ std::string DlgModule::relativeName ()
     else
     {
         // sub-dialogue is in a different directory on a higher level
-        unsigned int i = pos;
+        unsigned long i = pos;
         while ((i = p_path.find ('/', i)) != p_path.npos) r_path += "../";
         r_path += m_path.substr (pos);
     }

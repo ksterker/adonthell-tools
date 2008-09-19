@@ -1,5 +1,5 @@
 /*
-   $Id: dlg_compiler.cc,v 1.3 2007/08/18 21:22:16 ksterker Exp $
+   $Id: dlg_compiler.cc,v 1.4 2008/09/19 18:09:39 ksterker Exp $
 
    Copyright (C) 2002/2006 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -28,6 +28,7 @@
 
 #include <iterator>
 #include <iostream>
+#include <cstring>
 #include "dlg_cmdline.h"
 #include "dlg_compiler.h"
 #include "dlg_types.h"
@@ -93,7 +94,7 @@ void DlgCompiler::run ()
     std::string fname = dialogue->fullName ();
 
     // remove the file extension
-    unsigned int pos = fname.rfind (FILE_EXT);
+    unsigned long pos = fname.rfind (FILE_EXT);
     if (pos != fname.npos) fname.erase (pos);
 
     // try to open the file
@@ -314,7 +315,8 @@ std::string DlgCompiler::splitCode (std::string code, int space)
 
 std::string DlgCompiler::inflateCode (std::string code)
 {
-    unsigned int i, begin = 0, pos, prefix, suffix;
+    unsigned long pos, begin = 0;
+    unsigned int i, prefix, suffix;
     std::string token, stripped, last_op = "";
     const std::string the_player("the_player");
     const std::string the_npc("the_npc");

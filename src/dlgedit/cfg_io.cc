@@ -1,5 +1,5 @@
 /*
-   $Id: cfg_io.cc,v 1.4 2007/08/09 14:41:22 ksterker Exp $
+   $Id: cfg_io.cc,v 1.5 2008/09/19 18:09:39 ksterker Exp $
 
    Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -27,6 +27,7 @@
  */
 
 #include <stdio.h>
+#include <cstdlib>
 #include <glib/gstdio.h>
 #include "cfg_io.h"
 #include "dlg_types.h"

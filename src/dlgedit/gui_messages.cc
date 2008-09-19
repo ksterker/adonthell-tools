@@ -1,5 +1,5 @@
 /*
-   $Id: gui_messages.cc,v 1.2 2008/04/22 17:39:12 ksterker Exp $
+   $Id: gui_messages.cc,v 1.3 2008/09/19 18:09:39 ksterker Exp $
 
    Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -115,7 +115,7 @@ void GuiMessages::display (int id, const char* text)
     if (id == current) return;
     
     std::string message (messages[id]);
-    unsigned int pos = message.find ("%s");
+    unsigned long pos = message.find ("%s");
     
     // insert text into the message
     if (pos != message.npos)
