@@ -17,7 +17,7 @@ License:
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with TYK; if not, write to the Free Software
+   along with Adonthell Tools; if not, write to the Free Software
    Foundation, Inc., 59 Temple Place, Suite 330, Boston,
    MA  02111-1307  USA
 
@@ -33,7 +33,11 @@ About:
 
 This package contains various tools required to create game content
 for the Adonthell Role Playing Game Engine. For related documentation
-check the adonthell-doc package or the Adonthell website:
+check the Adonthelli Documentation Wiki
+
+    http://adonthell.berlios.de/doc/
+
+or the Adonthell website:
 
     http://adonthell.linuxgames.com/download/documentation.php
 
@@ -56,7 +60,7 @@ would like to hear about it. Please use the Development mailing list
 (adonthell-devel@nongnu.org) for that. You can
 subscribe to the mailing lists at
 
-    http://adonthell.linuxgames.com/contact/mailinglist.php
+    http://adonthell.linuxgames.com/contact/mailinglist.shtml
 
 
 Thank you for trying this software.
