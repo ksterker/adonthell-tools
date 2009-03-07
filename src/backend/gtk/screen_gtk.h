@@ -1,5 +1,5 @@
 /*
- $Id: screen_gtk.h,v 1.1 2009/03/06 22:59:46 ksterker Exp $
+ $Id: screen_gtk.h,v 1.2 2009/03/07 19:22:35 ksterker Exp $
  
  Copyright (C) 2009 Kai Sterker <kai.sterker@gmail.com>
  Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -49,12 +49,12 @@ public:
     
     void resize (u_int16 l, u_int16 h) 
     { 
-        fprintf (stderr, "Invalid operation: Can't resize the screen surface!\n"); 
+        fprintf (stderr, "*** screen::resize: Invalid operation: Can't resize the screen surface!\n"); 
     }
 
     void clear () 
     { 
-        fprintf (stderr, "Invalid operation: Can't clear the screen surface!\n"); 
+        fprintf (stderr, "*** screen::clear: Invalid operation: Can't clear the screen surface!\n"); 
     }
     
     void set_window (GdkWindow *wnd) 
@@ -70,7 +70,9 @@ public:
 protected:
     virtual cairo_t *create_drawing_context() const
     {
-        return gdk_cairo_create (GDK_DRAWABLE(Window));
+        if (Window) return gdk_cairo_create (GDK_DRAWABLE(Window));
+        fprintf (stderr, "*** screen::create_drawing_context: No window to draw on!\n");
+        return NULL;
     }
 
 private:
@@ -84,4 +86,4 @@ private:
 /// the "screen" instance
 extern gfx::screen_surface_gtk *display;
 
-#endif // GFX_SDL_SCREEN_H_
+#endif // GFX_GTK_SCREEN_H

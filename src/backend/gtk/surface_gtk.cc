@@ -1,5 +1,5 @@
 /*
-    $Id: surface_gtk.cc,v 1.1 2009/03/06 22:59:46 ksterker Exp $
+    $Id: surface_gtk.cc,v 1.2 2009/03/07 19:22:35 ksterker Exp $
 
     Copyright (C) 2009 Kai Sterker <kai.sterker@gmail.com>
     Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -22,9 +22,8 @@
 
 #include <iostream>
 
-#include "gfx/screen.h"
 #include "surface_gtk.h"
-// #include "screen_gtk.h"
+#include "screen_gtk.h"
 
 using gfx::surface_gtk;
 
@@ -65,14 +64,17 @@ void surface_gtk::set_mask (bool m)
     if (m != is_masked ())
     {
         is_masked_ = m;
+        
         // prepare mask
-        create_mask ();
-    }
-    
-    if (mask)
-    {
-        cairo_surface_destroy (mask);
-        mask = NULL;
+        if (m)
+        {
+            create_mask ();
+        }
+        else
+        {
+            cairo_surface_destroy (mask);
+            mask = NULL;
+        }
     }
 }
 
@@ -101,21 +103,17 @@ void surface_gtk::draw (s_int16 x, s_int16 y, s_int16 sx, s_int16 sy, u_int16 sl
                         u_int16 sh, const drawing_area * da_opt,
                         surface * target) const
 { 
-    if (target == NULL)
-    {
-        fprintf (stderr, "*** surface_gtk::draw: no target specified!\n");
-        return;
-    }
-    
-    const surface_gtk * target_gtk = (const surface_gtk *) target;
+    // create target drawing context
+    const surface_gtk * target_gtk;
+    if (target == NULL) target_gtk = (const surface_gtk *) display;
+    else target_gtk = (const surface_gtk *) target;
+    cairo_t *cr = target_gtk->create_drawing_context();
 
     // prepare clipping rectangles
     setup_rects (x, y, sx, sy, sl, sh, da_opt); 
     if (!dstrect.length() || !dstrect.height())
         return;
 
-    // create target drawing context
-    cairo_t *cr = target_gtk->create_drawing_context();
     cairo_push_group (cr);
     
     // we'll have two distinct drawing operations
@@ -137,18 +135,21 @@ void surface_gtk::draw (s_int16 x, s_int16 y, s_int16 sx, s_int16 sy, u_int16 sl
     {
         // draw per-surface alpha
         cairo_paint_with_alpha (cr, alpha()/255.0);
+        cairo_pop_group_to_source (cr);
     }
     else if (!is_masked())
     {
         // draw per-pixel alpha
         cairo_paint (cr);        
+        cairo_pop_group_to_source (cr);
     }
-    
-    cairo_pop_group_to_source (cr);
-    
+        
     // draw clipped source to target
     cairo_rectangle (cr, srcrect.x(), srcrect.y(), srcrect.length(), srcrect.height());
-    cairo_fill (cr);        
+    cairo_fill (cr);       
+    
+    // cleanup
+    cairo_destroy (cr);
 }
 
 // fill a rectangle with given color
@@ -308,7 +309,6 @@ void surface_gtk::resize (u_int16 l, u_int16 h)
     if (l == length () && h == height ()) return;
 
     if (vis) cairo_surface_destroy (vis);
-    if (mask) cairo_surface_destroy (mask);
 
     set_length (l);
     set_height (h); 
@@ -317,7 +317,7 @@ void surface_gtk::resize (u_int16 l, u_int16 h)
     cairo_format_t format = alpha_channel_ ? CAIRO_FORMAT_ARGB32 : CAIRO_FORMAT_RGB24;
 
     vis = cairo_image_surface_create (format, l, h);        
-    mask = NULL;
+    if (is_masked()) create_mask ();
 }
 
 // mirror this surface
@@ -352,7 +352,6 @@ void surface_gtk::mirror (bool x, bool y)
         // update mask
         if (mask)
         {
-            cairo_surface_destroy (mask);
             create_mask ();
         }
     }
@@ -400,14 +399,12 @@ bool surface_gtk::put_png (std::ofstream & file) const
 // create a mask for the surface
 void surface_gtk::create_mask ()
 {
+    if (mask) cairo_surface_destroy (mask);
+    
     mask = cairo_image_surface_create (CAIRO_FORMAT_A8, length(), height());
     u_int8 *mask_data = cairo_image_surface_get_data (mask);
     
-    u_int32 mask_color = map_color (
-            gfx::screen::TRANS_RED, 
-            gfx::screen::TRANS_BLUE, 
-            gfx::screen::TRANS_GREEN,
-            0xFF);
+    u_int32 mask_color = gfx::screen::trans_color ();
 
     cairo_surface_flush (mask);
     cairo_surface_flush (vis);
@@ -417,7 +414,7 @@ void surface_gtk::create_mask ()
         for (int h = 0; h < height(); h++)
         {
             u_int32 color = get_pix (l, h);
-            if (color != mask_color) mask_data[l*length()+l] = 255;
+            if (color != mask_color) mask_data[h*length()+l] = 255;
         }
     }
     

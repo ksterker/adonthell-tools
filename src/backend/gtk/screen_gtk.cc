@@ -1,5 +1,5 @@
 /*
- $Id: screen_gtk.cc,v 1.1 2009/03/06 22:59:46 ksterker Exp $
+ $Id: screen_gtk.cc,v 1.2 2009/03/07 19:22:34 ksterker Exp $
  
  Copyright (C) 2009 Kai Sterker <kai.sterker@gmail.com>
  Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -61,7 +61,7 @@ u_int32 gfx_screen_trans_color()
 
 void gfx_screen_clear()
 {
-    // TODO
+    display->fillrect (0, 0, display->length(), display->height(), 0xFF000000);
 }
 
 gfx::surface * gfx_screen_get_surface()
