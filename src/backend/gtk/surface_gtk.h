@@ -1,5 +1,5 @@
 /*
-   $Id: surface_gtk.h,v 1.1 2009/03/06 22:59:46 ksterker Exp $
+   $Id: surface_gtk.h,v 1.2 2009/03/08 11:16:56 ksterker Exp $
  
    Copyright (C) 2009 Kai Sterker <kai.sterker@gmail.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -105,7 +105,7 @@ namespace gfx
         /**
          *
          */
-        void surface_gtk::create_mask ();
+        void create_mask ();
         
         /** 
          * Used internally for blitting operations with drawing_areas.

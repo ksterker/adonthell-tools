@@ -1,10 +1,48 @@
 ## Process this file with automake to produce Makefile.in
 
-noinst_PROGRAMS = dlgedit
-
 # SUBDIRS = examples
 
 EXTRA_DIST = loadlg.l loadcfg.l
+
+noinst_PROGRAMS = dlgedit
+
+noinst_HEADERS = \
+    cfg_data.h \
+    cfg_io.h \
+    cfg_project.h \
+    dlg_arrow.h \
+    dlg_circle.h \
+    dlg_circle_entry.h \
+    dlg_cmdline.h \
+    dlg_compiler.h \
+    dlg_module.h \
+    dlg_module_entry.h \
+    dlg_mover.h \
+    dlg_node.h \
+    dlg_node_gfx.h \
+    dlg_point.h \
+    dlg_rect.h \
+    dlg_types.h \
+    gettext.h \
+    gui_circle.h \
+    gui_circle_events.h \
+    gui_code.h \
+    gui_dlgedit.h \
+    gui_dlgedit_events.h \
+    gui_edit.h \
+    gui_error.h \
+    gui_file.h \
+    gui_graph.h \
+    gui_graph_events.h \
+    gui_list.h \
+    gui_list_events.h \
+    gui_messages.h \
+    gui_modal_dialog.h \
+    gui_resources.h \
+    gui_settings.h \
+    gui_tooltip.h \
+    gui_tree.h \
+    kb_traverse.h
 
 dlgedit_SOURCES = \
     cfg_data.cc \
@@ -43,47 +81,9 @@ dlgedit_SOURCES = \
     kb_traverse.cc \
     lex.loadcfg.cc \
     lex.loadlg.cc \
-    main.cc \
-    cfg_data.h \
-    cfg_io.h \
-    cfg_project.h \
-    dlg_arrow.h \
-    dlg_circle.h \
-    dlg_circle_entry.h \
-    dlg_cmdline.h \
-    dlg_compiler.h \
-    dlg_module.h \
-    dlg_module_entry.h \
-    dlg_mover.h \
-    dlg_node.h \
-    dlg_node_gfx.h \
-    dlg_point.h \
-    dlg_rect.h \
-    dlg_types.h \
-    gettext.h \
-    gui_circle.h \
-    gui_circle_events.h \
-    gui_code.h \
-    gui_dlgedit.h \
-    gui_dlgedit_events.h \
-    gui_edit.h \
-    gui_error.h \
-    gui_file.h \
-    gui_graph.h \
-    gui_graph_events.h \
-    gui_list.h \
-    gui_list_events.h \
-    gui_messages.h \
-    gui_modal_dialog.h \
-    gui_resources.h \
-    gui_settings.h \
-    gui_tooltip.h \
-    gui_tree.h \
-    kb_traverse.h
+    main.cc
 
-# Evil, but it works...
-AM_CPPFLAGS = -D_VERSION_=\"0.9pre\" $(GTK_CFLAGS) $(ADONTHELL_CFLAGS)
-
+dlgedit_CXXFLAGS = -D_VERSION_=\"0.9pre\" $(GTK_CFLAGS) $(ADONTHELL_CFLAGS)
 dlgedit_LDADD = $(GTK_LIBS) $(ADONTHELL_LIBS)
 
 lex.loadlg.cc: $(top_srcdir)/src/dlgedit/loadlg.l
