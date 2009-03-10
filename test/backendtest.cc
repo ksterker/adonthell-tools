@@ -1,5 +1,5 @@
  /*
-   $Id: backendtest.cc,v 1.1 2009/03/06 22:59:47 ksterker Exp $
+   $Id: backendtest.cc,v 1.2 2009/03/10 11:21:58 ksterker Exp $
 
    Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -19,6 +19,7 @@
    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+#include <unistd.h>
 #include <gtk/gtk.h>
 
 #include <base/base.h>

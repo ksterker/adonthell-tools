@@ -37,6 +37,7 @@ dnl *********
 AC_C_BIGENDIAN(CXXFLAGS="$CXXFLAGS -DBIG_ENDIAN", :, :)
 AC_LIBTOOL_DLOPEN
 AC_LIBLTDL_CONVENIENCE
+AC_LIBTOOL_WIN32_DLL
 AC_PROG_LIBTOOL
 AC_SUBST(LIBLTDL)
 CPPFLAGS="$CPPFLAGS $INCLTDL"
@@ -72,7 +73,7 @@ dnl *****************
 dnl Cairo
 dnl *****************
 
-PKG_CHECK_MODULES(CAIRO, [cairo >= 1.6.0])
+PKG_CHECK_MODULES(CAIRO, [cairo >= 1.2.6])
 AC_SUBST(CAIRO_CFLAGS)
 AC_SUBST(CAIRO_LIBS)
 
@@ -116,7 +117,8 @@ if test "x$pycflags" = xnone; then
    changequote(<<, >>)
    PYINCLUDE=`$PYTHON -c 'import sys ; print "%s/include/python%s" % (sys.prefix, sys.version[:3])'`
    changequote([, ])
-
+   PYINCLUDE=`echo "$PYINCLUDE" | sed 's/\\\/\//g'`
+   
    if test -r "$PYINCLUDE/Python.h"; then
       PY_CFLAGS="-I$PYINCLUDE"
       AC_SUBST(PY_CFLAGS)
@@ -143,7 +145,7 @@ if test "x$pylibs" = xnone; then
 
    dnl look for a framework build of python first
    fw=`echo "$PYPREFIX" | sed 's/.*\(Python\.framework\).*/\1/;'`
-   if test "x$fw" != x; then
+   if test "x$fw" != x$PYPREFIX; then
        PY_LIBS="-framework Python"
        PY_FWDIR="$PYPREFIX/lib/python$PYLIBVER/site-packages"
        PY_SPDIR="$libdir/python$PYLIBVER/site-packages"
