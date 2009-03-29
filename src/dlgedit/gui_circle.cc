@@ -1,5 +1,5 @@
 /*
-   $Id: gui_circle.cc,v 1.2 2007/08/11 14:05:40 ksterker Exp $ 
+   $Id: gui_circle.cc,v 1.3 2009/03/29 12:27:25 ksterker Exp $ 
 
    Copyright (C) 2002/2004/2007 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -30,7 +30,7 @@
  * @brief The Edit Circle window
  */
 
-GuiCircle::GuiCircle (node_type *t, DlgCircleEntry *e, DlgModuleEntry *dme) : GuiModalDialog ()
+GuiCircle::GuiCircle (GtkWindow *parent, node_type *t, DlgCircleEntry *e, DlgModuleEntry *dme) : GuiModalDialog (parent)
 {
     entry = e;
     type = t;

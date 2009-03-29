@@ -1,55 +1,52 @@
 /*
-   $Id: dlg_cmdline.cc,v 1.2 2009/03/29 12:27:25 ksterker Exp $
+   $Id: map_cmdline.cc,v 1.1 2009/03/29 12:27:27 ksterker Exp $
    
-   Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
+   Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
 
-   Dlgedit is free software; you can redistribute it and/or modify
+   Mapedit is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
    (at your option) any later version.
 
-   Dlgedit is distributed in the hope that it will be useful,
+   Mapedit is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with Dlgedit; if not, write to the Free Software 
+   along with Mapedit; if not, write to the Free Software 
    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 /** 
- * @file dlg_cmdline.cc
+ * @file mapedit/map_cmdline.cc
  *
  * @author Kai Sterker
- * @brief Methods to parse the dlgedit commandline.
+ * @brief Methods to parse the mapedit command line.
  */
  
 #include <iostream> 
 #include <dirent.h>
 #include <unistd.h>
-#include "dlg_cmdline.h"
-
-// flag indicating whether to compile the given scripts
-bool DlgCmdline::compile = false;
+#include "map_cmdline.h"
 
 // the directory to look for project files
-std::string DlgCmdline::datadir = DATA_DIR"/games";
+std::string MapCmdline::datadir = DATA_DIR"/games";
 
 // the default project
-std::string DlgCmdline::project = "none";
+std::string MapCmdline::project = "";
 
 // index of the first dialgoue source in argv[]
-int DlgCmdline::sources;
+int MapCmdline::sources;
 
 // examine the parameters passed to dlgedit
-bool DlgCmdline::parse (int argc, char* argv[])
+bool MapCmdline::parse (int argc, char* argv[])
 {
     int c;
     
     // Check for options
-    while ((c = getopt (argc, argv, "cdhvg:p:")) != -1)
+    while ((c = getopt (argc, argv, "dhvg:p:")) != -1)
     {
         switch (c)
         {
@@ -65,12 +62,6 @@ bool DlgCmdline::parse (int argc, char* argv[])
                 return false; 
             }
                 
-            case 'c':
-            {
-                compile = true;
-                break;
-            }
-            
             case 'p':
             {
                 project = optarg;
@@ -111,7 +102,7 @@ bool DlgCmdline::parse (int argc, char* argv[])
 }
 
 // prints the help message
-void DlgCmdline::help (const std::string &program)
+void MapCmdline::help (const std::string &program)
 {
     std::cout << "Usage: " << program << " [OPTIONS] [SOURCES]" << std::endl;
     std::cout << std::endl;
@@ -119,7 +110,6 @@ void DlgCmdline::help (const std::string &program)
     std::cout << "-h         print this help message and exit" << std::endl; 
     std::cout << "-d         print the project directory and exit" << std::endl; 
     std::cout << "-v         print version and exit" << std::endl; 
-    std::cout << "-c         compile all SOURCES and exit" << std::endl;
     std::cout << "-g dir     specify a custom project directory" << std::endl;
     std::cout << "-p project specify a default project" << std::endl;
 }

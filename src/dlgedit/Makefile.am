@@ -31,13 +31,11 @@ noinst_HEADERS = \
     gui_dlgedit_events.h \
     gui_edit.h \
     gui_error.h \
-    gui_file.h \
     gui_graph.h \
     gui_graph_events.h \
     gui_list.h \
     gui_list_events.h \
     gui_messages.h \
-    gui_modal_dialog.h \
     gui_resources.h \
     gui_settings.h \
     gui_tooltip.h \
@@ -67,13 +65,11 @@ dlgedit_SOURCES = \
     gui_dlgedit_events.cc \
     gui_edit.cc \
     gui_error.cc \
-    gui_file.cc \
     gui_graph.cc \
     gui_graph_events.cc \
     gui_list.cc \
     gui_list_events.cc \
     gui_messages.cc \
-    gui_modal_dialog.cc \
     gui_resources.cc \
     gui_settings.cc \
     gui_tooltip.cc \
@@ -83,8 +79,9 @@ dlgedit_SOURCES = \
     lex.loadlg.cc \
     main.cc
 
+INCLUDES = -I@top_srcdir@/src/common
 dlgedit_CXXFLAGS = -D_VERSION_=\"0.9pre\" $(GTK_CFLAGS) $(ADONTHELL_CFLAGS)
-dlgedit_LDADD = $(GTK_LIBS) $(ADONTHELL_LIBS)
+dlgedit_LDADD = ../common/libcommon.a $(GTK_LIBS) $(ADONTHELL_LIBS)
 
 lex.loadlg.cc: $(top_srcdir)/src/dlgedit/loadlg.l
 	flex -olex.loadlg.cc $<

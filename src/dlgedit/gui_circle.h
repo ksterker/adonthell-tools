@@ -1,5 +1,5 @@
 /*
-   $Id: gui_circle.h,v 1.1 2004/07/25 15:52:23 ksterker Exp $ 
+   $Id: gui_circle.h,v 1.2 2009/03/29 12:27:25 ksterker Exp $ 
 
    Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -47,11 +47,12 @@ class GuiCircle : public GuiModalDialog
 public:
     /**
      * Open the "Edit Dialogue Node" dialog. 
+     * @param parent The parent of the dialog
      * @param type The type of the circle to display (NPC, PLAYER or NARRATOR)
      * @param entry The contents of the circle
      * @param dme The contents of the dialogue
      */
-    GuiCircle (node_type *type, DlgCircleEntry *entry, DlgModuleEntry *dme);
+    GuiCircle (GtkWindow *parent, node_type *type, DlgCircleEntry *entry, DlgModuleEntry *dme);
 
     /**
      * Apply the values entered in the dialogue to the edited node. This

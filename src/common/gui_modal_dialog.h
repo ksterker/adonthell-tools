@@ -1,5 +1,5 @@
 /*
-   $Id: gui_modal_dialog.h,v 1.2 2004/08/02 07:39:24 ksterker Exp $
+   $Id: gui_modal_dialog.h,v 1.1 2009/03/29 12:27:25 ksterker Exp $
 
    Copyright (C) 2002/2004 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -39,8 +39,10 @@ class GuiModalDialog
 public:
     /**
      * Initialize the dialog window.
+     * @param p parent of the dialog.
      */
-    GuiModalDialog ();
+    GuiModalDialog (GtkWindow *p);
+    
     /*
      * Destroy the dialog window.
      */
@@ -65,8 +67,12 @@ public:
     GtkWidget *getWindow ()             { return window; }
 
 protected:
-    bool pressedOK;                 // whether the Cancel or OK button has been pushed
-    GtkWidget *window;              // the dialog window
+    /// whether the Cancel or OK button has been pushed
+    bool pressedOK;                 
+    /// the dialog window
+    GtkWidget *window;              
+    /// parent of the dialog.
+    GtkWindow *parent;
 };
 
 #endif // GUI_MODAL_DIALOG_H

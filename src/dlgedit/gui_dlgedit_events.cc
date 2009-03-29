@@ -1,5 +1,5 @@
 /*
-   $Id: gui_dlgedit_events.cc,v 1.3 2007/08/09 07:50:06 ksterker Exp $
+   $Id: gui_dlgedit_events.cc,v 1.4 2009/03/29 12:27:25 ksterker Exp $
    
    Copyright (C) 1999/2002/2004 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -48,7 +48,9 @@ void on_file_new_activate (GtkMenuItem * menuitem, gpointer user_data)
 void on_file_load_activate (GtkMenuItem * menuitem, gpointer user_data)
 {
     GuiDlgedit *dlgedit = (GuiDlgedit *) user_data;
-    GuiFile fs (GTK_FILE_CHOOSER_ACTION_OPEN, "Load dialogue source", dlgedit->directory ());
+    GtkWindow *parent = (GtkWindow *) dlgedit->getWindow ();
+
+    GuiFile fs (parent, GTK_FILE_CHOOSER_ACTION_OPEN, "Load dialogue source", dlgedit->directory ());
     fs.add_filter ("*"FILE_EXT, "Adonthell Dialogue Source");
 
     // File selection closed with OK
@@ -70,7 +72,9 @@ void on_file_load_recent_activate (GtkMenuItem * menuitem, gpointer user_data)
 void on_file_save_as_activate (GtkMenuItem * menuitem, gpointer user_data)
 {
     GuiDlgedit *dlgedit = (GuiDlgedit *) user_data;
-    GuiFile fs (GTK_FILE_CHOOSER_ACTION_SAVE, "Save dialogue source", dlgedit->filename ());
+    GtkWindow *parent = (GtkWindow *) dlgedit->getWindow ();
+
+    GuiFile fs (parent, GTK_FILE_CHOOSER_ACTION_SAVE, "Save dialogue source", dlgedit->filename ());
     fs.add_filter ("*"FILE_EXT, "Adonthell Dialogue Source");
 
     // File selection closed with OK
@@ -126,7 +130,9 @@ void on_dialogue_functions_activate (GtkMenuItem * menuitem, gpointer user_data)
 void on_dialogue_preview_activate (GtkMenuItem * menuitem, gpointer user_data)
 {
     GuiDlgedit *dlgedit = (GuiDlgedit *) user_data;
-    GuiFile fs (GTK_FILE_CHOOSER_ACTION_OPEN, "Select translation", dlgedit->directory ());
+    GtkWindow *parent = (GtkWindow *) dlgedit->getWindow ();
+
+    GuiFile fs (parent, GTK_FILE_CHOOSER_ACTION_OPEN, "Select translation", dlgedit->directory ());
     fs.add_filter ("*.mo", "Gettext Message Catalogue");
     
     // start translation preview

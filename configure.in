@@ -23,6 +23,7 @@ AC_PROG_LN_S
 AC_PROG_CXX
 AC_PROG_CXXCPP
 AC_PROG_MAKE_SET
+AC_PROG_RANLIB
 
 dnl ****
 dnl i18n
@@ -212,7 +213,9 @@ po/Makefile.in
 Makefile
 src/Makefile
 src/backend/Makefile
+src/common/Makefile
 src/dlgedit/Makefile
+src/mapedit/Makefile
 src/questedit/Makefile
 test/Makefile
 ])

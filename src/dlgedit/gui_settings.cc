@@ -1,5 +1,5 @@
 /*
-   $Id: gui_settings.cc,v 1.3 2007/08/11 14:05:41 ksterker Exp $ 
+   $Id: gui_settings.cc,v 1.4 2009/03/29 12:27:26 ksterker Exp $ 
 
    Copyright (C) 2002/2003/2004 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -58,7 +58,8 @@ void on_browse_basedir_clicked (GtkButton * button, gpointer user_data)
     // otherwise revert to directory last opened
     if (dir == "") dir = GuiDlgedit::window->directory ();
     
-    GuiFile fs (GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER, "Select base directory", dir + "/");
+    GtkWindow *parent = GTK_WINDOW (GuiDlgedit::window->getWindow());
+    GuiFile fs (parent, GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER, "Select base directory", dir + "/");
 
     // File selection closed with OK
     if (fs.run ())

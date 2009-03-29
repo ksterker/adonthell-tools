@@ -1,5 +1,5 @@
 /*
-   $Id: gui_file.h,v 1.2 2004/08/02 07:39:24 ksterker Exp $
+   $Id: gui_file.h,v 1.1 2009/03/29 12:27:25 ksterker Exp $
 
    Copyright (C) 2002/2004 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -20,7 +20,7 @@
 */
 
 /**
- * @file gui_file.h
+ * @file common/gui_file.h
  *
  * @author Kai Sterker
  * @brief Wrapper for the GtkFileSelection widget
@@ -30,18 +30,46 @@
 #include "gui_modal_dialog.h"
 
 /**
- * A C++ interfact to GTK's file selection dialog.
+ * A C++ interface to GTK's file selection dialog.
  */
 class GuiFile : public GuiModalDialog
 {
 public:
-    GuiFile (GtkFileChooserAction action, const std::string &file, const std::string &title);
+    /**
+     * Create a new file selection dialog.
+     * @param parent the parent window for the dialog.
+     * @param action type of file dialog.
+     * @param file name of default file.
+     * @param title the dialog title.
+     */
+    GuiFile (GtkWindow *parent, GtkFileChooserAction action, const std::string &file, const std::string &title);
+    
+    /**
+     * Cleanup.
+     */
     ~GuiFile ();
 
+    /**
+     * Show the dialog.
+     * @return true if closed with okay, false otherwise.
+     */
     bool run ();
+    
+    /**
+     * Add a filter to limit the files that will be visible and
+     * selectable by the user.
+     * @param pattern only show files matching the pattern.
+     * @param name name of the filter.
+     */
     void add_filter (const std::string & pattern, const std::string & name);
-    std::string getSelection ()           { return File; }
+    
+    /**
+     * Return the users selection.
+     * @param the users selection.
+     */
+    std::string getSelection () const          { return File; }
 
 private:
-    std::string File;              // the file the user has selected
+    /// the file the user has selected
+    std::string File;             
 };

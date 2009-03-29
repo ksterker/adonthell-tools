@@ -1,5 +1,5 @@
 /*
-   $Id: gui_modal_dialog.cc,v 1.2 2007/08/11 14:05:41 ksterker Exp $
+   $Id: gui_modal_dialog.cc,v 1.1 2009/03/29 12:27:25 ksterker Exp $
 
    Copyright (C) 2002/2007 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -27,12 +27,12 @@
  */
 
 #include <gtk/gtk.h>
-#include "gui_dlgedit.h"
 #include "gui_modal_dialog.h"
 
 // ctor
-GuiModalDialog::GuiModalDialog ()
+GuiModalDialog::GuiModalDialog (GtkWindow *p)
 {
+    parent = p;
     pressedOK = false;
     window = NULL;
 }
@@ -50,7 +50,7 @@ GuiModalDialog::~GuiModalDialog ()
 // displays the dialog window
 bool GuiModalDialog::run ()
 {
-    gtk_window_set_transient_for (GTK_WINDOW (window), GTK_WINDOW (GuiDlgedit::window->getWindow ()));
+    gtk_window_set_transient_for (GTK_WINDOW (window), GTK_WINDOW (parent));
     gtk_widget_show (GTK_WIDGET (window));
     gtk_main ();
 

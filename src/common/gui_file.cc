@@ -1,15 +1,15 @@
 /*
-   $Id: gui_file.cc,v 1.2 2004/08/02 07:39:24 ksterker Exp $
+   $Id: gui_file.cc,v 1.1 2009/03/29 12:27:25 ksterker Exp $
 
    Copyright (C) 2002/2004 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
 
-   Dlgedit is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
+   The Adonthell Tools are free software; you can redistribute them and/or modify
+   them under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
    (at your option) any later version.
 
-   Dlgedit is distributed in the hope that it will be useful,
+   The Adonthell Tools are distributed in the hope that they will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
@@ -20,19 +20,18 @@
 */
 
 /**
- * @file gui_file.cc
+ * @file common/gui_file.cc
  *
  * @author Kai Sterker
  * @brief Wrapper for the GtkFileChooser widget
  */
 
 #include <gtk/gtk.h>
-#include "cfg_data.h"
 #include "gui_file.h"
-#include "gui_dlgedit.h"
 
 // create a new file selection window
-GuiFile::GuiFile (GtkFileChooserAction action, const std::string &title, const std::string &file) : GuiModalDialog ()
+GuiFile::GuiFile (GtkWindow *parent, GtkFileChooserAction action, const std::string &title, const std::string &file) 
+: GuiModalDialog (parent)
 {
     gchar *label;
     
@@ -51,7 +50,6 @@ GuiFile::GuiFile (GtkFileChooserAction action, const std::string &title, const s
         default: label = GTK_STOCK_OPEN;
     }
     
-    GtkWindow *parent = (GtkWindow *) GuiDlgedit::window->getWindow ();
     window = gtk_file_chooser_dialog_new (title.c_str (), parent, action,
         GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, label, GTK_RESPONSE_ACCEPT, NULL);
     
@@ -67,6 +65,9 @@ GuiFile::GuiFile (GtkFileChooserAction action, const std::string &title, const s
         g_free (name);
     }
     
+    /*
+    FIXME: that uses code from dlgedit. Needs to be more generic.
+     
     // set shortcuts
     const std::vector<std::string> & projects = CfgData::data->projectsFromDatadir ();
     for (std::vector<std::string>::const_iterator i = projects.begin (); i != projects.end (); i++)
@@ -75,6 +76,7 @@ GuiFile::GuiFile (GtkFileChooserAction action, const std::string &title, const s
         if (dir.length () > 0) 
             gtk_file_chooser_add_shortcut_folder (GTK_FILE_CHOOSER(window), dir.c_str (), NULL);
     }
+    */
 }
 
 // clean up

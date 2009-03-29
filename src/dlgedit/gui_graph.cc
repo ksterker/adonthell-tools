@@ -1,5 +1,5 @@
 /*
-   $Id: gui_graph.cc,v 1.2 2004/08/02 07:39:24 ksterker Exp $
+   $Id: gui_graph.cc,v 1.3 2009/03/29 12:27:26 ksterker Exp $
 
    Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -228,7 +228,8 @@ bool GuiGraph::newModule (DlgPoint &point)
     if (dir == "") dir = GuiDlgedit::window->directory ();
     
     // allow the user to select a module
-    GuiFile fs = GuiFile (GTK_FILE_CHOOSER_ACTION_OPEN, "Select sub-dialogue to add", dir + "/");
+    GtkWindow *parent = GTK_WINDOW (GuiDlgedit::window->getWindow());
+    GuiFile fs = GuiFile (parent, GTK_FILE_CHOOSER_ACTION_OPEN, "Select sub-dialogue to add", dir + "/");
     fs.add_filter ("*"FILE_EXT, "Adonthell Dialogue Source");
 
     if (fs.run ())
@@ -529,7 +530,8 @@ bool GuiGraph::editNode ()
     // if we have a circle, open edit dialog
     if (selected && selected->type () != LINK)
     {
-        GuiCircle edit (&selected->type (), ((DlgCircle *) selected)->entry (), module->entry ());
+        GtkWindow *parent = GTK_WINDOW (GuiDlgedit::window->getWindow());
+        GuiCircle edit (parent, &selected->type (), ((DlgCircle *) selected)->entry (), module->entry ());
 
 	    // editing aborted?
 	    if (!edit.run ()) return false;
