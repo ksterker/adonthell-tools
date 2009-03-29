@@ -1,5 +1,5 @@
 /*
-   $Id: gui_settings.cc,v 1.4 2009/03/29 12:27:26 ksterker Exp $ 
+   $Id: gui_settings.cc,v 1.5 2009/03/29 19:35:00 ksterker Exp $ 
 
    Copyright (C) 2002/2003/2004 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -26,6 +26,7 @@
  * @brief The Dialogue settings dialog.
  */
 
+#include <string.h>
 #include <gtk/gtk.h>
 #include <sys/stat.h>
 #include <vector>

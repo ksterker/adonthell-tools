@@ -1,5 +1,5 @@
 /*
-   $Id: gui_circle.cc,v 1.3 2009/03/29 12:27:25 ksterker Exp $ 
+   $Id: gui_circle.cc,v 1.4 2009/03/29 19:35:00 ksterker Exp $ 
 
    Copyright (C) 2002/2004/2007 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -19,6 +19,7 @@
    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+#include <string.h>
 #include <gtk/gtk.h>
 #include "gui_circle.h"
 #include "gui_circle_events.h"
