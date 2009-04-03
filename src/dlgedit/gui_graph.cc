@@ -1,5 +1,5 @@
 /*
-   $Id: gui_graph.cc,v 1.3 2009/03/29 12:27:26 ksterker Exp $
+   $Id: gui_graph.cc,v 1.4 2009/04/03 22:00:34 ksterker Exp $
 
    Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -36,7 +36,7 @@
 #include "gui_file.h"
 
 // Constructor
-GuiGraph::GuiGraph (GtkWidget *paned)
+GuiGraph::GuiGraph (GtkWidget *paned) : Scrollable ()
 {
     // initialize members to sane values
     mover = NULL;
@@ -44,7 +44,6 @@ GuiGraph::GuiGraph (GtkWidget *paned)
     offset = NULL;
     surface = NULL;
     tooltip = NULL;
-    scrolling = false;
     
     // create drawing area for the graph
     graph = gtk_drawing_area_new ();
@@ -63,6 +62,11 @@ GuiGraph::GuiGraph (GtkWidget *paned)
     
     gtk_widget_set_events (graph, GDK_EXPOSURE_MASK | GDK_LEAVE_NOTIFY_MASK | GDK_BUTTON_PRESS_MASK |
         GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK | GDK_KEY_PRESS_MASK);
+}
+
+// dtor
+GuiGraph::~GuiGraph()
+{
 }
 
 // attach a module
@@ -518,7 +522,7 @@ bool GuiGraph::editNode ()
     DlgNode *selected = module->selected ();
 
     // disable scrolling (just in case)
-    scrolling = false;
+    stopScrolling();
 
     // if we have a sub-dialogue, descent for editing
     if (selected->type () == MODULE)
@@ -820,40 +824,19 @@ void GuiGraph::mouseMoved (DlgPoint &point)
     return;
 }
 
-// prepare everything for 'auto-scrolling' (TM) ;-)
-void GuiGraph::prepareScrolling (DlgPoint &point)
+// is scrolling allowed?
+bool GuiGraph::scrollingAllowed () const
 {
     // if there is no module assigned to the view or no nodes
     // in the module yet, there is nothing to do
-    if (module == NULL || module->getNodes ().empty ()) return;
-
-    int scroll_x = 0;
-    int scroll_y = 0;
-
-    // set scrolling offset and direction    
-    if (point.x () < 20) scroll_x = 15;
-    if (point.y () < 20) scroll_y = 15;
-    if (point.x () + 20 > drawing_area.width ()) scroll_x = -15;
-    if (point.y () + 20 > drawing_area.height ()) scroll_y = -15;
-
-    // enable scrolling
-    if (scroll_x || scroll_y)
-    {
-        scroll_offset = DlgPoint (scroll_x, scroll_y);
-
-        if (!scrolling)
-        {
-            scrolling = true;
-            gtk_timeout_add (100, on_scroll_graph, this);
-        }
-    }
-    else scrolling = false;
+    if (module == NULL || module->getNodes ().empty ()) return false;
+    return true;
 }
 
 // the actual scrolling
 void GuiGraph::scroll ()
 {
-    offset->move (scroll_offset);
+    offset->move (scroll_offset.x, scroll_offset.y);
     draw ();
 }
 

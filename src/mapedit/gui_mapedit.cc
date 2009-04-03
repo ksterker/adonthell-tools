@@ -1,5 +1,5 @@
 /*
-   $Id: gui_mapedit.cc,v 1.1 2009/03/29 12:27:26 ksterker Exp $
+   $Id: gui_mapedit.cc,v 1.2 2009/04/03 22:00:44 ksterker Exp $
 
    Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -30,6 +30,7 @@
 #include <config.h>
 #endif
 
+#include <sstream>
 #include <gtk/gtk.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 
@@ -223,28 +224,26 @@ GuiMapedit::GuiMapedit ()
     
     // Status bars
     hbox = gtk_hbox_new (FALSE, 0);
-    gtk_widget_ref (hbox);
-    gtk_object_set_data_full (GTK_OBJECT (Wnd), "hbox", hbox, (GtkDestroyNotify) gtk_widget_unref);
+    g_object_ref (hbox);
+    gtk_object_set_data_full (GTK_OBJECT (Wnd), "hbox", hbox, (GtkDestroyNotify) g_object_unref);
     gtk_widget_show (hbox);
     gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, TRUE, 0);
     gtk_widget_set_usize (hbox, -2, 20);
 
     // help message
-    gtk_widget_ref (status_help);
-    gtk_object_set_data_full (GTK_OBJECT (Wnd), "status_help", status_help, (GtkDestroyNotify) gtk_widget_unref);
+    g_object_ref (status_help);
+    gtk_object_set_data_full (GTK_OBJECT (Wnd), "status_help", status_help, (GtkDestroyNotify) g_object_unref);
     gtk_widget_show (status_help);
     gtk_box_pack_start (GTK_BOX (hbox), status_help, TRUE, TRUE, 0);
     gtk_widget_set_usize (status_help, -2, 20);
 
-    /*
-    // program mode
-    status_mode = gtk_statusbar_new ();
-    gtk_widget_ref (status_mode);
-    gtk_object_set_data_full (GTK_OBJECT (Wnd), "status_mode", status_mode, (GtkDestroyNotify) gtk_widget_unref);
-    gtk_widget_show (status_mode);
-    gtk_box_pack_start (GTK_BOX (hbox), status_mode, FALSE, TRUE, 0);
-    gtk_widget_set_usize (status_mode, 150, -2);
-    */
+    // coordinates
+    StatusCoordinates = gtk_statusbar_new ();
+    g_object_ref (StatusCoordinates);
+    gtk_object_set_data_full (GTK_OBJECT (Wnd), "status_coordinates", StatusCoordinates, (GtkDestroyNotify) g_object_unref);
+    gtk_widget_show (StatusCoordinates);
+    gtk_box_pack_start (GTK_BOX (hbox), StatusCoordinates, FALSE, TRUE, 0);
+    gtk_widget_set_usize (StatusCoordinates, 150, -2);
     
     // set the editor's icon    
     GdkPixbuf *icon = gdk_pixbuf_new_from_xpm_data ((const char**) icon_xpm);
@@ -367,6 +366,16 @@ void GuiMapedit::clear ()
     // empty the display
     View->clear ();
     ActiveMap = -1;
+}
+
+// set location in statusbar
+void GuiMapedit::setLocation (const int & x, const int & y, const int & z)
+{
+    std::stringstream location (std::ios::out);
+    location << "X " << x << ", Y " << y << ", Z " << z;
+    
+    gtk_statusbar_pop (GTK_STATUSBAR(StatusCoordinates), 0);
+    gtk_statusbar_push (GTK_STATUSBAR(StatusCoordinates), 0, location.str().c_str());
 }
 
 // get the full path/name/extension of a dialogue

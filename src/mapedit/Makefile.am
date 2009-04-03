@@ -8,7 +8,8 @@ noinst_HEADERS = \
     gui_mapview.h \
     gui_mapview_events.h \
     map_cmdline.h \
-    map_data.h
+    map_data.h \
+    map_renderer.h
     
 mapedit_SOURCES = \
     gui_mapedit.cc \
@@ -17,7 +18,8 @@ mapedit_SOURCES = \
     gui_mapview_events.cc \
     main.cc \
     map_cmdline.cc \
-    map_data.cc
+    map_data.cc \
+    map_renderer.cc
 
 INCLUDES = -I@top_srcdir@/src/common -I@top_srcdir@/src
 mapedit_CXXFLAGS = -D_VERSION_=\"0.1\" $(GTK_CFLAGS) $(PY_CFLAGS) $(ADONTHELL_CFLAGS)

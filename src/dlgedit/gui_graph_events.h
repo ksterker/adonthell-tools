@@ -1,5 +1,5 @@
 /*
-   $Id: gui_graph_events.h,v 1.1 2004/07/25 15:52:23 ksterker Exp $
+   $Id: gui_graph_events.h,v 1.2 2009/04/03 22:00:35 ksterker Exp $
 
    Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -56,9 +56,5 @@ gint motion_notify_event (GtkWidget *, GdkEventMotion *, gpointer);
  * Callback indicating that a key has been pushed.
  */
 guint key_press_notify_event (GtkWidget *, GdkEventKey *, gpointer);
-/**
- * Callback for autoscrolling the graph view.
- */
-int on_scroll_graph (gpointer);
 
 #endif // GUI_GRAPH_EVENTS_H

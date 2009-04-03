@@ -1,5 +1,5 @@
 /*
-   $Id: gui_graph.h,v 1.1 2004/07/25 15:52:23 ksterker Exp $
+   $Id: gui_graph.h,v 1.2 2009/04/03 22:00:34 ksterker Exp $
 
    Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -29,6 +29,7 @@
 #ifndef GUI_GRAPH_H
 #define GUI_GRAPH_H
 
+#include "gui_scrollable.h"
 #include "gui_tooltip.h"
 #include "dlg_module.h"
 
@@ -38,7 +39,7 @@
  * the dialogue. Only one instance of this class exists throughout the whole
  * dlgedit session.
  */
-class GuiGraph
+class GuiGraph : public Scrollable
 {
 public:
     /** 
@@ -51,7 +52,7 @@ public:
     /**
      * Standard desctructor.
      */
-    ~GuiGraph ();
+    virtual ~GuiGraph ();
     
     /**
      * @name Changing the view
@@ -221,30 +222,26 @@ public:
      */
     void stopDragging (DlgPoint &point);
     //@}
-    
+        
     /**
      * @name Auto-Scrolling (TM) ;) functionality.
      */
     //@{
     /**
-     * Method deciding whether to start with scrolling. The cursor has to
-     * remain in the outer 20 pixel of the view to enable scrolling.
-     * @param point The current cursor position.
-     */
-    void prepareScrolling (DlgPoint &point);
-    /**
      * Moves the view in the desired direction.
      */
-    void scroll ();
+    virtual void scroll ();
     /**
-     * Check whether we are currently scrolling
-     * @return <b>true</b> if that is the case, <b>false</b> otherwise.
+     * Check whether it is allowed to initiate
+     * scrolling.
+     * @return false if scrolling is forbidden, true otherwise.
      */
-    bool isScrolling ()         { return scrolling; }
+    virtual bool scrollingAllowed () const;
     /**
-     * Finish scrolling.
+     * Return a pointer to the drawing area
+     * @return the GtkDrawingArea widget
      */
-    void stopScrolling ()       { scrolling = false; }
+    virtual GtkWidget *drawingArea () const { return graph; }
     //@}
     
     /**
@@ -261,11 +258,6 @@ public:
      * @return the drawing surface
      */
     GdkPixmap *pixmap ()        { return surface; }
-    /**
-     * Return a pointer to the drawing area
-     * @return the GtkDrawingArea widget
-     */
-    GtkWidget *drawingArea ()   { return graph; }
     /**
      * Return the attached dialogue module.
      * @return the DlgModule currently attached to the view 
@@ -292,8 +284,6 @@ private:
     GdkPixmap *surface;     // Drawing surface
     DlgRect drawing_area;   // Size of the Drawing Area
     GuiTooltip *tooltip;    // Tooltip for displaying node-text
-    bool scrolling;         // Indicates whether autoscrolling is active
-    DlgPoint scroll_offset; // Offset by which the view moves during scrolling
 };
 
 #endif // GUI_GRAPH_H

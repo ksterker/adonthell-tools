@@ -1,5 +1,5 @@
 /*
-    $Id: surface_gtk.cc,v 1.2 2009/03/07 19:22:35 ksterker Exp $
+    $Id: surface_gtk.cc,v 1.3 2009/04/03 22:00:21 ksterker Exp $
 
     Copyright (C) 2009 Kai Sterker <kai.sterker@gmail.com>
     Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -111,11 +111,18 @@ void surface_gtk::draw (s_int16 x, s_int16 y, s_int16 sx, s_int16 sy, u_int16 sl
 
     // prepare clipping rectangles
     setup_rects (x, y, sx, sy, sl, sh, da_opt); 
-    if (!dstrect.length() || !dstrect.height())
+    if (!cr || !dstrect.length() || !dstrect.height())
         return;
 
-    cairo_push_group (cr);
-    
+    // check if clipping will occur
+    bool clippingRequired = false;
+    if (srcrect.x() != dstrect.x() || srcrect.length() != dstrect.length() ||
+        srcrect.y() != dstrect.y() || srcrect.height() != dstrect.height())
+    {
+        cairo_push_group (cr);
+        clippingRequired = true;
+    }
+        
     // we'll have two distinct drawing operations
     if (is_masked () && alpha() != 255)
     {
@@ -125,29 +132,37 @@ void surface_gtk::draw (s_int16 x, s_int16 y, s_int16 sx, s_int16 sy, u_int16 sl
     // set source surface
     cairo_set_source_surface (cr, vis, dstrect.x(), dstrect.y());
 
-    if (is_masked ())
+    if (is_masked () && alpha() != 255)
+    {
+        // draw masked image with per-surface alpha
+        cairo_mask_surface (cr, mask, dstrect.x(), dstrect.y());
+        cairo_pop_group_to_source (cr);
+        cairo_paint_with_alpha (cr, alpha()/255.0);
+    }
+    else if (is_masked ())
     {
         // draw masked image
         cairo_mask_surface (cr, mask, dstrect.x(), dstrect.y());
-        cairo_pop_group_to_source (cr);
     }
-    if (alpha () != 255)
+    else if (alpha () != 255)
     {
         // draw per-surface alpha
         cairo_paint_with_alpha (cr, alpha()/255.0);
-        cairo_pop_group_to_source (cr);
     }
-    else if (!is_masked())
+    else /* (!is_masked() && alpha() == 255) */
     {
         // draw per-pixel alpha
         cairo_paint (cr);        
+    }
+    
+    if (clippingRequired)
+    {       
+        // draw clipped source to target
         cairo_pop_group_to_source (cr);
+        cairo_rectangle (cr, srcrect.x(), srcrect.y(), srcrect.length(), srcrect.height());
+        cairo_fill (cr);
     }
         
-    // draw clipped source to target
-    cairo_rectangle (cr, srcrect.x(), srcrect.y(), srcrect.length(), srcrect.height());
-    cairo_fill (cr);       
-    
     // cleanup
     cairo_destroy (cr);
 }

@@ -1,5 +1,5 @@
 /*
- $Id: gui_mapview_events.cc,v 1.1 2009/03/29 12:27:27 ksterker Exp $
+ $Id: gui_mapview_events.cc,v 1.2 2009/04/03 22:00:47 ksterker Exp $
  
  Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
  Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -28,7 +28,7 @@
 
 
 #include <gtk/gtk.h>
-#include <gdk/gdkkeysyms.h>
+#include <gdk/gdk.h>
 #include "gui_mapview.h"
 
 // Window resized
@@ -106,37 +106,25 @@ gint button_press_event (GtkWidget *widget, GdkEventButton *event, gpointer data
     
     return TRUE;
 }
+*/
 
 // Mouse moved over drawing area
 gint motion_notify_event (GtkWidget *widget, GdkEventMotion *event, gpointer data)
 {
     GuiMapview *view = (GuiMapview *) data;
-    DlgPoint point ((int) event->x, (int) event->y);
+    GdkPoint point = { event->x, event->y };
 
     // scroll the view if necessary (this has to happen before 
     // anything else, as the next method(s) change 'point'.
     view->prepareScrolling (point);
 
-    // Dragging dialogue nodes
-    if (event->state == GDK_BUTTON_PRESS_MASK)
-    {
-        // don't allow dragging if in preview mode
-        if (GuiDlgedit::window->mode () == L10N_PREVIEW)
-            return FALSE;
-        
-        // no node being dragged so far -> start dragging
-        if (view->mode () != NODE_DRAGGED)
-            view->prepareDragging (point);
-        // otherwise continue moving
-        else
-            view->drag (point);
-    }
     // highlight nodes under the cursor and display their 'tooltip'
-    else view->mouseMoved (point);
+    view->mouseMoved (&point);
 
     return FALSE;
 }
 
+/*
 // Mouse-button released on Drawing Area
 gint button_release_event (GtkWidget *widget, GdkEventButton *event, gpointer data)
 {
@@ -267,36 +255,5 @@ guint key_press_notify_event (GtkWidget * widget, GdkEventKey * event, gpointer 
     }
     return TRUE;
 }
-
-
-// Once 'auto-scrolling' is activated, this function is called every
-// 10th of a second until it returns FALSE
-int on_scroll_graph (gpointer data)
-{
-    int x, y;
-    static int delay = 0;
-    GuiMapview *view = (GuiMapview *) data;
-    GtkWidget *widget = view->drawingArea ();
-
-    // get the present cursor position (relative to the view)    
-    gtk_widget_get_pointer (widget, &x, &y);
-    
-    // stop scrolling if outside widget or too far from widget's border
-    if (x < 0 || x > widget->allocation.width || 
-        y < 0 || y > widget->allocation.height ||
-        !view->isScrolling ())
-    {
-        view->stopScrolling ();
-        delay = 0; 
-        return FALSE;
-    }
-    
-    // wait approx. 1 second before starting to scroll
-    if (delay++ < 6) return TRUE;
-    
-    // move the view
-    view->scroll ();
-    
-    return TRUE; 
-}
 */
+

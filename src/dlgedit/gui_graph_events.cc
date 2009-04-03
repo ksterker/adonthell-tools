@@ -1,5 +1,5 @@
 /*
-   $Id: gui_graph_events.cc,v 1.1 2004/07/25 15:52:23 ksterker Exp $
+   $Id: gui_graph_events.cc,v 1.2 2009/04/03 22:00:35 ksterker Exp $
 
    Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -262,36 +262,4 @@ guint key_press_notify_event (GtkWidget * widget, GdkEventKey * event, gpointer 
         }
     }
     return TRUE;
-}
-
-
-// Once 'auto-scrolling' is activated, this function is called every
-// 10th of a second until it returns FALSE
-int on_scroll_graph (gpointer data)
-{
-    int x, y;
-    static int delay = 0;
-    GuiGraph *graph = (GuiGraph *) data;
-    GtkWidget *widget = graph->drawingArea ();
-
-    // get the present cursor position (relative to the graph)    
-    gtk_widget_get_pointer (widget, &x, &y);
-    
-    // stop scrolling if outside widget or too far from widget's border
-    if (x < 0 || x > widget->allocation.width || 
-        y < 0 || y > widget->allocation.height ||
-        !graph->isScrolling ())
-    {
-        graph->stopScrolling ();
-        delay = 0; 
-        return FALSE;
-    }
-    
-    // wait approx. 1 second before starting to scroll
-    if (delay++ < 6) return TRUE;
-    
-    // move the view
-    graph->scroll ();
-    
-    return TRUE; 
 }

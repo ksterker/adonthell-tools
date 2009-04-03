@@ -1,5 +1,5 @@
 /*
- $Id: map_data.cc,v 1.1 2009/03/29 12:27:27 ksterker Exp $
+ $Id: map_data.cc,v 1.2 2009/04/03 22:00:48 ksterker Exp $
  
  Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
  Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -31,6 +31,9 @@
 // ctor
 MapData::MapData() : world::area ()
 {
+    PosX = 0;
+    PosY = 0;
+    PosZ = 0;
 }
 
 // dtor

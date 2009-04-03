@@ -1,5 +1,5 @@
 /*
- $Id: gui_mapview.h,v 1.1 2009/03/29 12:27:26 ksterker Exp $
+ $Id: gui_mapview.h,v 1.2 2009/04/03 22:00:47 ksterker Exp $
  
  Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
  Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -31,6 +31,14 @@
 
 #include <world/mapview.h>
 
+#include "gui_scrollable.h"
+#include "map_renderer.h"
+
+namespace gfx
+{
+    class screen_surface_gtk;
+};
+
 class MapData;
 
 /**
@@ -39,7 +47,7 @@ class MapData;
  * the map. Only one instance of this class exists throughout the 
  * whole mapedit session, but the map it displays can be changed.
  */
-class GuiMapview
+class GuiMapview : public Scrollable
 {
 public:
     /** 
@@ -54,7 +62,7 @@ public:
     /**
      * Standard desctructor.
      */
-    ~GuiMapview ();
+    virtual ~GuiMapview ();
 
     /**
      * Reset to initial state.
@@ -78,11 +86,50 @@ public:
      */
     void resizeSurface (GtkWidget *widget);
 
+    /**
+     * Notification of mouse movement.
+     * @param point location of mouse pointer.
+     */
+    void mouseMoved (const GdkPoint * point);
+    
+    /**
+     * @name Auto-Scrolling (TM) ;) functionality.
+     */
+    //@{
+    /**
+     * Check whether it is allowed to initiate scrolling.
+     * @return false if scrolling is forbidden, true otherwise.
+     */
+    virtual bool scrollingAllowed () const;
+    /**
+     * Moves the view in the desired direction.
+     */
+    virtual void scroll ();
+    /**
+     *
+     */
+    virtual GtkWidget* drawingArea() const { return Screen; }
+    //@}
+    
+protected:
+    void highlightObject (world::chunk_info *obj);
+    
 private:
     /// Drawing Area
     GtkWidget *Screen;
     /// The actual mapview
     world::mapview *View;
+    /// The renderer
+    MapRenderer Renderer;
+    /// The render target
+    gfx::screen_surface_gtk *Target;
+    /// The currently highlighted object
+    world::chunk_info *CurObj;
+    
+    /// whether we are scrolling the map
+    bool Scrolling;
+    /// amount being scrolled
+    GdkPoint ScrollOffset;
 };
 
 #endif // GUI_MAPVIEW_H

@@ -1,5 +1,5 @@
 /*
- $Id: gui_mapview_events.h,v 1.1 2009/03/29 12:27:27 ksterker Exp $
+ $Id: gui_mapview_events.h,v 1.2 2009/04/03 22:00:48 ksterker Exp $
  
  Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
  Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -51,14 +51,10 @@ gint expose_event (GtkWidget *, GdkEventExpose *, gpointer);
 /**
  * Callback indicating that the mouse has been moved.
  */
-// gint motion_notify_event (GtkWidget *, GdkEventMotion *, gpointer);
+gint motion_notify_event (GtkWidget *, GdkEventMotion *, gpointer);
 /**
  * Callback indicating that a key has been pushed.
  */
 // guint key_press_notify_event (GtkWidget *, GdkEventKey *, gpointer);
-/**
- * Callback for autoscrolling the graph view.
- */
-// int on_scroll_graph (gpointer);
 
 #endif // GUI_MAPVIEW_EVENTS_H

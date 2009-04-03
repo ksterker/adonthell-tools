@@ -1,5 +1,5 @@
 /*
- $Id: screen_gtk.h,v 1.2 2009/03/07 19:22:35 ksterker Exp $
+ $Id: screen_gtk.h,v 1.3 2009/04/03 22:00:19 ksterker Exp $
  
  Copyright (C) 2009 Kai Sterker <kai.sterker@gmail.com>
  Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -45,25 +45,36 @@ public:
         Window = NULL; 
     }
     
-    virtual ~screen_surface_gtk() { }
+    virtual ~screen_surface_gtk() 
+    { 
+        clear(); 
+    }
     
     void resize (u_int16 l, u_int16 h) 
     { 
-        fprintf (stderr, "*** screen::resize: Invalid operation: Can't resize the screen surface!\n"); 
+        set_length (l);
+        set_height (h);
     }
 
     void clear () 
     { 
-        fprintf (stderr, "*** screen::clear: Invalid operation: Can't clear the screen surface!\n"); 
+        if (Window)
+        {
+            g_object_unref (Window);
+            Window = NULL;
+        }
     }
     
     void set_window (GdkWindow *wnd) 
     { 
+        clear ();
+        
         int l, h;
         gdk_drawable_get_size (wnd, &l, &h);
         set_length (l);
         set_height (h);
         
+        g_object_ref (wnd);
         Window = wnd;
     }
     

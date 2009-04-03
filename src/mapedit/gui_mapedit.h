@@ -1,5 +1,5 @@
 /*
-   $Id: gui_mapedit.h,v 1.1 2009/03/29 12:27:26 ksterker Exp $
+   $Id: gui_mapedit.h,v 1.2 2009/04/03 22:00:46 ksterker Exp $
 
    Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -86,7 +86,15 @@ public:
      * @param fname name under which to save the map.
      */
     void saveMap (const std::string & fname);
-        
+    
+    /**
+     * Display location (of cursor) in the status bar.
+     * @param x x-coordinate.
+     * @param y y-coordinate.
+     * @param z z-coordinate.
+     */
+    void setLocation (const int & x, const int & y, const int & z);
+    
     /**
      * Get the directory where the last fileselection took place.
      * @return Path to the directory last opened.
@@ -122,6 +130,9 @@ private:
     GtkWidget *Wnd;
     /// directory used in last file-selection
     std::string Directory;  
+    
+    /// a status bar
+    GtkWidget *StatusCoordinates;
     
     /// list of loaded maps
     std::vector<MapData*> LoadedMaps;
