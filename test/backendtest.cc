@@ -1,5 +1,5 @@
  /*
-   $Id: backendtest.cc,v 1.2 2009/03/10 11:21:58 ksterker Exp $
+   $Id: backendtest.cc,v 1.3 2009/04/04 19:08:29 ksterker Exp $
 
    Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -217,9 +217,18 @@ gint expose_event (GtkWidget * widget, GdkEventExpose * event, gpointer data)
     target->set_window (widget->window);
     target->fillrect (0, 0, 800, 600, 0xFF000000);
     
-    // render mapview to screen
-    mv.draw (0, 0, NULL, target);
+    // test clipping
+    gfx::drawing_area da (200, 150, 400, 300);
     
+    // render mapview to screen
+    mv.draw (25, 25, &da, target);
+    
+    // rectangle that should be filled with the mapview
+    target->fillrect (200, 150, 400, 2, 0xFFFF8888);
+    target->fillrect (200, 300+150, 400, 2, 0xFFFF8888);
+    target->fillrect (200, 150, 2, 300, 0xFFFF8888);
+    target->fillrect (400+200, 150, 2, 300, 0xFFFF8888);
+                                          
     // cleanup
     delete target;
     return FALSE;
