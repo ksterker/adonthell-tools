@@ -1,5 +1,5 @@
 /*
-    $Id: surface_gtk.cc,v 1.3 2009/04/03 22:00:21 ksterker Exp $
+    $Id: surface_gtk.cc,v 1.4 2009/04/04 18:40:51 ksterker Exp $
 
     Copyright (C) 2009 Kai Sterker <kai.sterker@gmail.com>
     Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -116,8 +116,8 @@ void surface_gtk::draw (s_int16 x, s_int16 y, s_int16 sx, s_int16 sy, u_int16 sl
 
     // check if clipping will occur
     bool clippingRequired = false;
-    if (srcrect.x() != dstrect.x() || srcrect.length() != dstrect.length() ||
-        srcrect.y() != dstrect.y() || srcrect.height() != dstrect.height())
+    if (srcrect.x() > x + sx || srcrect.length() < sl ||
+        srcrect.y() > y + sy || srcrect.height() < sh)
     {
         cairo_push_group (cr);
         clippingRequired = true;
@@ -442,19 +442,16 @@ void surface_gtk::setup_rects (s_int16 x, s_int16 y, s_int16 sx, s_int16 sy,
 {
     if (draw_to)
     { 
-        drawing_area im_zone (x, y, sl, sh);
+        drawing_area im_zone (x + sx, y + sy, sl, sh);        
         im_zone.assign_drawing_area (draw_to);
-
-        dstrect = im_zone.setup_rects ();
-        srcrect = dstrect;
-        srcrect.move (x < dstrect.x() ? sx + dstrect.x() : x + sx,
-                      y < dstrect.y() ? sy + dstrect.y() : y + sy);
+        srcrect = im_zone.setup_rects ();
     }
     else
     {
         srcrect = drawing_area (x + sx, y + sy, sl, sh);
-        dstrect = srcrect;
-        dstrect.move (x, y);
-    } 
+    }
+    
+    dstrect = srcrect;
+    dstrect.move (x, y);
 }
 
