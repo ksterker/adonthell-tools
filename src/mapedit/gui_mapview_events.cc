@@ -1,5 +1,5 @@
 /*
- $Id: gui_mapview_events.cc,v 1.2 2009/04/03 22:00:47 ksterker Exp $
+ $Id: gui_mapview_events.cc,v 1.3 2009/04/04 19:09:44 ksterker Exp $
  
  Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
  Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -50,14 +50,8 @@ gint expose_event (GtkWidget * widget, GdkEventExpose * event, gpointer data)
 {
     GuiMapview *view = (GuiMapview *) data;
     
-    // TODO: full redraw for now, later draw from backing pixmap
-    view->draw();
-    
-    /*
-    gdk_draw_pixmap (widget->window, widget->style->fg_gc[GTK_WIDGET_STATE (widget)],
-        view->pixmap (), event->area.x, event->area.y, event->area.x, event->area.y,
-        event->area.width, event->area.height);
-    */
+    // redraw part of the screen that has changed
+    view->draw(event->area.x, event->area.y, event->area.width, event->area.height);
     
     return FALSE;
 }

@@ -1,5 +1,5 @@
 /*
- $Id: gui_mapview.cc,v 1.2 2009/04/03 22:00:47 ksterker Exp $
+ $Id: gui_mapview.cc,v 1.3 2009/04/04 19:09:44 ksterker Exp $
  
  Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
  Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -84,10 +84,19 @@ void GuiMapview::setMap (MapData *area)
 // redraw the screen
 void GuiMapview::draw ()
 {
+    // prevent image corruption
+    if (isScrolling()) return;
+    
+    draw (0, 0, Screen->allocation.width, Screen->allocation.height);
+}
+
+// redraw the given part of the screen
+void GuiMapview::draw (const int & sx, const int & sy, const int & l, const int & h)
+{
     // reset target before drawing
     Target->set_window (Screen->window);
-    Target->fillrect (0, 0, Screen->allocation.width, Screen->allocation.height, 0xFF000000);
- 
+    Target->fillrect (sx, sy, l, h, 0xFF000000);
+    
     // is there a map attached to the view at all?
     MapData *area = (MapData*) View->get_map();
     if (area != NULL)
@@ -97,22 +106,13 @@ void GuiMapview::draw ()
         View->set_z (area->z());
         
         // render mapview to screen
-        View->draw (0, 0, NULL, Target);
+        View->draw (sx, sy, NULL, Target);
     }
 }
 
 // update size of the view
 void GuiMapview::resizeSurface (GtkWidget *widget)
 {
-    /*
-    // delete the old backing pixmap
-    if (Surface) gdk_pixmap_unref (surface);
-    
-    // create a new one with the proper size
-    Surface = gdk_pixmap_new (widget->window, widget->allocation.width,
-                              widget->allocation.height, -1);
-    */
-    
     // set the size of the drawing area
     gtk_widget_set_size_request (GTK_WIDGET (Screen), widget->allocation.width, widget->allocation.height);
 
@@ -131,8 +131,10 @@ void GuiMapview::mouseMoved (const GdkPoint * point)
         oy = area->y();
         oz = area->z();
         
-        std::list<world::chunk_info*> objects_under_mouse = area->objects_in_view (point->x + ox, point->y + oy, oz, 0, 0);
-        world::chunk_info *obj = Renderer.findObjectBelowCursor (ox, oy, point, objects_under_mouse);
+        GdkPoint p = { point->x + ox, point->y + oy };
+        
+        std::list<world::chunk_info*> objects_under_mouse = area->objects_in_view (p.x, p.y, oz, 0, 0);
+        world::chunk_info *obj = Renderer.findObjectBelowCursor (ox, oy + oz, &p, objects_under_mouse);
         // FIXME: highlightObject (obj);
         if (obj != NULL && obj != CurObj) 
         {
@@ -154,25 +156,24 @@ void GuiMapview::highlightObject (world::chunk_info *obj)
         MapData *area = (MapData*) View->get_map();
         
         // get offset
-        int ox = area->x();
-        int oy = area->y();
-        int oz = area->z();
+        // int ox = area->x();
+        // int oy = area->y();
+        // int oz = area->z();
         
         // get location
-        int x = obj->Min.x() + ox;
-        int y = obj->Min.y() + oy;
+        int x = obj->Min.x();
+        int y = obj->Min.y();
         
         // get extend
         int l = obj->Max.x() - obj->Min.x();
-        int h = obj->Max.y() - obj->Max.y();
+        int h = obj->Max.y() - obj->Min.y();
         
-        // gfx::drawing_area da (x, y, l, h);
-        gfx::drawing_area da (0, 0, 800, 600);
+        world::mapview view (l, h, &Renderer);
+        view.set_position (x, y);
+        view.set_map (area);
         
-        // get area covered by newly highlighted object
-        std::list<world::chunk_info*> highlighted_objects = area->objects_in_view (x+1, y+1, oz, l-1, h-1);
-        Renderer.render (ox, oy, highlighted_objects, da, Target);
-        
+        view.draw (0, 0, NULL, Target);
+                
         CurObj = obj;
     }    
 }
@@ -188,9 +189,16 @@ bool GuiMapview::scrollingAllowed () const
 // the actual scrolling
 void GuiMapview::scroll ()
 {
+    // update area coordinates
     MapData *area = (MapData*) View->get_map();
     area->setX (area->x() - scroll_offset.x);
     area->setY (area->y() - scroll_offset.y);
+
+    // scroll current window content
+    gdk_window_scroll (GDK_WINDOW(Screen->window), scroll_offset.x, scroll_offset.y);
     
-    draw ();
+    // update map coordinates of mouse pointer
+    int x, y;
+    gtk_widget_get_pointer (Screen, &x, &y);
+    GuiMapedit::window->setLocation (x + area->x(), y + area->y(), area->z());
 }

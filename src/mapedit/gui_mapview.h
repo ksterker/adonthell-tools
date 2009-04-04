@@ -1,5 +1,5 @@
 /*
- $Id: gui_mapview.h,v 1.2 2009/04/03 22:00:47 ksterker Exp $
+ $Id: gui_mapview.h,v 1.3 2009/04/04 19:09:44 ksterker Exp $
  
  Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
  Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -80,6 +80,15 @@ public:
      */
     void draw ();
     
+    /**
+     * Partly render the map to screen.
+     * @param sx starting x offset
+     * @param sy starting y offset
+     * @param l length of the area to render
+     * @param h height of the area to render
+     */
+    void draw (const int & sx, const int & sy, const int & l, const int & h);
+
     /**
      * Change view size after user modified size of application window.
      * @param widget widget containing the new valid size.

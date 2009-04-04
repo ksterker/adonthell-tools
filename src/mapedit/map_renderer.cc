@@ -70,8 +70,8 @@ void MapRenderer::draw (const s_int16 & x, const s_int16 & y, const world::rende
     {
         // get area covered by object
         GdkRectangle rect = {
-            x + obj.x (),
-            y + obj.Pos.y () - obj.z() - obj.Shape->height(),
+            obj.x (),
+            obj.Pos.y () - obj.z() - obj.Shape->height(),
             obj.Sprite->length(),
             obj.Sprite->height()
         };
