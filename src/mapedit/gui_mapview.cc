@@ -1,5 +1,5 @@
 /*
- $Id: gui_mapview.cc,v 1.4 2009/04/05 09:28:05 ksterker Exp $
+ $Id: gui_mapview.cc,v 1.5 2009/04/05 15:24:49 ksterker Exp $
  
  Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
  Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -65,6 +65,7 @@ GuiMapview::GuiMapview(GtkWidget *paned)
     
     // create the render target
     Target = (gfx::screen_surface_gtk*) gfx::screen::get_surface();
+    CurObj = NULL;
 }
 
 // dtor
