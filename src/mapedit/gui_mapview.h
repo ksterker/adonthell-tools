@@ -1,5 +1,5 @@
 /*
- $Id: gui_mapview.h,v 1.3 2009/04/04 19:09:44 ksterker Exp $
+ $Id: gui_mapview.h,v 1.4 2009/04/05 09:28:06 ksterker Exp $
  
  Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
  Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -76,6 +76,10 @@ public:
     void setMap (MapData *area);
     
     /**
+     * @name Drawing
+     */
+    //@{
+    /**
      * Render the map to screen.
      */
     void draw ();
@@ -89,6 +93,15 @@ public:
      */
     void draw (const int & sx, const int & sy, const int & l, const int & h);
 
+    /**
+     * Render the given object at given offset.
+     * @param obj the object to render.
+     * @param ox x-offset.
+     * @param oy y-offset.
+     */
+    void drawObject (world::chunk_info *obj, const int & ox, const int & oy);
+    //@}
+    
     /**
      * Change view size after user modified size of application window.
      * @param widget widget containing the new valid size.
@@ -115,13 +128,11 @@ public:
      */
     virtual void scroll ();
     /**
-     *
+     * Return the widget being scrolled.
+     * @return the widget being scrolled.
      */
     virtual GtkWidget* drawingArea() const { return Screen; }
     //@}
-    
-protected:
-    void highlightObject (world::chunk_info *obj);
     
 private:
     /// Drawing Area

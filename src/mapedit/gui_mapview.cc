@@ -1,5 +1,5 @@
 /*
- $Id: gui_mapview.cc,v 1.3 2009/04/04 19:09:44 ksterker Exp $
+ $Id: gui_mapview.cc,v 1.4 2009/04/05 09:28:05 ksterker Exp $
  
  Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
  Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -78,15 +78,18 @@ GuiMapview::~GuiMapview()
 void GuiMapview::setMap (MapData *area)
 {
     View->set_map (area);
-    View->set_position (0, 0);
+    View->set_position (area->x(), area->y());
+    View->set_z (area->z());
+    
+    // display map coordinates of mouse pointer
+    int x, y;
+    gtk_widget_get_pointer (Screen, &x, &y);
+    GuiMapedit::window->setLocation (x + area->x(), y + area->y(), area->z());
 }
 
 // redraw the screen
 void GuiMapview::draw ()
 {
-    // prevent image corruption
-    if (isScrolling()) return;
-    
     draw (0, 0, Screen->allocation.width, Screen->allocation.height);
 }
 
@@ -101,13 +104,31 @@ void GuiMapview::draw (const int & sx, const int & sy, const int & l, const int 
     MapData *area = (MapData*) View->get_map();
     if (area != NULL)
     {
-        // update position of view
-        View->set_position (area->x(), area->y());
+        // update position of map
+        View->set_position (area->x() + sx, area->y() + sy);
         View->set_z (area->z());
         
         // render mapview to screen
+        View->resize (l, h);
         View->draw (sx, sy, NULL, Target);
     }
+}
+
+// draw the given object at given offset
+void GuiMapview::drawObject (world::chunk_info *obj, const int & ox, const int & oy)
+{
+    if (obj != NULL) 
+    {
+        // get location
+        int x = obj->real_min().x();
+        int y = obj->real_min().y() - obj->real_max().z();
+        
+        // get extend
+        int l = obj->real_max().x() - x;
+        int h = obj->real_max().y() - obj->real_min().z() - y;
+        
+        draw (x - ox, y - oy, l, h);
+    }    
 }
 
 // update size of the view
@@ -133,49 +154,22 @@ void GuiMapview::mouseMoved (const GdkPoint * point)
         
         GdkPoint p = { point->x + ox, point->y + oy };
         
+        // find object that's being moused over
         std::list<world::chunk_info*> objects_under_mouse = area->objects_in_view (p.x, p.y, oz, 0, 0);
         world::chunk_info *obj = Renderer.findObjectBelowCursor (ox, oy + oz, &p, objects_under_mouse);
-        // FIXME: highlightObject (obj);
-        if (obj != NULL && obj != CurObj) 
+        if (obj != CurObj) 
         {
-            draw ();
+            // reset previously highlighted object
+            drawObject (CurObj, ox, oy);
+            // highlight new object
+            drawObject (obj, ox, oy);
+            // keep track of highlighted object
             CurObj = obj;
         }
     }
     
     // display map coordinates of mouse pointer
     GuiMapedit::window->setLocation (point->x + ox, point->y + oy, oz);
-}
-
-// FIXME: highlighting only the object under the cursor does not work yet
-void GuiMapview::highlightObject (world::chunk_info *obj)
-{
-    if (obj != NULL && obj != CurObj) 
-    {
-        // get map
-        MapData *area = (MapData*) View->get_map();
-        
-        // get offset
-        // int ox = area->x();
-        // int oy = area->y();
-        // int oz = area->z();
-        
-        // get location
-        int x = obj->Min.x();
-        int y = obj->Min.y();
-        
-        // get extend
-        int l = obj->Max.x() - obj->Min.x();
-        int h = obj->Max.y() - obj->Min.y();
-        
-        world::mapview view (l, h, &Renderer);
-        view.set_position (x, y);
-        view.set_map (area);
-        
-        view.draw (0, 0, NULL, Target);
-                
-        CurObj = obj;
-    }    
 }
 
 // prepare everything for 'auto-scrolling' (TM) ;-)
