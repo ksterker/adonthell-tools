@@ -1,5 +1,5 @@
 /*
- $Id: gui_mapview_events.h,v 1.2 2009/04/03 22:00:48 ksterker Exp $
+ $Id: gui_mapview_events.h,v 1.3 2009/05/18 21:21:23 ksterker Exp $
  
  Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
  Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -55,6 +55,6 @@ gint motion_notify_event (GtkWidget *, GdkEventMotion *, gpointer);
 /**
  * Callback indicating that a key has been pushed.
  */
-// guint key_press_notify_event (GtkWidget *, GdkEventKey *, gpointer);
+guint key_press_notify_event (GtkWidget *, GdkEventKey *, gpointer);
 
 #endif // GUI_MAPVIEW_EVENTS_H

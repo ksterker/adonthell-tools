@@ -1,5 +1,5 @@
 /*
- $Id: gui_mapview.h,v 1.4 2009/04/05 09:28:06 ksterker Exp $
+ $Id: gui_mapview.h,v 1.5 2009/05/18 21:21:23 ksterker Exp $
  
  Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
  Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -113,6 +113,16 @@ public:
      * @param point location of mouse pointer.
      */
     void mouseMoved (const GdkPoint * point);
+    
+    /**
+     * @name Editing Functionality
+     */
+    //@{
+    /**
+     * Erase the currently selected object from the map.
+     */
+    void deleteCurObj ();
+    //@}
     
     /**
      * @name Auto-Scrolling (TM) ;) functionality.

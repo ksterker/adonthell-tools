@@ -1,5 +1,5 @@
 /*
- $Id: gui_mapview_events.cc,v 1.3 2009/04/04 19:09:44 ksterker Exp $
+ $Id: gui_mapview_events.cc,v 1.4 2009/05/18 21:21:23 ksterker Exp $
  
  Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
  Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -29,6 +29,7 @@
 
 #include <gtk/gtk.h>
 #include <gdk/gdk.h>
+#include <gdk/gdkkeysyms.h>
 #include "gui_mapview.h"
 
 // Window resized
@@ -167,7 +168,7 @@ gint button_release_event (GtkWidget *widget, GdkEventButton *event, gpointer da
     }
     return TRUE;
 }
-
+*/
 // Key pressed
 guint key_press_notify_event (GtkWidget * widget, GdkEventKey * event, gpointer user_data)
 {
@@ -175,34 +176,7 @@ guint key_press_notify_event (GtkWidget * widget, GdkEventKey * event, gpointer 
 
     switch (event->keyval)
     {
-        // select parent node
-        case GDK_Up:
-        {
-            if (view->selectParent ()) view->centerNode ();
-            break;
-        }
-        
-        // select child node
-        case GDK_Down:
-        {
-            if (view->selectChild ()) view->centerNode ();
-            break;
-        }
-        
-        // select sibling to the left
-        case GDK_Left:
-        {
-            if (view->selectSibling (PREV)) view->centerNode ();
-            break;
-        }
-        
-        // select sibling to the right
-        case GDK_Right:
-        {
-            if (view->selectSibling (NEXT)) view->centerNode ();
-            break;
-        }
-        
+        /*
         // edit selected node
         case GDK_Return:
         {
@@ -235,19 +209,21 @@ guint key_press_notify_event (GtkWidget * widget, GdkEventKey * event, gpointer 
             view->deselectNode ();
             break;
         }
-        
+        */
         // delete node
+        case GDK_BackSpace: // fall through
         case GDK_Delete:
         {
-            // ignore delete command if in preview mode
-            if (GuiDlgedit::window->mode () == L10N_PREVIEW)
-                break;            
-
-            view->deleteNode ();
+            view->deleteCurObj ();
             break;
         }
+            
+        default:
+        {
+            return FALSE;
+        }
     }
+    
     return TRUE;
 }
-*/
 

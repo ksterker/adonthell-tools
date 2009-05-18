@@ -1,5 +1,5 @@
 /*
- $Id: map_renderer.h,v 1.1 2009/04/03 22:00:49 ksterker Exp $
+ $Id: map_renderer.h,v 1.2 2009/05/18 21:21:24 ksterker Exp $
  
  Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
  Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -55,7 +55,15 @@ public:
      * @param objectlist the list of objects directly under the mouse.
      */
     world::chunk_info* findObjectBelowCursor (const s_int32 & ox, const s_int32 & oy, const GdkPoint *mousePos, const std::list <world::chunk_info*> & objectlist);
-        
+    
+    /**
+     * Remove selected object from the renderer.
+     */
+    void clearSelection ()
+    {
+        SelectedObject = NULL;
+    }
+    
 protected:
     /**
      * Draw a single object to the screen.

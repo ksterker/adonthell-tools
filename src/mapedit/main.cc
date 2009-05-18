@@ -1,5 +1,5 @@
 /*
-   $Id: main.cc,v 1.1 2009/03/29 12:27:27 ksterker Exp $
+   $Id: main.cc,v 1.2 2009/05/18 21:21:24 ksterker Exp $
    
    Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -56,7 +56,8 @@ int main (int argc, char *argv[])
     
     // Init GTK+ backend
     gfx::setup (cfg);
-    gfx::init ("gtk");
+    if (!gfx::init ("gtk"))
+        return 1;
     
     // Create the User Interface
     GuiMapedit mapedit;

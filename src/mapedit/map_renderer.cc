@@ -24,7 +24,6 @@ MapRenderer::MapRenderer () : default_renderer ()
 // dtor
 MapRenderer::~MapRenderer ()
 {
-    delete SelectedObject;
 }
 
 // find the object at current mouse position

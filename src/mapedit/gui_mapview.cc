@@ -1,5 +1,5 @@
 /*
- $Id: gui_mapview.cc,v 1.5 2009/04/05 15:24:49 ksterker Exp $
+ $Id: gui_mapview.cc,v 1.6 2009/05/18 21:21:22 ksterker Exp $
  
  Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
  Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -53,8 +53,8 @@ GuiMapview::GuiMapview(GtkWidget *paned)
     /*
     gtk_signal_connect (GTK_OBJECT (Screen), "button_press_event", (GtkSignalFunc) button_press_event, this);
     gtk_signal_connect (GTK_OBJECT (Screen), "button_release_event", (GtkSignalFunc) button_release_event, this);
-    // gtk_signal_connect (GTK_OBJECT (GuiDlgedit::window->getWindow ()), "key_press_event", (GtkSignalFunc) key_press_notify_event, this);
     */
+    gtk_signal_connect (GTK_OBJECT (GuiMapedit::window->getWindow ()), "key_press_event", (GtkSignalFunc) key_press_notify_event, this);
     
     gtk_widget_set_events (Screen, GDK_EXPOSURE_MASK | GDK_LEAVE_NOTIFY_MASK | GDK_BUTTON_PRESS_MASK |
                            GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK | GDK_KEY_PRESS_MASK);
@@ -127,8 +127,13 @@ void GuiMapview::drawObject (world::chunk_info *obj, const int & ox, const int &
         // get extend
         int l = obj->real_max().x() - x;
         int h = obj->real_max().y() - obj->real_min().z() - y;
-        
+
+        // draw
         draw (x - ox, y - oy, l, h);
+        
+        // schedule screen update
+        GdkRectangle rect = { x - ox, y - oy, l, h };
+        gdk_window_invalidate_rect (Screen->window, &rect, FALSE);
     }    
 }
 
@@ -171,6 +176,29 @@ void GuiMapview::mouseMoved (const GdkPoint * point)
     
     // display map coordinates of mouse pointer
     GuiMapedit::window->setLocation (point->x + ox, point->y + oy, oz);
+}
+
+// delete object from map
+void GuiMapview::deleteCurObj ()
+{
+    if (CurObj != NULL)
+    {
+        // remove object from map
+        MapData *area = (MapData*) View->get_map();
+        if (area->remove (*CurObj) != NULL)
+        {
+            // on success, redraw area containing object
+            Renderer.clearSelection();
+            drawObject (CurObj, area->x(), area->y());
+            CurObj = NULL;
+            
+            // see if there's another object to select
+            gint x, y;
+            gtk_widget_get_pointer (Screen, &x, &y);
+            GdkPoint mouseLoc = { x, y };
+            mouseMoved (&mouseLoc);
+        }
+    }
 }
 
 // prepare everything for 'auto-scrolling' (TM) ;-)
