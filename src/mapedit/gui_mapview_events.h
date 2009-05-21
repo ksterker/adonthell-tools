@@ -1,5 +1,5 @@
 /*
- $Id: gui_mapview_events.h,v 1.3 2009/05/18 21:21:23 ksterker Exp $
+ $Id: gui_mapview_events.h,v 1.4 2009/05/21 14:28:18 ksterker Exp $
  
  Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
  Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -43,7 +43,7 @@ gint expose_event (GtkWidget *, GdkEventExpose *, gpointer);
 /**
  * Callback indicating that a mouse button has been pressed.
  */
-// gint button_press_event (GtkWidget *, GdkEventButton *, gpointer);
+gint button_press_event (GtkWidget *, GdkEventButton *, gpointer);
 /**
  * Callback indicating that a mouse button has been released.
  */

@@ -1,5 +1,5 @@
 /*
- $Id: gui_mapview.h,v 1.5 2009/05/18 21:21:23 ksterker Exp $
+ $Id: gui_mapview.h,v 1.6 2009/05/21 14:28:18 ksterker Exp $
  
  Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
  Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -36,7 +36,7 @@
 
 namespace gfx
 {
-    class screen_surface_gtk;
+    class surface;
 };
 
 class MapData;
@@ -80,12 +80,7 @@ public:
      */
     //@{
     /**
-     * Render the map to screen.
-     */
-    void draw ();
-    
-    /**
-     * Partly render the map to screen.
+     * Draw the given area to screen.
      * @param sx starting x offset
      * @param sy starting y offset
      * @param l length of the area to render
@@ -94,12 +89,24 @@ public:
     void draw (const int & sx, const int & sy, const int & l, const int & h);
 
     /**
-     * Render the given object at given offset.
-     * @param obj the object to render.
-     * @param ox x-offset.
-     * @param oy y-offset.
+     * Render the mapview to screen.
      */
-    void drawObject (world::chunk_info *obj, const int & ox, const int & oy);
+    void render ();
+        
+    /**
+     * Render the given part of the mapview and update screen.
+     * @param sx starting x offset
+     * @param sy starting y offset
+     * @param l length of the area to render
+     * @param h height of the area to render
+     */
+    void render (const int & sx, const int & sy, const int & l, const int & h);
+    
+    /**
+     * Render the given object.
+     * @param obj the object to render.
+     */
+    void renderObject (world::chunk_info *obj);
     //@}
     
     /**
@@ -119,7 +126,15 @@ public:
      */
     //@{
     /**
-     * Erase the currently selected object from the map.
+     * Pick the currently highlighted object for map editing.
+     */
+    void selectCurObj ();
+    /**
+     * Discard the object that is currently used for map editing.
+     */
+    void releaseObject ();
+    /**
+     * Erase the currently highlighted object from the map.
      */
     void deleteCurObj ();
     //@}
@@ -144,6 +159,10 @@ public:
     virtual GtkWidget* drawingArea() const { return Screen; }
     //@}
     
+protected:
+    void getObjectExtend (world::chunk_info *obj, int & x, int & y, int & l, int & h);
+    void highlightObject ();
+
 private:
     /// Drawing Area
     GtkWidget *Screen;
@@ -151,15 +170,20 @@ private:
     world::mapview *View;
     /// The renderer
     MapRenderer Renderer;
-    /// The render target
-    gfx::screen_surface_gtk *Target;
+    /// The render target for the map view
+    gfx::surface *Target;
+    // Overlay for additional visuals
+    gfx::surface *Overlay;
+
     /// The currently highlighted object
     world::chunk_info *CurObj;
     
-    /// whether we are scrolling the map
-    bool Scrolling;
-    /// amount being scrolled
-    GdkPoint ScrollOffset;
+    /// The object used for "drawing"
+    world::entity *DrawObj;
+    /// A rendered version of the object used for "drawing"
+    gfx::surface *DrawObjSurface;
+    /// Position of object used for drawing
+    world::vector3<s_int32> DrawObjPos;
 };
 
 #endif // GUI_MAPVIEW_H

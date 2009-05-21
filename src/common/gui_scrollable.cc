@@ -1,5 +1,5 @@
 /*
- $Id: gui_scrollable.cc,v 1.1 2009/04/03 22:00:28 ksterker Exp $
+ $Id: gui_scrollable.cc,v 1.2 2009/05/21 14:28:18 ksterker Exp $
  
  Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
  Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -102,7 +102,9 @@ void Scrollable::prepareScrolling (const GdkPoint & point)
         if (!scrolling)
         {
             scrolling = true;
-            gtk_timeout_add (100, on_scroll_graph, this);
+            
+            // make sure that drawing has priority over scrolling
+            g_timeout_add_full (G_PRIORITY_DEFAULT_IDLE, 100, on_scroll_graph, this, NULL);
         }
     }
     else scrolling = false;

@@ -1,5 +1,5 @@
 /*
-    $Id: surface_gtk.cc,v 1.4 2009/04/04 18:40:51 ksterker Exp $
+    $Id: surface_gtk.cc,v 1.5 2009/05/21 14:28:18 ksterker Exp $
 
     Copyright (C) 2009 Kai Sterker <kai.sterker@gmail.com>
     Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -175,6 +175,7 @@ void surface_gtk::fillrect (s_int16 x, s_int16 y, u_int16 l, u_int16 h, u_int32 
 
     cairo_t* cr = create_drawing_context ();
     cairo_set_source_rgba (cr, r/255.0, g/255.0, b/255.0, a/255.0);
+    cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
     
     if (da_opt) 
     {

@@ -1,5 +1,5 @@
 /*
-   $Id: gui_mapedit.cc,v 1.2 2009/04/03 22:00:44 ksterker Exp $
+   $Id: gui_mapedit.cc,v 1.3 2009/05/21 14:28:18 ksterker Exp $
 
    Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -277,7 +277,6 @@ void GuiMapedit::loadMap (const std::string & fname)
         LoadedMaps.push_back (area);
         
         View->setMap (area);
-        View->draw();
     }
     else
     {

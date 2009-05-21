@@ -1,5 +1,5 @@
 /*
- $Id: gui_mapview_events.cc,v 1.4 2009/05/18 21:21:23 ksterker Exp $
+ $Id: gui_mapview_events.cc,v 1.5 2009/05/21 14:28:18 ksterker Exp $
  
  Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
  Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -39,9 +39,6 @@ gint configure_event (GtkWidget *widget, GdkEventConfigure *event, gpointer data
 
     // resize the drawing area
     view->resizeSurface (widget);
-
-    // do a redraw
-    view->draw ();
     
     return TRUE;
 }
@@ -54,44 +51,30 @@ gint expose_event (GtkWidget * widget, GdkEventExpose * event, gpointer data)
     // redraw part of the screen that has changed
     view->draw(event->area.x, event->area.y, event->area.width, event->area.height);
     
-    return FALSE;
+    return TRUE;
 }
 
-/*
 // Mouse-button pressed on Drawing Area
 gint button_press_event (GtkWidget *widget, GdkEventButton *event, gpointer data)
 {
     GuiMapview *view = (GuiMapview *) data;
-    DlgPoint point ((int) event->x, (int) event->y);
 
     switch (event->button)
     {
-        // Middle button pressed
-        case 2:
+        // Left button pressed
+        case 1:
         {
-            // ignore edit command if in preview mode
-            if (GuiDlgedit::window->mode () == L10N_PREVIEW)
-                break;
+            // no object picked -> grab
+            view->selectCurObj ();
             
-            // If nothing selected, see if we're over a node
-            if (view->mode () == IDLE)
-                if (!view->selectNode (point))
-                    // create a submodule, if we aren't
-                    view->newModule (point);
-     
-            // Edit node
-            if (view->mode () == NODE_SELECTED)
-                view->editNode ();
-            
+            // if object picked -> add to map 
             break;
         }
-        
         // Right button pressed
         case 3:
         {
-            // if something selected -> deselect
-            if (view->mode () == NODE_SELECTED)
-                view->deselectNode ();
+            // if object picked -> release
+            view->releaseObject ();
             
             break;
         }
@@ -101,7 +84,6 @@ gint button_press_event (GtkWidget *widget, GdkEventButton *event, gpointer data
     
     return TRUE;
 }
-*/
 
 // Mouse moved over drawing area
 gint motion_notify_event (GtkWidget *widget, GdkEventMotion *event, gpointer data)
@@ -202,14 +184,14 @@ guint key_press_notify_event (GtkWidget * widget, GdkEventKey * event, gpointer 
 
             break;
         }
+        */
         
         // deselect Node
         case GDK_Escape:
         {
-            view->deselectNode ();
+            view->releaseObject ();
             break;
         }
-        */
         // delete node
         case GDK_BackSpace: // fall through
         case GDK_Delete:
