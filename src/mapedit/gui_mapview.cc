@@ -1,5 +1,5 @@
 /*
- $Id: gui_mapview.cc,v 1.7 2009/05/21 14:28:18 ksterker Exp $
+ $Id: gui_mapview.cc,v 1.8 2009/05/24 13:40:28 ksterker Exp $
  
  Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
  Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -32,6 +32,7 @@
 #include "gfx/gfx.h"
 #include "backend/gtk/screen_gtk.h"
 
+#include "gui_grid.h"
 #include "gui_mapedit.h"
 #include "gui_mapview.h"
 #include "gui_mapview_events.h"
@@ -43,7 +44,10 @@ GuiMapview::GuiMapview(GtkWidget *paned)
     // create drawing area for the graph
     Screen = gtk_drawing_area_new ();
     
+#ifdef __APPLE__
+    // no need to use double buffering on OSX, but appears to be required elsewhere
     GTK_WIDGET_UNSET_FLAGS (GTK_WIDGET (Screen), GTK_DOUBLE_BUFFERED);
+#endif
     
     gtk_widget_set_size_request (GTK_WIDGET (Screen), 800, 600);
     gtk_paned_add2 (GTK_PANED (paned), Screen);
@@ -73,6 +77,9 @@ GuiMapview::GuiMapview(GtkWidget *paned)
     // create the overlay
     Overlay = gfx::create_surface ();
     Overlay->set_alpha (255, true);
+    
+    // create the grid
+    Grid = new GuiGrid (Overlay);
     
     // Memeber intialization
     CurObj = NULL;
@@ -183,6 +190,9 @@ void GuiMapview::resizeSurface (GtkWidget *widget)
     Overlay->resize (widget->allocation.width, widget->allocation.height);
     Overlay->fillrect (0, 0, widget->allocation.width, widget->allocation.height, 0);
     
+    // update grid
+    Grid->draw();
+    
     // redraw everything
     render ();
 }
@@ -218,16 +228,21 @@ void GuiMapview::mouseMoved (const GdkPoint * point)
         }
         else
         {
+            // get object height
+            int h = DrawObj->get_object()->cur_z() + DrawObj->get_object()->height();
+            
             GdkRectangle rect1 = { DrawObjPos.x(), DrawObjPos.y(), DrawObjSurface->length(), DrawObjSurface->height() };
             GdkRegion *region = gdk_region_rectangle (&rect1);
             
             // erase at previous position
             Overlay->fillrect (DrawObjPos.x(), DrawObjPos.y(), DrawObjSurface->length(), DrawObjSurface->height(), 0x00FFFFFF);
+            Grid->draw (DrawObjPos.x(), DrawObjPos.y(), DrawObjSurface->length(), DrawObjSurface->height());
             
             // store new position
-            DrawObjPos = world::vector3<s_int32> (point->x, point->y, 0);
-            
-            GdkRectangle rect2 = { point->x, point->y, DrawObjSurface->length(), DrawObjSurface->height() };
+            DrawObjPos = Grid->align_to_grid (world::vector3<s_int32> (point->x, point->y, oz));
+            DrawObjPos.set_y (DrawObjPos.y() - h);
+
+            GdkRectangle rect2 = { DrawObjPos.x(), DrawObjPos.y(), DrawObjSurface->length(), DrawObjSurface->height() };
             gdk_region_union_with_rect (region, &rect2);
             
             // draw at new position
@@ -266,6 +281,16 @@ void GuiMapview::selectCurObj ()
         
         // give tile some contrast
         DrawObjSurface->set_brightness (150);
+        
+        // update grid
+        MapData *area = (MapData*) View->get_map();
+        Grid->grid_from_object (*CurObj, area->x(), area->y());
+        Grid->set_visible (true);
+        Grid->draw ();
+        
+        // update screen
+        GdkRectangle rect = { 0, 0, Overlay->length(), Overlay->height() };
+        gdk_window_invalidate_rect (Screen->window, &rect, FALSE);        
     }
 }
 
@@ -274,9 +299,12 @@ void GuiMapview::releaseObject ()
 {
     if (DrawObj != NULL)
     {
-        // erase at previous position
-        GdkRectangle rect = { DrawObjPos.x(), DrawObjPos.y(), DrawObjSurface->length(), DrawObjSurface->height() };
-        Overlay->fillrect (DrawObjPos.x(), DrawObjPos.y(), DrawObjSurface->length(), DrawObjSurface->height(), 0);
+        // hide grid
+        Grid->set_visible (false);
+        Grid->draw ();
+        
+        // update screen
+        GdkRectangle rect = { 0, 0, Overlay->length(), Overlay->height() };
         gdk_window_invalidate_rect (Screen->window, &rect, FALSE);
 
         // cleanup
@@ -289,10 +317,39 @@ void GuiMapview::releaseObject ()
     }
 }
 
+// add object to map
+void GuiMapview::placeCurObj()
+{
+    if (isScrolling())
+    {
+        // FIXME
+        // placing objects while scrolling currently
+        // causes them to be out-of-sync with the grid
+        return;
+    }
+    
+    if (DrawObj != NULL)
+    {
+        MapData *area = (MapData*) View->get_map();
+
+        // get object height
+        int h = DrawObj->get_object()->cur_z() + DrawObj->get_object()->height() - DrawObj->get_object()->cur_y();
+                
+        // get proper coordinates
+        world::coordinates pos (DrawObjPos.x() + area->x(), DrawObjPos.y() + area->y() + h, area->z()); 
+        
+        // place object on map
+        area->add (DrawObj, pos);
+        
+        // update screen
+        render (DrawObjPos.x(), DrawObjPos.y(), DrawObjSurface->length(), DrawObjSurface->height());
+    }
+}
+
 // delete object from map
 void GuiMapview::deleteCurObj ()
 {
-    if (CurObj != NULL)
+    if (DrawObj == NULL && CurObj != NULL)
     {
         // remove object from map
         MapData *area = (MapData*) View->get_map();
@@ -325,6 +382,9 @@ void GuiMapview::scroll ()
     area->setX (area->x() - scroll_offset.x);
     area->setY (area->y() - scroll_offset.y);
 
+    // update grid
+    Grid->scroll (scroll_offset.x, scroll_offset.y);
+    
     // rendering the whole mapview is less performant than doing
     // gdk_window_scroll (GDK_WINDOW(Screen->window), scroll_offset.x, scroll_offset.y);
     // but it appears to be the only way to prevent artifacts from appearing

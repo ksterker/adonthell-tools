@@ -1,5 +1,5 @@
 /*
- $Id: gui_mapview.h,v 1.6 2009/05/21 14:28:18 ksterker Exp $
+ $Id: gui_mapview.h,v 1.7 2009/05/24 13:40:28 ksterker Exp $
  
  Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
  Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -40,6 +40,7 @@ namespace gfx
 };
 
 class MapData;
+class GuiGrid;
 
 /**
  * The widget handling the graphical representation of the map.
@@ -130,6 +131,20 @@ public:
      */
     void selectCurObj ();
     /**
+     * Get the object that is currently used for "painting"
+     * the map, or NULL if there is no such object.
+     * @return object used for map editing.
+     */
+    /**
+     * Add currently selected object to the map.
+     */
+    void placeCurObj ();
+    /**
+     * Return the currently selected object.
+     * @return the object to be placed on the map
+     */
+    world::entity *getSelectedObject() const { return DrawObj; }
+    /**
      * Discard the object that is currently used for map editing.
      */
     void releaseObject ();
@@ -160,7 +175,18 @@ public:
     //@}
     
 protected:
+    /**
+     * Get the size and position of the (rendered) object in pixels.
+     * @param obj the object whose size to calculate.
+     * @param x will receive the x-coordinate
+     * @param y will receive the y-coordinate
+     * @param l will receive the extend in x direction
+     * @param h will receive the extend in y direction
+     */
     void getObjectExtend (world::chunk_info *obj, int & x, int & y, int & l, int & h);
+    /**
+     * Will highlight the object below the cursor, if any.
+     */
     void highlightObject ();
 
 private:
@@ -172,9 +198,12 @@ private:
     MapRenderer Renderer;
     /// The render target for the map view
     gfx::surface *Target;
-    // Overlay for additional visuals
+    /// Overlay for additional visuals
     gfx::surface *Overlay;
 
+    /// The grid to which mapobjects can be aligned
+    GuiGrid *Grid;
+    
     /// The currently highlighted object
     world::chunk_info *CurObj;
     

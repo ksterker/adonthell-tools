@@ -1,5 +1,5 @@
 /*
- $Id: gui_mapview_events.cc,v 1.5 2009/05/21 14:28:18 ksterker Exp $
+ $Id: gui_mapview_events.cc,v 1.6 2009/05/24 13:40:28 ksterker Exp $
  
  Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
  Part of the Adonthell Project http://adonthell.linuxgames.com
@@ -64,10 +64,16 @@ gint button_press_event (GtkWidget *widget, GdkEventButton *event, gpointer data
         // Left button pressed
         case 1:
         {
-            // no object picked -> grab
-            view->selectCurObj ();
-            
-            // if object picked -> add to map 
+            if (view->getSelectedObject() == NULL)
+            {
+                // no object picked -> grab
+                view->selectCurObj ();
+            }
+            else
+            {
+                // if object picked -> add to map 
+                view->placeCurObj ();
+            }
             break;
         }
         // Right button pressed
@@ -185,7 +191,16 @@ guint key_press_notify_event (GtkWidget * widget, GdkEventKey * event, gpointer 
             break;
         }
         */
-        
+        // update object z position
+        case GDK_Up:
+        {
+            break;
+        }
+        // update object z position
+        case GDK_Down:
+        {
+            break;
+        }
         // deselect Node
         case GDK_Escape:
         {
@@ -199,7 +214,7 @@ guint key_press_notify_event (GtkWidget * widget, GdkEventKey * event, gpointer 
             view->deleteCurObj ();
             break;
         }
-            
+        // key not consumed
         default:
         {
             return FALSE;

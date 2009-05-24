@@ -9,6 +9,7 @@ AC_CONFIG_AUX_DIR(.)
 dnl Detect the canonical host and target build environment
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
+AC_CONFIG_MACRO_DIR([m4])
 
 AM_INIT_AUTOMAKE(adonthell-tools, 0.4.0-alpha-1)
 AM_CONFIG_HEADER(config.h)
@@ -31,18 +32,22 @@ dnl ****
 
 AM_GNU_GETTEXT([external])
 
+
 dnl *********
 dnl Endianess
 dnl *********
 
 AC_C_BIGENDIAN(CXXFLAGS="$CXXFLAGS -DBIG_ENDIAN", :, :)
+
+
+dnl *******
+dnl libtool
+dnl *******
+
 AC_LIBTOOL_DLOPEN
-AC_LIBLTDL_CONVENIENCE
 AC_LIBTOOL_WIN32_DLL
 AC_PROG_LIBTOOL
-AC_SUBST(LIBLTDL)
-CPPFLAGS="$CPPFLAGS $INCLTDL"
-AC_CONFIG_SUBDIRS(libltdl)
+AC_CHECK_LIB(ltdl, lt_dlinit,,echo "Adonthell requires libltdl. Exitting...";exit 1)
 
 
 dnl ********************
@@ -209,7 +214,6 @@ AM_CONDITIONAL(PY_FRAMEWORK, test x$fw != x$PYPREFIX)
 
 
 AC_OUTPUT([ 
-po/Makefile.in
 Makefile
 src/Makefile
 src/backend/Makefile
