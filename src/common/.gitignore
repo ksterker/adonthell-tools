@@ -1,0 +1,5 @@
+.DS_Store
+.deps
+.libs
+Makefile
+Makefile.in

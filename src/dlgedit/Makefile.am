@@ -83,8 +83,8 @@ INCLUDES = -I@top_srcdir@/src/common
 dlgedit_CXXFLAGS = -D_VERSION_=\"0.9pre\" $(GTK_CFLAGS) $(ADONTHELL_CFLAGS)
 dlgedit_LDADD = ../common/libcommon.a $(GTK_LIBS) $(ADONTHELL_LIBS)
 
-lex.loadlg.cc: $(top_srcdir)/src/dlgedit/loadlg.l
-	flex -olex.loadlg.cc $<
+$(srcdir)/lex.loadlg.cc: $(top_srcdir)/src/dlgedit/loadlg.l
+	flex -o$(srcdir)/lex.loadlg.cc $<
 
-lex.loadcfg.cc: $(top_srcdir)/src/dlgedit/loadcfg.l
-	flex -olex.loadcfg.cc $<
+$(srcdir)/lex.loadcfg.cc: $(top_srcdir)/src/dlgedit/loadcfg.l
+	flex -o$(srcdir)/lex.loadcfg.cc $<

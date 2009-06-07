@@ -191,14 +191,16 @@ guint key_press_notify_event (GtkWidget * widget, GdkEventKey * event, gpointer 
             break;
         }
         */
-        // update object z position
+        // increase object z position
         case GDK_Up:
         {
+            view->updateHeight (event->state & GDK_SHIFT_MASK ? 10 : 1);
             break;
         }
-        // update object z position
+            // decrease object z position
         case GDK_Down:
         {
+            view->updateHeight (event->state & GDK_SHIFT_MASK ? -10 : -1);
             break;
         }
         // deselect Node

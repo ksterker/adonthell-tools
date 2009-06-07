@@ -170,7 +170,7 @@ void GuiMapview::renderObject (world::chunk_info *obj)
         MapData *area = (MapData*) View->get_map();
         
         // draw
-        render (x - area->x(), y - area->y(), l, h);
+        render (x - area->x(), y - area->y() + area->z(), l, h);
     }    
 }
 
@@ -211,11 +211,11 @@ void GuiMapview::mouseMoved (const GdkPoint * point)
         
         if (DrawObj == NULL)
         {
-            GdkPoint p = { point->x + ox, point->y + oy };
+            GdkPoint p = { point->x + ox, point->y + oy - oz };
             
             // find object that's being moused over
-            std::list<world::chunk_info*> objects_under_mouse = area->objects_in_view (p.x, p.y, oz, 0, 0);
-            world::chunk_info *obj = Renderer.findObjectBelowCursor (ox, oy + oz, &p, objects_under_mouse);
+            std::list<world::chunk_info*> objects_under_mouse = area->objects_in_view (p.x, p.y, 0, 0, 0);
+            world::chunk_info *obj = Renderer.findObjectBelowCursor (ox, oy - oz, &p, objects_under_mouse);
             if (obj != CurObj) 
             {
                 // reset previously highlighted object
@@ -248,6 +248,9 @@ void GuiMapview::mouseMoved (const GdkPoint * point)
             // draw at new position
             DrawObjSurface->draw (DrawObjPos.x(), DrawObjPos.y(), NULL, Overlay);
             
+            // check for overlap with objects already on the map
+            indicateOverlap ();
+            
             gdk_window_invalidate_region (Screen->window, region, FALSE);
             gdk_region_destroy (region);
         }
@@ -255,6 +258,49 @@ void GuiMapview::mouseMoved (const GdkPoint * point)
     
     // display map coordinates of mouse pointer
     GuiMapedit::window->setLocation (point->x + ox, point->y + oy, oz);
+}
+
+// add red tint if object would overlap other objects on the map
+void GuiMapview::indicateOverlap ()
+{
+    world::placeable *obj = DrawObj->get_object();
+    
+    MapData *area = (MapData*) View->get_map();    
+    int h = obj->cur_z() + obj->height() - obj->cur_y();
+    world::vector3<s_int32> min (DrawObjPos.x() + area->x() + 1, DrawObjPos.y() + area->y() + h + 1, area->z() + 1); 
+    world::vector3<s_int32> max (min.x() + obj->max_length() - 2, min.y() + obj->max_width() - 2, min.z() + obj->max_height() - 2);
+    
+    world::chunk_info ci (DrawObj, min, max);
+    
+    std::list<world::chunk_info*> objs_on_map = area->objects_in_bbox (ci.real_min(), ci.real_max());
+    if (!objs_on_map.empty())
+    {
+        gfx::surface *tint = gfx::create_surface ();
+        tint->set_alpha (128);
+        tint->resize (DrawObjSurface->length(), DrawObjSurface->height());
+        tint->fillrect (0, 0, DrawObjSurface->length(), DrawObjSurface->height(), 0xFFFF0000);
+        tint->draw (DrawObjPos.x(), DrawObjPos.y(), NULL, Overlay);
+        delete tint;
+    }
+}
+
+// change height
+void GuiMapview::updateHeight (const s_int16 & oz)
+{
+    MapData *area = (MapData*) View->get_map();
+    
+    if (area != NULL)
+    {
+        area->setZ (area->z() + oz);
+        
+        // redraw
+        render();
+        
+        // update map coordinate display
+        int x, y;
+        gtk_widget_get_pointer (Screen, &x, &y);
+        GuiMapedit::window->setLocation (x + area->x(), y + area->y(), area->z());
+    }
 }
 
 // pick currently highlighted object for drawing

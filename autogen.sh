@@ -7,8 +7,9 @@ rm -f `find . -name 'Makefile.in'`
 rm -f `find . -name 'Makefile'`
 
 # Regenerate everything
-aclocal -I .
 libtoolize --force --copy 
+gettextize --force --no-changelog 
+aclocal -I m4 
 autoheader
 automake --add-missing --copy --foreign
 autoconf 

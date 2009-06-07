@@ -123,6 +123,13 @@ public:
     void mouseMoved (const GdkPoint * point);
     
     /**
+     * Update height of mapview (and objects being placed)
+     * by the given offset.
+     * @param oz offset for z axis.
+     */
+    void updateHeight (const s_int16 & oz);
+    
+    /**
      * @name Editing Functionality
      */
     //@{
@@ -188,6 +195,8 @@ protected:
      * Will highlight the object below the cursor, if any.
      */
     void highlightObject ();
+
+    void indicateOverlap ();
 
 private:
     /// Drawing Area
