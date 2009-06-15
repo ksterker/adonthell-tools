@@ -34,11 +34,12 @@
 #include <gtk/gtk.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 
-#include "map_cmdline.h"
-#include "map_data.h"
-#include "gui_mapedit.h"
-#include "gui_mapedit_events.h"
-#include "gui_mapview.h"
+#include "mapedit/map_cmdline.h"
+#include "mapedit/map_data.h"
+#include "mapedit/gui_mapedit.h"
+#include "mapedit/gui_mapedit_events.h"
+#include "mapedit/gui_mapview.h"
+#include "mapedit/gui_entity_list.h"
 
 /**
  * Icon of the main window
@@ -222,6 +223,11 @@ GuiMapedit::GuiMapedit ()
     // Drawing Area
     View = new GuiMapview (hpaned);
     
+    // Entity list
+    EntityList = new GuiEntityList ();
+    gtk_paned_add1 (GTK_PANED (hpaned), EntityList->getTreeWidget());
+    gtk_widget_show (EntityList->getTreeWidget());
+
     // Status bars
     hbox = gtk_hbox_new (FALSE, 0);
     g_object_ref (hbox);
@@ -277,6 +283,7 @@ void GuiMapedit::loadMap (const std::string & fname)
         LoadedMaps.push_back (area);
         
         View->setMap (area);
+        EntityList->setMap (area);
     }
     else
     {

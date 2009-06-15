@@ -115,7 +115,7 @@ void GuiMapview::draw (const int & sx, const int & sy, const int & l, const int 
 {
     // get "screen" surface 
     gfx::screen_surface_gtk *s = (gfx::screen_surface_gtk*) gfx::screen::get_surface();
-    s->set_window (Screen->window);
+    s->set_drawable (Screen->window);
     
     // set clipping rectangle
     gfx::drawing_area da (sx, sy, l, h);

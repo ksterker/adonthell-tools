@@ -195,7 +195,10 @@ protected:
      * Will highlight the object below the cursor, if any.
      */
     void highlightObject ();
-
+    /**
+     * Show whether the object we paint with is overlapping objects
+     * on the map at the current position.
+     */
     void indicateOverlap ();
 
 private:

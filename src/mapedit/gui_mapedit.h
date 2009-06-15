@@ -32,6 +32,7 @@
 #include <vector>
 
 class GuiMapview;
+class GuiEntityList;
 class MapData;
 
 /**
@@ -124,7 +125,9 @@ private:
      */
     void clear ();
 
-    /// dialogue view
+    /// entity list
+    GuiEntityList *EntityList;
+    /// map view
     GuiMapview *View;                 
     /// actual main window
     GtkWidget *Wnd;

@@ -42,7 +42,7 @@ class screen_surface_gtk : public gfx::surface_gtk
 public:
     screen_surface_gtk () : surface_gtk () 
     { 
-        Window = NULL; 
+        Drawable = NULL; 
     }
     
     virtual ~screen_surface_gtk() 
@@ -58,37 +58,37 @@ public:
 
     void clear () 
     { 
-        if (Window)
+        if (Drawable)
         {
-            g_object_unref (Window);
-            Window = NULL;
+            g_object_unref (Drawable);
+            Drawable = NULL;
         }
     }
     
-    void set_window (GdkWindow *wnd) 
+    void set_drawable (GdkDrawable *drawable) 
     { 
         clear ();
         
         int l, h;
-        gdk_drawable_get_size (wnd, &l, &h);
+        gdk_drawable_get_size (drawable, &l, &h);
         set_length (l);
         set_height (h);
         
-        g_object_ref (wnd);
-        Window = wnd;
+        g_object_ref (drawable);
+        Drawable = drawable;
     }
     
 protected:
     virtual cairo_t *create_drawing_context() const
     {
-        if (Window) return gdk_cairo_create (GDK_DRAWABLE(Window));
-        fprintf (stderr, "*** screen::create_drawing_context: No window to draw on!\n");
+        if (Drawable) return gdk_cairo_create (Drawable);
+        fprintf (stderr, "*** screen::create_drawing_context: No drawable to draw on!\n");
         return NULL;
     }
 
 private:
     /// the gtk window to draw on.
-    GdkWindow *Window;
+    GdkDrawable *Drawable;
 };
 
 

@@ -214,7 +214,7 @@ gint expose_event (GtkWidget * widget, GdkEventExpose * event, gpointer data)
     
     // this is a GTK+ backed "screen" surface
     gfx::screen_surface_gtk *target = (gfx::screen_surface_gtk*) gfx::screen::get_surface();
-    target->set_window (widget->window);
+    target->set_drawable (widget->window);
     target->fillrect (0, 0, 800, 600, 0xFF000000);
     
     // test clipping

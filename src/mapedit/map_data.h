@@ -34,6 +34,9 @@
 class MapData : public world::area 
 {
 public:
+    /// iterator over entities on the map
+    typedef std::vector<world::entity*>::iterator entity_iter;
+
     /**
      * Create a new map container.
      */
@@ -43,6 +46,21 @@ public:
      * Destructor.
      */
     virtual ~MapData();
+    
+    /**
+     * @name Map Entities
+     */
+    //@{
+    /**
+     *
+     */
+    entity_iter firstEntity() { return Entities.begin(); }
+    
+    /**
+     *
+     */
+    entity_iter lastEntity() { return Entities.end(); }
+    //@}    
     
     /**
      * @name Position Data
