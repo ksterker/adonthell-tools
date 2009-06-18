@@ -76,7 +76,7 @@ public:
      * Align the given position to the grid.
      * @param return the position aligned to the grid.
      */
-    world::vector3<s_int32> GuiGrid::align_to_grid (const world::vector3<s_int32> & pos);
+    world::vector3<s_int32> align_to_grid (const world::vector3<s_int32> & pos);
 
     /**
      * Toggle grid on or off
