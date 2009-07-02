@@ -27,10 +27,41 @@
 #ifndef GUI_ENTITY_LIST_H
 #define GUI_ENTITY_LIST_H
 
-#include <gtk/gtktreeview.h>
+#include <gtk/gtk.h>
 
 #include "mapedit/map_data.h"
+#include "mapedit/map_entity.h"
 
+G_BEGIN_DECLS
+
+#define TYPE_ENTITY_LIST	(entity_list_get_type ())
+#define ENTITY_LIST(obj)	(G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_ENTITY_LIST, EntityList))
+#define ENTITY_LIST_CLASS(obj)	(G_TYPE_CHECK_CLASS_CAST ((obj), TYPE_ENTITY_LIST, EntityListClass))
+#define IS_ENTITY_LIST(obj)	(G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_ENTITY_LIST))
+#define IS_ENTITY_LIST_CLASS(obj)	(G_TYPE_CHECK_CLASS_TYPE ((obj), TYPE_ENTITY_LIST))
+#define ENTITY_LIST_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_CLASS ((obj), TYPE_ENTITY_LIST, EntityListClass))
+
+typedef struct _EntityList EntityList;
+typedef struct _EntityListClass EntityListClass;
+
+struct _EntityList
+{
+	GtkListStore parent;
+};
+
+struct _EntityListClass
+{
+	GtkListStoreClass parent_class;
+};
+
+GType entity_list_get_type (void);
+
+G_END_DECLS
+
+/**
+ *
+ *
+ */
 class GuiEntityList
 {
 public:

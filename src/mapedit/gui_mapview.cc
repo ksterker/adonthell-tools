@@ -251,6 +251,7 @@ void GuiMapview::mouseMoved (const GdkPoint * point)
             // check for overlap with objects already on the map
             indicateOverlap ();
             
+            // blit to screen
             gdk_window_invalidate_region (Screen->window, region, FALSE);
             gdk_region_destroy (region);
         }

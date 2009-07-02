@@ -11,6 +11,7 @@ noinst_HEADERS = \
     gui_mapview_events.h \
     map_cmdline.h \
     map_data.h \
+    map_entity.h \
     map_renderer.h
     
 mapedit_SOURCES = \
@@ -23,6 +24,7 @@ mapedit_SOURCES = \
     main.cc \
     map_cmdline.cc \
     map_data.cc \
+    map_entity.cc \
     map_renderer.cc
 
 INCLUDES = -I@top_srcdir@/src/common -I@top_srcdir@/src
