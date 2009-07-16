@@ -76,11 +76,18 @@ public:
      */
     void setMap (MapData * map);
     
+    void setDataDir (const std::string & datadir);
+
+    bool isPresentOnMap (const std::string & filename) const;
+    
     /**
      * Get the tree view widget.
      * @return pointer to the tree view.
      */
     GtkWidget *getTreeWidget () const { return (GtkWidget*) TreeView; }
+
+protected:
+    void scanDir (const std::string & datadir, GtkListStore *model);
     
 private:
     /// the map whose entities are displayed

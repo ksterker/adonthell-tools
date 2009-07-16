@@ -34,7 +34,17 @@
 MapEntity::MapEntity (world::entity *obj)
 {
     Entity = obj;
+    Object = obj->get_object ();
     
+    update_tags ();
+}
+
+// ctor
+MapEntity::MapEntity (world::placeable *obj)
+{
+    Entity = NULL;
+    Object = obj;
+
     update_tags ();
 }
 
@@ -43,8 +53,7 @@ void MapEntity::update_tags ()
 {
     Tags.clear ();
 
-    world::placeable *obj = Entity->get_object();
-    std::string path = obj->filename();
+    std::string path = Object->filename();
     gchar *dir_name = g_path_get_dirname (path.c_str());
     gchar **tags = g_strsplit (dir_name, "/", -1);
 
@@ -54,16 +63,16 @@ void MapEntity::update_tags ()
     }
 
     g_strfreev (tags);
+    g_free (dir_name);
 }
 
 // name (and id) of entity
 gchar* MapEntity::get_name_and_id () const
 {
-    world::placeable *obj = Entity->get_object();
-    std::string path = obj->filename();
+    std::string path = Object->filename();
     gchar* name = g_path_get_basename (path.substr (0, path.rfind(".")).c_str());
     
-    if (Entity->has_name ())
+    if (Entity && Entity->has_name ())
     {
         gchar *tmp = g_strconcat (name, "\n", Entity->id()->c_str(), NULL);
         g_free (name);
@@ -76,18 +85,21 @@ gchar* MapEntity::get_name_and_id () const
 // type of entity: (A)nonymous, (S)hared or (U)nique
 gchar* MapEntity::get_type_name () const
 {
-    return g_strconcat ((Entity->has_name() ? (((world::named_entity*)Entity)->is_unique() ? "U" : "S") : "A"), NULL);
+    if (Entity)
+    {
+        return g_strconcat ((Entity->has_name() ? (((world::named_entity*)Entity)->is_unique() ? "U" : "S") : "A"), NULL);
+    }
+    return "-";
 }
 
 // picture of entity
 GdkPixbuf *MapEntity::get_icon () const
 {
     static world::default_renderer renderer;
-    world::placeable *obj = Entity->get_object();
 
     // pixmap extends
-    int l = obj->length();
-    int h = obj->width() + obj->height();
+    int l = Object->length();
+    int h = Object->width() + Object->height();
     
     // create pixmap
     GdkPixmap* pixmap = gdk_pixmap_new (NULL, l, h, gdk_visual_get_best_depth ());
@@ -97,15 +109,16 @@ GdkPixbuf *MapEntity::get_icon () const
     surface->set_drawable (pixmap);
     surface->set_alpha (255, true);
     surface->resize (l, h);
-    surface->fillrect (0, 0, l, h, 0xFFFFFFFF);
+    surface->fillrect (0, 0, l, h, is_on_map() ? 0xFFFFFFFF : surface->map_color (0xA8, 0xB8, 0xA8, 0xFF));
     
     // properly render the object
-    world::vector3<s_int32> min (0, 0, 0), max (obj->length(), obj->width(), obj->height()); 
-    world::chunk_info ci (Entity, min, max);
+    world::vector3<s_int32> min (0, 0, 0), max (Object->length(), Object->width(), Object->height());
+    world::named_entity ety (Object, "", false);
+    world::chunk_info ci (&ety, min, max);
     std::list <world::chunk_info*> object_list;
     object_list.push_back (&ci);
     gfx::drawing_area da (0, 0, l, h);
-    renderer.render (0, obj->height(), object_list, da, surface);
+    renderer.render (0, Object->height(), object_list, da, surface);
     
     // thumbnail of entity
     GdkPixbuf *pixbuf = gdk_pixbuf_get_from_drawable (NULL, pixmap, gdk_colormap_get_system (), 0, 0, 0, 0, l, h);

@@ -284,6 +284,10 @@ void GuiMapedit::loadMap (const std::string & fname)
         
         View->setMap (area);
         EntityList->setMap (area);
+        
+        gchar *datadir = g_path_get_dirname (fname.c_str());
+        EntityList->setDataDir (std::string (datadir) + "/models");
+        g_free (datadir);
     }
     else
     {

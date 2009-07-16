@@ -24,7 +24,13 @@
  * @brief Display entities used on the map.
  */
 
+
+#include <dirent.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #include <gtk/gtk.h>
+#include <world/object.h>
 
 #include "mapedit/gui_entity_list.h"
 
@@ -33,6 +39,7 @@ enum
     NAME_COLUMN,
     TYPE_COLUMN,
     ICON_COLUMN,
+    COLOR_COLUMN,
     NUM_COLUMNS
 };
 
@@ -105,7 +112,7 @@ static int entity_list_get_n_columns (GtkTreeModel *self)
 static GType entity_list_get_column_type (GtkTreeModel *self, int column)
 {
 	static GType types[] = {
-        G_TYPE_STRING, G_TYPE_STRING, GDK_TYPE_PIXBUF
+        G_TYPE_STRING, G_TYPE_STRING, GDK_TYPE_PIXBUF, G_TYPE_STRING
 	};
     
 	// validate our parameters 
@@ -143,14 +150,19 @@ static void entity_list_get_value (GtkTreeModel *self, GtkTreeIter *iter, int co
         {
             gchar *type = obj->get_type_name ();
 			g_value_set_string (value, type);
-            g_free (type);
 			break;
         }   
 		case ICON_COLUMN:
         {
 			g_value_set_object (value, obj->get_icon ());
 			break;
-        }   
+        }
+        case COLOR_COLUMN:
+        {
+            const gchar *color = obj->is_on_map () ? "#FFFFFF" : "#A8B8A8";
+			g_value_set_string (value, color);
+			break;
+        }
 		default:
         {
 			g_assert_not_reached ();
@@ -167,8 +179,8 @@ GuiEntityList::GuiEntityList ()
     
     // create the columns
     GtkCellRenderer *renderer = gtk_cell_renderer_text_new ();
-    gtk_tree_view_insert_column_with_attributes (TreeView, -1, "Name", renderer, "text", NAME_COLUMN, NULL);
-    gtk_tree_view_insert_column_with_attributes (TreeView, -1, "Type", renderer, "text", TYPE_COLUMN, NULL);
+    gtk_tree_view_insert_column_with_attributes (TreeView, -1, "Name", renderer, "text", NAME_COLUMN, "background", COLOR_COLUMN, NULL);
+    gtk_tree_view_insert_column_with_attributes (TreeView, -1, "Type", renderer, "text", TYPE_COLUMN, "background", COLOR_COLUMN, NULL);
     renderer = gtk_cell_renderer_pixbuf_new ();
     gtk_tree_view_insert_column_with_attributes (TreeView, -1, "Icon", renderer, "pixbuf", ICON_COLUMN, NULL);
 
@@ -209,4 +221,94 @@ void GuiEntityList::setMap (MapData * map)
     
     // set the model again 
     gtk_tree_view_set_model (TreeView, (GtkTreeModel*) model);
+}
+
+void GuiEntityList::setDataDir (const std::string & datadir)
+{
+    // get model
+    GtkListStore *model = GTK_LIST_STORE (gtk_tree_view_get_model (TreeView));
+    
+    // avoid tree updates while adding rows
+    gtk_tree_view_set_model (TreeView, (GtkTreeModel*) NULL);
+
+    // add models contained under directory
+    scanDir (datadir, model);
+    
+    // set the model again 
+    gtk_tree_view_set_model (TreeView, (GtkTreeModel*) model);
+}
+
+// recursively scan given directory for models
+void GuiEntityList::scanDir (const std::string & datadir, GtkListStore *model)
+{
+    DIR *dir;
+    GtkTreeIter iter;
+    struct dirent *dirent;
+    struct stat statbuf;
+    
+    // open directory
+    if ((dir = opendir (datadir.c_str ())) != NULL)
+    {
+        // read directory contents
+        while ((dirent = readdir (dir)) != NULL)
+        {
+            // skip anything starting with .
+            if (dirent->d_name[0] == '.') continue;
+
+            string filepath = datadir + "/";
+            filepath += dirent->d_name; 
+            
+            if (stat (filepath.c_str (), &statbuf) != -1)
+            {
+                // recurse
+                if (S_ISDIR (statbuf.st_mode)) scanDir (filepath, model);
+                
+                // models are .xml files
+                if (S_ISREG (statbuf.st_mode) && filepath.compare (filepath.length() - 4, 4, ".xml") == 0)
+                {
+                    // check if this file is already part of the map
+                    if (isPresentOnMap (filepath)) continue;
+                    
+                    // not present on map, so add it to the list
+                    world::object *obj = new world::object(*Map);
+                    if (obj->load (filepath))
+                    {
+                        // create meta data object
+                        MapEntity *ety = new MapEntity (obj);
+                        
+                        // get new row
+                        gtk_list_store_append (model, &iter);
+                        
+                        // set our data
+                        gtk_list_store_set (model, &iter, 0, ety, -1);                        
+                    }
+                }
+            }
+        }
+
+        closedir (dir);
+    }
+}
+
+// check if object with given name is already placed on map
+bool GuiEntityList::isPresentOnMap (const std::string & filename) const
+{
+    if (Map == NULL) return false;
+
+    for (MapData::entity_iter e = Map->firstEntity(); e != Map->lastEntity(); e++)
+    {
+        world::placeable *obj = (*e)->get_object();
+        std::string objname = obj->filename();
+
+        if (objname.size() <= filename.size())
+        {
+            // files should be equal if they are equal except for a prefix
+            if (filename.compare (filename.size() - objname.size(), objname.size(), objname) == 0)
+            {
+                return true;
+            }
+        }
+    }
+    
+    return false;
 }
