@@ -29,6 +29,7 @@
 #ifndef GUI_MAPEDIT_H
 #define GUI_MAPEDIT_H
 
+#include <string>
 #include <vector>
 
 class GuiMapview;

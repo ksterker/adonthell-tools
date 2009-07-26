@@ -138,17 +138,19 @@ public:
      */
     void selectCurObj ();
     /**
-     * Get the object that is currently used for "painting"
-     * the map, or NULL if there is no such object.
-     * @return object used for map editing.
+     * Pick the given object for map editing, discarding
+     * any previously picked object.
+     * @param ety the new object to use for map editing.
      */
+    void selectObj (world::entity *ety);
     /**
      * Add currently selected object to the map.
      */
     void placeCurObj ();
     /**
-     * Return the currently selected object.
-     * @return the object to be placed on the map
+     * Get the object that is currently used for "painting"
+     * the map, or NULL if there is no such object.
+     * @return object used for map editing.
      */
     world::entity *getSelectedObject() const { return DrawObj; }
     /**

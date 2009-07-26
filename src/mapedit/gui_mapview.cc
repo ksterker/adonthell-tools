@@ -55,14 +55,14 @@ GuiMapview::GuiMapview(GtkWidget *paned)
     gtk_widget_grab_focus (Screen);
     
     // register our event callbacks
-    gtk_signal_connect (GTK_OBJECT (Screen), "expose_event", (GtkSignalFunc) expose_event, this);
-    gtk_signal_connect (GTK_OBJECT (Screen), "configure_event", (GtkSignalFunc) configure_event, this);
-    gtk_signal_connect (GTK_OBJECT (Screen), "motion_notify_event", (GtkSignalFunc) motion_notify_event, this);
-    gtk_signal_connect (GTK_OBJECT (Screen), "button_press_event", (GtkSignalFunc) button_press_event, this);
+    g_signal_connect (G_OBJECT (Screen), "expose_event", G_CALLBACK(expose_event), this);
+    g_signal_connect (G_OBJECT (Screen), "configure_event", G_CALLBACK(configure_event), this);
+    g_signal_connect (G_OBJECT (Screen), "motion_notify_event", G_CALLBACK(motion_notify_event), this);
+    g_signal_connect (G_OBJECT (Screen), "button_press_event", G_CALLBACK(button_press_event), this);
     /*
-    gtk_signal_connect (GTK_OBJECT (Screen), "button_release_event", (GtkSignalFunc) button_release_event, this);
+    g_signal_connect (G_OBJECT (Screen), "button_release_event", G_CALLBACK(button_release_event), this);
     */
-    gtk_signal_connect (GTK_OBJECT (GuiMapedit::window->getWindow ()), "key_press_event", (GtkSignalFunc) key_press_notify_event, this);
+    g_signal_connect (G_OBJECT (GuiMapedit::window->getWindow ()), "key_press_event", G_CALLBACK(key_press_notify_event), this);
     
     gtk_widget_set_events (Screen, GDK_EXPOSURE_MASK | GDK_LEAVE_NOTIFY_MASK | GDK_BUTTON_PRESS_MASK |
                            GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK | GDK_KEY_PRESS_MASK);
@@ -339,6 +339,37 @@ void GuiMapview::selectCurObj ()
         GdkRectangle rect = { 0, 0, Overlay->length(), Overlay->height() };
         gdk_window_invalidate_rect (Screen->window, &rect, FALSE);        
     }
+}
+
+// use given object for drawing
+void GuiMapview::selectObj (world::entity *ety)
+{
+    // already selected?
+    if (DrawObj == ety) return;
+    
+    // cleanup previously selected object
+    if (DrawObj != NULL)
+    {
+        delete DrawObjSurface;
+        DrawObjSurface = NULL;
+        DrawObj = NULL;
+    }
+    
+    // make sure no object is drawn highlighted
+    Renderer.clearSelection();
+    
+    // build a fake object present on the map
+    world::placeable *obj = ety->get_object();
+    world::vector3<s_int32> min (0, 0, 0), max (obj->length(), obj->width(), obj->height());
+    world::chunk_info ci (ety, min, max);
+    
+    // set this as the selected object ...
+    CurObj = &ci;
+    // ... and use if for drawing
+    selectCurObj();
+    
+    // cleanup
+    CurObj = NULL;
 }
 
 // drop object currently picked for drawing

@@ -59,8 +59,9 @@ GType entity_list_get_type (void);
 G_END_DECLS
 
 /**
- *
- *
+ * A list of all entities either present on the map or available
+ * in the gamedata's model directory. It allows to add latter to
+ * the map and to pick former for placement on the map.
  */
 class GuiEntityList
 {
@@ -76,8 +77,20 @@ public:
      */
     void setMap (MapData * map);
     
+    /**
+     * Set the "model" directory. It is scanned for map objects
+     * not yet present on the map. They will be added to the
+     * entity list and can be placed on the map.
+     * @param datadir the directory to scan recursively.
+     */
     void setDataDir (const std::string & datadir);
 
+    /**
+     * Check whether the given entity is already present on the
+     * map. To achieve this, filenames are compared.
+     * @param filename the name of the entity to check.
+     * @return true if entity is part of the map, false otherwise.
+     */
     bool isPresentOnMap (const std::string & filename) const;
     
     /**
@@ -87,6 +100,12 @@ public:
     GtkWidget *getTreeWidget () const { return (GtkWidget*) TreeView; }
 
 protected:
+    /**
+     * Scan the given directory for models and add them to the
+     * given list store.
+     * @param datadir the directory to scan recursively.
+     * @param model the list to add an models.
+     */
     void scanDir (const std::string & datadir, GtkListStore *model);
     
 private:

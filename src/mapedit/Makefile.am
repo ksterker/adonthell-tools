@@ -3,6 +3,7 @@
 noinst_PROGRAMS = mapedit
 
 noinst_HEADERS = \
+    gui_entity_dialog.h \
     gui_entity_list.h \
     gui_grid.h \
     gui_mapedit.h \
@@ -15,6 +16,7 @@ noinst_HEADERS = \
     map_renderer.h
     
 mapedit_SOURCES = \
+    gui_entity_dialog.cc \
     gui_entity_list.cc \
     gui_grid.cc \
     gui_mapedit.cc \

@@ -32,7 +32,10 @@
 #include <gtk/gtk.h>
 #include <world/object.h>
 
-#include "mapedit/gui_entity_list.h"
+#include "gui_mapedit.h"
+#include "gui_mapview.h"
+#include "gui_entity_list.h"
+#include "gui_entity_dialog.h"
 
 enum
 {
@@ -170,6 +173,38 @@ static void entity_list_get_value (GtkTreeModel *self, GtkTreeIter *iter, int co
 	}
 }
 
+// callback for selection changes
+static void selected_event (GtkTreeSelection *selection, gpointer user_data)
+{
+    GtkTreeModel *model;
+    GtkTreeIter iter;
+    
+    // anything selected at all? 
+    if (gtk_tree_selection_get_selected (selection, &model, &iter))
+    {
+        // get object at selected row
+        GtkTreeView *view = gtk_tree_selection_get_tree_view (selection);
+        MapEntity *obj = (MapEntity*) entity_list_get_object (ENTITY_LIST (model), &iter);
+
+        // check if object needs to be added to map
+        if (!obj->is_on_map ())
+        {
+            // allow user to add entity to map
+            GuiEntityDialog dlg (obj);
+            if (!dlg.run())
+            {
+                // user cancelled and object has not been added to map
+                return;
+            }
+        }
+        
+        // object has been added to map (or already had been there in the first place)
+        GuiMapview *map_view = GuiMapedit::window->view();
+        // make it the editing object
+        map_view->selectObj(obj->entity());
+    }
+}
+
 // ctor
 GuiEntityList::GuiEntityList ()
 {
@@ -184,6 +219,10 @@ GuiEntityList::GuiEntityList ()
     renderer = gtk_cell_renderer_pixbuf_new ();
     gtk_tree_view_insert_column_with_attributes (TreeView, -1, "Icon", renderer, "pixbuf", ICON_COLUMN, NULL);
 
+    // selection listener
+    GtkTreeSelection *selection = gtk_tree_view_get_selection (TreeView);
+    g_signal_connect (G_OBJECT(selection), "changed", G_CALLBACK(selected_event), this);
+    
     // create the (empty) model
     GtkListStore *model = (GtkListStore *) g_object_new (TYPE_ENTITY_LIST, NULL);
     gtk_tree_view_set_model (TreeView, (GtkTreeModel*) model);

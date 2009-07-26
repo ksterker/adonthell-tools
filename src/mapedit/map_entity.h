@@ -49,6 +49,12 @@ public:
      * @param obj an object not present on the map.
      */
     MapEntity (world::placeable *obj);
+  
+    /**
+     * Get the entity wrapped by this object.
+     * @return the enitity or NULL if object not placed on a map yet.
+     */
+    world::entity *entity () const { return Entity; }
     
     /**
      * @name Meta-Data to display in GUI.
