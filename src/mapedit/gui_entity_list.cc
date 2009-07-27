@@ -144,7 +144,15 @@ static void entity_list_get_value (GtkTreeModel *self, GtkTreeIter *iter, int co
 	{
         case NAME_COLUMN:
         {
-            gchar *name = obj->get_name_and_id ();
+            gchar *name = obj->get_name ();
+            gchar *id = obj->get_id ();
+            if (id != NULL)
+            {
+                gchar *tmp = g_strconcat (name, "\n", id, NULL);
+                g_free (name);
+                g_free (id);
+                name = tmp;
+            }
             g_value_set_string (value, name);
             g_free (name);
             break;
@@ -153,6 +161,7 @@ static void entity_list_get_value (GtkTreeModel *self, GtkTreeIter *iter, int co
         {
             gchar *type = obj->get_type_name ();
 			g_value_set_string (value, type);
+            g_free (type);
 			break;
         }   
 		case ICON_COLUMN:
@@ -183,7 +192,6 @@ static void selected_event (GtkTreeSelection *selection, gpointer user_data)
     if (gtk_tree_selection_get_selected (selection, &model, &iter))
     {
         // get object at selected row
-        GtkTreeView *view = gtk_tree_selection_get_tree_view (selection);
         MapEntity *obj = (MapEntity*) entity_list_get_object (ENTITY_LIST (model), &iter);
 
         // check if object needs to be added to map

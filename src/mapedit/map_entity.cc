@@ -66,20 +66,23 @@ void MapEntity::update_tags ()
     g_free (dir_name);
 }
 
-// name (and id) of entity
-gchar* MapEntity::get_name_and_id () const
+// name of entity
+gchar* MapEntity::get_name () const
 {
     std::string path = Object->filename();
     gchar* name = g_path_get_basename (path.substr (0, path.rfind(".")).c_str());
-    
+    return name;
+}
+
+// id of entity
+gchar* MapEntity::get_id () const
+{
+    gchar *id = NULL;
     if (Entity && Entity->has_name ())
     {
-        gchar *tmp = g_strconcat (name, "\n", Entity->id()->c_str(), NULL);
-        g_free (name);
-        name = tmp;
-    }        
-    
-    return name;
+        id = g_strdup (Entity->id()->c_str());
+    }
+    return id;
 }
 
 // type of entity: (A)nonymous, (S)hared or (U)nique
@@ -87,13 +90,14 @@ gchar* MapEntity::get_type_name () const
 {
     if (Entity)
     {
-        return g_strconcat ((Entity->has_name() ? (((world::named_entity*)Entity)->is_unique() ? "U" : "S") : "A"), NULL);
+        return g_strdup ((Entity->has_name() ? (((world::named_entity*)Entity)->is_unique() ? "U" : "S") : "A"));
     }
-    return "-";
+    
+    return g_strdup ("-");
 }
 
 // picture of entity
-GdkPixbuf *MapEntity::get_icon () const
+GdkPixbuf *MapEntity::get_icon (const u_int32 & size) const
 {
     static world::default_renderer renderer;
 
@@ -122,8 +126,8 @@ GdkPixbuf *MapEntity::get_icon () const
     
     // thumbnail of entity
     GdkPixbuf *pixbuf = gdk_pixbuf_get_from_drawable (NULL, pixmap, gdk_colormap_get_system (), 0, 0, 0, 0, l, h);
-    int nl = l > h ? 32 : ((float) l / h) * 32;
-    int nh = h > l ? 32 : ((float) h / l) * 32;
+    int nl = l > h ? size : ((float) l / h) * size;
+    int nh = h > l ? size : ((float) h / l) * size;
     GdkPixbuf *icon = gdk_pixbuf_scale_simple (pixbuf, nl, nh, GDK_INTERP_BILINEAR);
     
     // cleanup
@@ -131,4 +135,26 @@ GdkPixbuf *MapEntity::get_icon () const
     g_object_unref (pixbuf);
     
     return icon;
+}
+
+// return type of placeable
+world::placeable_type MapEntity::get_object_type () const
+{
+    if (Entity)
+    {
+        // we know the type
+        return Entity->get_object()->type();
+    }
+    
+    // we don't know the type yet, but we can make an educated guess
+    if (std::find (Tags.begin(), Tags.end(), std::string ("char")) != Tags.end())
+    {
+        return world::CHARACTER;
+    }
+    if (std::find (Tags.begin(), Tags.end(), std::string ("item")) != Tags.end())
+    {
+        return world::ITEM;
+    }
+    
+    return world::OBJECT;
 }

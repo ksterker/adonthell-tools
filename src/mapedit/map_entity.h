@@ -61,23 +61,35 @@ public:
      */
     //@{
     /**
-     * Return filename and (if applicable)
-     * id of unique entities.
-     * @return entity name and id.
+     * Return filename without path and file extension.
+     * @return entity name.
      */
-    gchar* get_name_and_id () const;
+    gchar* get_name () const;
+
+    /**
+     * Return id of unique entities.
+     * @return entity id or NULL.
+     */
+    gchar* get_id () const;
 
     /**
      * Get entity type.
      * @return one of A, S or U.
      */    
     gchar* get_type_name () const;
-    
+
+    /**
+     * Return the type of object encapsulated by the entity.
+     * @return the map object type.
+     */
+    world::placeable_type get_object_type () const;
+
     /**
      * Get thumbnail of the object.
-     * @return 32x32 rendering of the object.
+     * @param size size of the rendered image.
+     * @return rendering of the object at given size.
      */
-    GdkPixbuf *get_icon () const;
+    GdkPixbuf *get_icon (const u_int32 & size = 32) const;
   
     /**
      * Whether this entity is already present on the map.

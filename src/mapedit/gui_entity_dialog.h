@@ -41,6 +41,11 @@ public:
      * @param entity a map object.
      */
     GuiEntityDialog (MapEntity *entity);
+    
+    void set_object_type (const world::placeable_type & type);
+
+protected:
+    GtkBuilder *Ui;
 };
 
 #endif

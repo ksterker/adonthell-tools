@@ -29,7 +29,7 @@
 #include "gui_mapedit.h"
 #include "gui_entity_dialog.h"
 
-// ui definition
+// Ui definition
 static char edit_entity_ui[] =
     "<?xml version=\"1.0\"?>"
     "<interface>"
@@ -133,7 +133,6 @@ static char edit_entity_ui[] =
                                     "<property name=\"tooltip_text\" translatable=\"yes\">These are static objects that usually cannot be interacted with.</property>"
                                     "<property name=\"active\">True</property>"
                                     "<property name=\"draw_indicator\">True</property>"
-                                    "<property name=\"group\">type_character</property>"
                                   "</object>"
                                   "<packing>"
                                     "<property name=\"position\">0</property>"
@@ -148,7 +147,7 @@ static char edit_entity_ui[] =
                                     "<property name=\"tooltip_text\" translatable=\"yes\">These are mobile objects like NPCs and creatures.</property>"
                                     "<property name=\"active\">True</property>"
                                     "<property name=\"draw_indicator\">True</property>"
-                                    "<property name=\"group\">type_item</property>"
+                                    "<property name=\"group\">type_scenery</property>"
                                   "</object>"
                                   "<packing>"
                                     "<property name=\"position\">1</property>"
@@ -221,7 +220,6 @@ static char edit_entity_ui[] =
                                     "<property name=\"tooltip_text\" translatable=\"yes\">Objects that cannot be referred to in scripts. They all share the same sprite.</property>"
                                     "<property name=\"active\">True</property>"
                                     "<property name=\"draw_indicator\">True</property>"
-                                    "<property name=\"group\">entity_shared</property>"
                                   "</object>"
                                 "</child>"
                                 "<child>"
@@ -233,7 +231,7 @@ static char edit_entity_ui[] =
                                     "<property name=\"tooltip_text\" translatable=\"yes\">Objects that can be referred to in scripts via their Id, but which still share the same sprite.</property>"
                                     "<property name=\"active\">True</property>"
                                     "<property name=\"draw_indicator\">True</property>"
-                                    "<property name=\"group\">entity_unique</property>"
+                                    "<property name=\"group\">entity_anonymous</property>"
                                   "</object>"
                                   "<packing>"
                                     "<property name=\"left_attach\">1</property>"
@@ -498,15 +496,37 @@ static void on_cancel_button_pressed (GtkButton * button, gpointer user_data)
     gtk_main_quit ();
 }
 
+// the entity object type has changed
+static void on_type_changed (GtkToggleButton * button, gpointer user_data)
+{
+    if (gtk_toggle_button_get_active (button))
+    {
+        GuiEntityDialog *dlg = (GuiEntityDialog *) user_data;
+        const gchar *id = gtk_widget_get_name (GTK_WIDGET(button));
+        if (strcmp (id, "type_scenery") == 0)
+        {
+            dlg->set_object_type (world::OBJECT);
+        }
+        else if (strcmp (id, "type_character") == 0)
+        {
+            dlg->set_object_type (world::CHARACTER);
+        }
+        else
+        {
+            dlg->set_object_type (world::ITEM);
+        }
+    }
+}
+
 // ctor
 GuiEntityDialog::GuiEntityDialog (MapEntity *entity) 
     : GuiModalDialog (GTK_WINDOW(GuiMapedit::window->getWindow()))
 {
     GError *err = NULL;
     GObject *widget;
-    GtkBuilder* ui = gtk_builder_new();
+    Ui = gtk_builder_new();
 
-	if (!gtk_builder_add_from_string(ui, edit_entity_ui, -1, &err)) 
+	if (!gtk_builder_add_from_string(Ui, edit_entity_ui, -1, &err)) 
     {
         g_message ("building size chooser failed: %s", err->message);
         g_error_free (err);
@@ -514,11 +534,125 @@ GuiEntityDialog::GuiEntityDialog (MapEntity *entity)
     }
     
     // get reference to dialog window
-    window = GTK_WIDGET (gtk_builder_get_object (ui, "entity_properties"));
+    window = GTK_WIDGET (gtk_builder_get_object (Ui, "entity_properties"));
     
     // setup callbacks
-    widget = gtk_builder_get_object (ui, "btn_okay");
+    widget = gtk_builder_get_object (Ui, "btn_okay");
     g_signal_connect (widget, "clicked", G_CALLBACK (on_ok_button_pressed), this);
-    widget = gtk_builder_get_object (ui, "btn_cancel");
+    widget = gtk_builder_get_object (Ui, "btn_cancel");
     g_signal_connect (widget, "clicked", G_CALLBACK (on_cancel_button_pressed), this);
+    
+    widget = gtk_builder_get_object (Ui, "type_scenery");
+    g_signal_connect (widget, "toggled", G_CALLBACK (on_type_changed), this);
+    widget = gtk_builder_get_object (Ui, "type_character");
+    g_signal_connect (widget, "toggled", G_CALLBACK (on_type_changed), this);
+    widget = gtk_builder_get_object (Ui, "type_item");
+    g_signal_connect (widget, "toggled", G_CALLBACK (on_type_changed), this);
+    
+    // disable goto button (until we actually have a use for it)
+    widget = gtk_builder_get_object (Ui, "btn_goto");
+    gtk_widget_set_sensitive (GTK_WIDGET (widget), FALSE);
+    
+    // set name
+    gchar *str = entity->get_name();
+    widget = gtk_builder_get_object (Ui, "lbl_name");
+    gtk_label_set_text (GTK_LABEL (widget), str);
+    g_free (str);
+    
+    // set id
+    str = entity->get_id();
+    if (str != NULL)
+    {
+        widget = gtk_builder_get_object (Ui, "entity_id");
+        gtk_entry_set_text (GTK_ENTRY (widget), str);
+        g_free (str);
+    }
+    
+    // set image
+    GdkPixbuf *img = entity->get_icon (64);
+    widget = gtk_builder_get_object (Ui, "img_preview");
+    gtk_image_set_from_pixbuf (GTK_IMAGE (widget), img);
+    g_object_unref (img);
+
+    // set placeable type
+    world::placeable_type obj_type = entity->get_object_type();
+    switch (obj_type)
+    {
+        case world::OBJECT:
+            widget = gtk_builder_get_object (Ui, "type_scenery");
+            break;
+        case world::CHARACTER:
+            widget = gtk_builder_get_object (Ui, "type_character");
+            break;
+        case world::ITEM:
+            widget = gtk_builder_get_object (Ui, "type_item");
+            break;
+        default:
+            widget = NULL;
+            break;
+    }
+    if (widget != NULL)
+    {
+        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), TRUE);
+    }
+    
+    // set entity type
+    str = entity->get_type_name ();
+    switch (str[0])
+    {
+        case 'A':
+            widget = gtk_builder_get_object (Ui, "entity_anonymous");
+            break;
+        case 'S':
+            widget = gtk_builder_get_object (Ui, "entity_shared");
+            break;
+        case 'U':
+            widget = gtk_builder_get_object (Ui, "entity_unique");
+            break;
+        default:
+            widget = NULL;
+            break;
+    }
+    if (widget != NULL)
+    {
+        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), TRUE);
+    }
+    g_free (str);
+}
+
+// update the entity type
+void GuiEntityDialog::set_object_type (const world::placeable_type & type)
+{
+    GObject *cb_anonymous = gtk_builder_get_object (Ui, "entity_anonymous");
+    GObject *cb_shared = gtk_builder_get_object (Ui, "entity_shared");
+    GObject *cb_unique = gtk_builder_get_object (Ui, "entity_unique");
+        
+    // depending on the placeable type, only a number of entity types make sense
+    switch (type)
+    {
+        case world::OBJECT:
+            gtk_widget_set_sensitive (GTK_WIDGET (cb_anonymous), TRUE);
+            gtk_widget_set_sensitive (GTK_WIDGET (cb_shared), TRUE);
+            gtk_widget_set_sensitive (GTK_WIDGET (cb_unique), TRUE);
+            break;
+        case world::CHARACTER:
+            gtk_widget_set_sensitive (GTK_WIDGET (cb_anonymous), FALSE);
+            gtk_widget_set_sensitive (GTK_WIDGET (cb_shared), FALSE);
+            gtk_widget_set_sensitive (GTK_WIDGET (cb_unique), TRUE);
+            // since this is the only possibly choice --> chose it
+            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb_unique), TRUE);            
+            break;
+        case world::ITEM:
+            gtk_widget_set_sensitive (GTK_WIDGET (cb_anonymous), FALSE);
+            gtk_widget_set_sensitive (GTK_WIDGET (cb_shared), TRUE);
+            gtk_widget_set_sensitive (GTK_WIDGET (cb_unique), TRUE);
+            // check if we have a valid choice --> if not chose a sensible default
+            if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (cb_anonymous)))
+            {
+                gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb_shared), TRUE);            
+            }
+            break;
+        default:
+            break;
+    }    
 }
