@@ -28,7 +28,8 @@
 #include <world/renderer.h>
 
 #include "backend/gtk/screen_gtk.h"
-#include "mapedit/map_entity.h"
+#include "map_entity.h"
+#include "map_data.h"
 
 // ctor
 MapEntity::MapEntity (world::entity *obj)
@@ -46,6 +47,67 @@ MapEntity::MapEntity (world::placeable *obj)
     Object = obj;
 
     update_tags ();
+}
+
+// create or update entity
+bool MapEntity::update_entity (const world::placeable_type & obj_type, const char & entity_type, const std::string & id)
+{
+    // get map associated with the object
+    MapData *map = (MapData*) &(Object->map());
+    
+    world::placeable *result = NULL;
+    if (Entity == NULL)
+    {
+        // create entity?
+        switch (entity_type)
+        {
+            case 'A':
+                result = map->add_entity(obj_type);
+                break;
+            case 'U':
+                result = map->add_entity(obj_type, id);
+                break;
+            case 'S':
+                result = map->add_entity(obj_type);
+                if (result) map->add_entity(result, id);
+                break;
+            default:
+                fprintf (stderr, "update_entity: unsupported entity type '%c'.\n", entity_type);
+                break;
+        }
+    }
+    else
+    {        
+        // update existing entity
+        switch (entity_type)
+        {
+            case 'U':
+            case 'S':
+                // makes only sense for named entities
+                result = map->renameEntity ((world::named_entity*) Entity, id);
+                break;
+            default:
+                fprintf (stderr, "update_entity: unsupported entity type '%c'.\n", entity_type);
+                break;
+        }
+    }
+    
+    // success?
+    if (result != NULL)
+    {
+        // get entity ...
+        Entity = map->getNewestEntity();
+        // and load object data
+        result->load (Object->filename());
+        
+        // and newly created object
+        delete Object;
+        Object = result;
+        
+        return true;
+    }
+    
+    return false;
 }
 
 // update tags
@@ -86,7 +148,7 @@ gchar* MapEntity::get_id () const
 }
 
 // type of entity: (A)nonymous, (S)hared or (U)nique
-gchar* MapEntity::get_type_name () const
+gchar* MapEntity::get_entity_type () const
 {
     if (Entity)
     {

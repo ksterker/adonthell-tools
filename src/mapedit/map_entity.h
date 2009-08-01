@@ -57,6 +57,16 @@ public:
     world::entity *entity () const { return Entity; }
     
     /**
+     * Create or update the wrapped entity. (For now, only the
+     * Id can be updated.)
+     * @param obj_type the placeable type.
+     * @param entity_type type of the entity ('A', 'S' or 'U').
+     * @param id unique identifier for the entity.
+     * @return true on success, false otherwise.
+     */
+    bool update_entity (const world::placeable_type & obj_type, const char & entity_type, const std::string & id);
+    
+    /**
      * @name Meta-Data to display in GUI.
      */
     //@{
@@ -76,7 +86,7 @@ public:
      * Get entity type.
      * @return one of A, S or U.
      */    
-    gchar* get_type_name () const;
+    gchar* get_entity_type () const;
 
     /**
      * Return the type of object encapsulated by the entity.

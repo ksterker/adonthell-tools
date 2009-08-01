@@ -46,7 +46,7 @@ static char edit_entity_ui[] =
         "<property name=\"title\" translatable=\"yes\">Edit Entity</property>"
         "<property name=\"resizable\">False</property>"
         "<property name=\"modal\">True</property>"
-        "<property name=\"window_position\">mouse</property>"
+        "<property name=\"window_position\">center</property>"
         "<property name=\"default_width\">400</property>"
         "<property name=\"default_height\">320</property>"
         "<property name=\"type_hint\">normal</property>"
@@ -83,6 +83,8 @@ static char edit_entity_ui[] =
                                   "</object>"
                                   "<packing>"
                                     "<property name=\"position\">0</property>"
+                                    "<property name=\"expand\">False</property>"
+                                    "<property name=\"fill\">False</property>"
                                   "</packing>"
                                 "</child>"
                                 "<child>"
@@ -482,8 +484,7 @@ static void on_ok_button_pressed (GtkButton * button, gpointer user_data)
 {
     GuiEntityDialog *dialog = (GuiEntityDialog *) user_data;
     
-    // dialog->applyChanges ();
-    dialog->okButtonPressed (true);
+    dialog->applyChanges ();
     
     // clean up
     gtk_main_quit ();
@@ -511,9 +512,21 @@ static void on_type_changed (GtkToggleButton * button, gpointer user_data)
         {
             dlg->set_object_type (world::CHARACTER);
         }
-        else
+        else if (strcmp (id, "type_item") == 0)
         {
             dlg->set_object_type (world::ITEM);
+        }
+        else if (strcmp (id, "entity_anonymous") == 0)
+        {
+            dlg->set_entity_type ('A');
+        }
+        else if (strcmp (id, "entity_shared") == 0)
+        {
+            dlg->set_entity_type ('S');
+        }
+        else if (strcmp (id, "entity_unique") == 0)
+        {
+            dlg->set_entity_type ('U');
         }
     }
 }
@@ -524,11 +537,17 @@ GuiEntityDialog::GuiEntityDialog (MapEntity *entity)
 {
     GError *err = NULL;
     GObject *widget;
+    
     Ui = gtk_builder_new();
-
+    Entity = entity;
+    
+    // set defaults
+    EntityType = 'A';
+    ObjType = world::OBJECT;
+    
 	if (!gtk_builder_add_from_string(Ui, edit_entity_ui, -1, &err)) 
     {
-        g_message ("building size chooser failed: %s", err->message);
+        g_message ("building entity dialog failed: %s", err->message);
         g_error_free (err);
         return;
     }
@@ -547,6 +566,13 @@ GuiEntityDialog::GuiEntityDialog (MapEntity *entity)
     widget = gtk_builder_get_object (Ui, "type_character");
     g_signal_connect (widget, "toggled", G_CALLBACK (on_type_changed), this);
     widget = gtk_builder_get_object (Ui, "type_item");
+    g_signal_connect (widget, "toggled", G_CALLBACK (on_type_changed), this);
+
+    widget = gtk_builder_get_object (Ui, "entity_anonymous");
+    g_signal_connect (widget, "toggled", G_CALLBACK (on_type_changed), this);
+    widget = gtk_builder_get_object (Ui, "entity_shared");
+    g_signal_connect (widget, "toggled", G_CALLBACK (on_type_changed), this);
+    widget = gtk_builder_get_object (Ui, "entity_unique");
     g_signal_connect (widget, "toggled", G_CALLBACK (on_type_changed), this);
     
     // disable goto button (until we actually have a use for it)
@@ -597,7 +623,7 @@ GuiEntityDialog::GuiEntityDialog (MapEntity *entity)
     }
     
     // set entity type
-    str = entity->get_type_name ();
+    str = entity->get_entity_type ();
     switch (str[0])
     {
         case 'A':
@@ -620,9 +646,33 @@ GuiEntityDialog::GuiEntityDialog (MapEntity *entity)
     g_free (str);
 }
 
-// update the entity type
+// dtor
+GuiEntityDialog::~GuiEntityDialog()
+{
+    // cleanup
+    g_object_unref (Ui);
+}
+
+// "make it so!"
+void GuiEntityDialog::applyChanges()
+{
+    const gchar* id = "";
+    // get id, if neccessary
+    if (EntityType == 'S' || EntityType == 'U')
+    {
+        GObject *widget = gtk_builder_get_object (Ui, "entity_id");
+        id = gtk_entry_get_text (GTK_ENTRY (widget));
+    }
+    
+    bool result = Entity->update_entity (ObjType, EntityType, id);
+    okButtonPressed (result);
+}
+
+// update the object type
 void GuiEntityDialog::set_object_type (const world::placeable_type & type)
 {
+    ObjType = type;
+    
     GObject *cb_anonymous = gtk_builder_get_object (Ui, "entity_anonymous");
     GObject *cb_shared = gtk_builder_get_object (Ui, "entity_shared");
     GObject *cb_unique = gtk_builder_get_object (Ui, "entity_unique");
@@ -655,4 +705,16 @@ void GuiEntityDialog::set_object_type (const world::placeable_type & type)
         default:
             break;
     }    
+}
+
+// update the entity type
+void GuiEntityDialog::set_entity_type (const char & type)
+{
+    EntityType = type;
+
+    // disable id field for anonymous entities ...
+    GObject *widget = gtk_builder_get_object (Ui, "entity_id");
+    gtk_widget_set_sensitive (GTK_WIDGET (widget), type != 'A');
+    // ... and grab focus for the rest
+    if (type != 'A') gtk_widget_grab_focus (GTK_WIDGET (widget));
 }

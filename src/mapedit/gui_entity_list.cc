@@ -159,7 +159,7 @@ static void entity_list_get_value (GtkTreeModel *self, GtkTreeIter *iter, int co
         }   
 		case TYPE_COLUMN:
         {
-            gchar *type = obj->get_type_name ();
+            gchar *type = obj->get_entity_type ();
 			g_value_set_string (value, type);
             g_free (type);
 			break;
@@ -204,6 +204,11 @@ static void selected_event (GtkTreeSelection *selection, gpointer user_data)
                 // user cancelled and object has not been added to map
                 return;
             }
+            
+            // notify tree view of the change
+            GtkTreePath *path = gtk_tree_model_get_path (model, &iter);
+            gtk_tree_model_row_changed (model, path, &iter);
+            gtk_tree_path_free (path);
         }
         
         // object has been added to map (or already had been there in the first place)

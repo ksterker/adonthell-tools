@@ -73,20 +73,23 @@ void GuiGrid::draw (const s_int32 & x, const s_int32 & y, const u_int16 & l, con
 // set the grid from the given object
 void GuiGrid::grid_from_object (world::chunk_info & ci, const s_int32 & ox, const s_int32 & oy)
 {
-    // get location
-    s_int32 x = ci.Min.x() - ox;
-    s_int32 y = ci.Min.y() - oy;
-    
-    // get extend --> that will be our interval
-    Ix = ci.get_object()->length();
-    Iy = ci.get_object()->width();
-    
-    // set offset from object position and map view offset
-    Ox = x < 0 ? x % Ix + Ix : x % Ix;
-    Oy = y < 0 ? y % Iy + Iy : y % Iy - ci.get_object()->cur_y();
+    if (ci.get_object()->length() && ci.get_object()->width())
+    {
+        // get location
+        s_int32 x = ci.Min.x() - ox;
+        s_int32 y = ci.Min.y() - oy;
+        
+        // get extend --> that will be our interval
+        Ix = ci.get_object()->length();
+        Iy = ci.get_object()->width();
+        
+        // set offset from object position and map view offset
+        Ox = x < 0 ? x % Ix + Ix : x % Ix;
+        Oy = y < 0 ? y % Iy + Iy : y % Iy - ci.get_object()->cur_y();
 
-    // make sure the changes take effect on next redraw
-    Changed = true;
+        // make sure the changes take effect on next redraw
+        Changed = true;
+    }
 }
 
 // align to grid

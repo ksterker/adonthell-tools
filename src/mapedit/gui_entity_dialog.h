@@ -31,7 +31,7 @@
 #include "map_entity.h"
 
 /**
- *
+ * A dialog to display and edit map entity properties.
  */
 class GuiEntityDialog : public GuiModalDialog
 {
@@ -42,9 +42,44 @@ public:
      */
     GuiEntityDialog (MapEntity *entity);
     
+    /**
+     * Destructor.
+     */
+    virtual ~GuiEntityDialog();
+    
+    /**
+     * Apply all changes made by the user to the underlying entity.
+     * Called when the ok button has been pressed.
+     */
+    void applyChanges();
+    
+    /**
+     * @name Entity attribute update.
+     */
+    //@{
+    /**
+     * Set the object type. Required for adding 
+     * a new entity to the map.
+     * @param type the placeable type.
+     */
     void set_object_type (const world::placeable_type & type);
 
+    /**
+     * Set the entity type. Required for adding 
+     * a new entity to the map.
+     * @param type 'A', 'U' or 'S'.
+     */
+    void set_entity_type (const char & type);
+    //@}
+    
 protected:
+    /// the object being displayed or edited
+    MapEntity *Entity;
+    /// the object type
+    world::placeable_type ObjType;
+    /// the entities type
+    char EntityType;
+    /// the user interface
     GtkBuilder *Ui;
 };
 

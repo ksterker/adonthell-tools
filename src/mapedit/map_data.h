@@ -52,14 +52,34 @@ public:
      */
     //@{
     /**
-     *
+     * Get the entity that has last been added to the map.
+     * @return pointer to the newest entity present on the map. 
+     */
+    world::entity *getNewestEntity () const
+    {
+        return Entities.back();
+    }
+    
+    /**
+     * Get iterator to first entity on the map.
+     * @return iterator starting at first entity.
      */
     entity_iter firstEntity() { return Entities.begin(); }
     
     /**
-     *
+     * Get iterator pointing past last entity of the map.
+     * @return iterator past last entity.
      */
     entity_iter lastEntity() { return Entities.end(); }
+    
+    /**
+     * Try to rename the given entity. This will fail if an entity with the 
+     * new name already exists on the map.
+     * @param the entity to rename.
+     * @param the new name for the entity.
+     * @return NULL on failure, the new object otherwise.
+     */
+    world::placeable * renameEntity (world::named_entity *entity, const std::string & id);
     //@}    
     
     /**
