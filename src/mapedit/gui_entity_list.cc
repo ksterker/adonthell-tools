@@ -171,7 +171,7 @@ static void entity_list_get_value (GtkTreeModel *self, GtkTreeIter *iter, int co
         }
         case COLOR_COLUMN:
         {
-            const gchar *color = obj->is_on_map () ? "#FFFFFF" : "#A8B8A8";
+            const gchar *color = obj->is_on_map () ? (obj->getRefCount() ? "#FFFFFF" : "#80C8FE") : "#FEB380";
 			g_value_set_string (value, color);
 			break;
         }
@@ -214,7 +214,7 @@ static void selected_event (GtkTreeSelection *selection, gpointer user_data)
         // object has been added to map (or already had been there in the first place)
         GuiMapview *map_view = GuiMapedit::window->view();
         // make it the editing object
-        map_view->selectObj(obj->entity());
+        map_view->selectObj(obj);
     }
 }
 
@@ -241,6 +241,75 @@ GuiEntityList::GuiEntityList ()
     gtk_tree_view_set_model (TreeView, (GtkTreeModel*) model);
 }
 
+// return mapedit wrapper around given entity
+MapEntity *GuiEntityList::findEntity (const world::entity *etyToFind) const
+{
+    GtkTreeIter iter;
+    MapEntity *ety;
+    
+    // iterate over all entities in model
+    GtkTreeModel *model = GTK_TREE_MODEL (gtk_tree_view_get_model (TreeView));
+    if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (model), &iter))
+    {
+        do
+        {
+            ety = entity_list_get_object (ENTITY_LIST(model), &iter);
+            
+            // found the right entity?
+            if (ety->entity() == etyToFind)
+            {
+                return ety;
+            }
+        }
+        while (gtk_tree_model_iter_next (model, &iter));
+    }
+    
+    return NULL;
+}
+
+// select given entity
+bool GuiEntityList::setSelected (MapEntity *etyToSelect, const bool & select)
+{
+    GtkTreeIter iter;
+    MapEntity *ety;
+    
+    // iterate over all entities in model
+    GtkTreeModel *model = GTK_TREE_MODEL (gtk_tree_view_get_model (TreeView));
+    if (gtk_tree_model_get_iter_first (model, &iter))
+    {
+        do
+        {
+            ety = entity_list_get_object (ENTITY_LIST(model), &iter);
+            
+            // found the right entity?
+            if (ety == etyToSelect)
+            {
+                GtkTreeSelection *selection = gtk_tree_view_get_selection (TreeView);
+                if (select)
+                {
+                    // select it
+                    gtk_tree_selection_select_iter (selection, &iter);
+                    
+                    // and scroll it into view
+                    GtkTreePath *path = gtk_tree_model_get_path (model, &iter);
+                    gtk_tree_view_scroll_to_cell (TreeView, path, NULL, TRUE, 0.5f, 0.0f);
+                    gtk_tree_path_free (path);
+                }
+                else
+                {
+                    // clear selection
+                    gtk_tree_selection_unselect_iter (selection, &iter);                    
+                }
+                
+                return true;
+            }
+        }
+        while (gtk_tree_model_iter_next (model, &iter));
+    }
+    
+    return false;
+}
+
 // set map being displayed
 void GuiEntityList::setMap (MapData * map)
 {
@@ -262,7 +331,7 @@ void GuiEntityList::setMap (MapData * map)
     for (MapData::entity_iter e = map->firstEntity(); e != map->lastEntity(); e++)
     {
         // create meta data object
-        MapEntity *obj = new MapEntity (*e);
+        MapEntity *obj = new MapEntity (*e, map->getEntityCount (*e));
         
         // get new row
         gtk_list_store_append (model, &iter);

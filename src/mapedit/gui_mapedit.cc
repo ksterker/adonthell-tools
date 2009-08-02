@@ -34,6 +34,10 @@
 #include <gtk/gtk.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 
+#ifdef MAC_INTEGRATION
+#include <ige-mac-integration.h>
+#endif
+
 #include "mapedit/map_cmdline.h"
 #include "mapedit/map_data.h"
 #include "mapedit/gui_mapedit.h"
@@ -114,14 +118,12 @@ GuiMapedit::GuiMapedit ()
     gtk_container_add (GTK_CONTAINER (Wnd), vbox);
     gtk_widget_show (vbox);
 
-    gtk_box_pack_start (GTK_BOX (vbox), menu, FALSE, FALSE, 2);
-
     // File Menu
     submenu = gtk_menu_new ();
 
     // New
     menuitem =gtk_image_menu_item_new_from_stock ("gtk-new", accel_group);
-    gtk_container_add (GTK_CONTAINER (submenu), menuitem);
+    gtk_menu_shell_append (GTK_MENU_SHELL (submenu), menuitem);
     // gtk_object_set_data (GTK_OBJECT (menuitem), "help-id", GINT_TO_POINTER (1));
     // g_signal_connect (G_OBJECT (menuitem), "enter-notify-event", G_CALLBACK (on_display_help), message);
     // g_signal_connect (G_OBJECT (menuitem), "leave-notify-event", G_CALLBACK (on_clear_help), message);
@@ -130,7 +132,7 @@ GuiMapedit::GuiMapedit ()
 
     // Open
     menuitem =  gtk_image_menu_item_new_from_stock ("gtk-open", accel_group);
-    gtk_container_add (GTK_CONTAINER (submenu), menuitem);
+    gtk_menu_shell_append (GTK_MENU_SHELL (submenu), menuitem);
     // gtk_object_set_data (GTK_OBJECT (menuitem), "help-id", GINT_TO_POINTER (2));
     // g_signal_connect (G_OBJECT (menuitem), "enter-notify-event", G_CALLBACK (on_display_help), message);
     // g_signal_connect (G_OBJECT (menuitem), "leave-notify-event", G_CALLBACK (on_clear_help), message);
@@ -139,7 +141,7 @@ GuiMapedit::GuiMapedit ()
 
     // Open Previous >
     menuitem = gtk_menu_item_new_with_label ("Open Previous");
-    gtk_container_add (GTK_CONTAINER (submenu), menuitem);
+    gtk_menu_shell_append (GTK_MENU_SHELL (submenu), menuitem);
     // gtk_object_set_data (GTK_OBJECT (menuitem), "help-id", GINT_TO_POINTER (2));
     // g_signal_connect (G_OBJECT (menuitem), "enter-notify-event", G_CALLBACK (on_display_help), message);
     // g_signal_connect (G_OBJECT (menuitem), "leave-notify-event", G_CALLBACK (on_clear_help), message);
@@ -147,7 +149,7 @@ GuiMapedit::GuiMapedit ()
     
     // Save
     menuitem = gtk_image_menu_item_new_from_stock ("gtk-save", accel_group);
-    gtk_container_add (GTK_CONTAINER (submenu), menuitem);
+    gtk_menu_shell_append (GTK_MENU_SHELL (submenu), menuitem);
     // gtk_object_set_data (GTK_OBJECT (menuitem), "help-id", GINT_TO_POINTER (3));
     // g_signal_connect (G_OBJECT (menuitem), "enter-notify-event", G_CALLBACK (on_display_help), message);
     // g_signal_connect (G_OBJECT (menuitem), "leave-notify-event", G_CALLBACK (on_clear_help), message);
@@ -156,7 +158,7 @@ GuiMapedit::GuiMapedit ()
     
     // Save As
     menuitem = gtk_image_menu_item_new_from_stock ("gtk-save-as", accel_group);
-    gtk_container_add (GTK_CONTAINER (submenu), menuitem);
+    gtk_menu_shell_append (GTK_MENU_SHELL (submenu), menuitem);
     // gtk_object_set_data (GTK_OBJECT (menuitem), "help-id", GINT_TO_POINTER (4));
     // g_signal_connect (G_OBJECT (menuitem), "enter-notify-event", G_CALLBACK (on_display_help), message);
     // g_signal_connect (G_OBJECT (menuitem), "leave-notify-event", G_CALLBACK (on_clear_help), message);
@@ -164,14 +166,16 @@ GuiMapedit::GuiMapedit ()
     // menuItem[SAVE_AS] = menuitem;
     
     // Seperator
+#ifndef MAC_INTEGRATION
     menuitem = gtk_menu_item_new ();
-    gtk_menu_append (GTK_MENU (submenu), menuitem);
+    gtk_menu_shell_append (GTK_MENU_SHELL (submenu), menuitem);
     gtk_widget_set_sensitive (menuitem, FALSE);
+#endif
     
     /*
     // Revert to Saved
     menuitem = gtk_image_menu_item_new_from_stock ("gtk-revert-to-saved", accel_group);
-    gtk_container_add (GTK_CONTAINER (submenu), menuitem);
+    gtk_menu_shell_append (GTK_MENU_SHELL (submenu), menuitem);
     // gtk_object_set_data (GTK_OBJECT (menuitem), "help-id", GINT_TO_POINTER (7));
     // g_signal_connect (G_OBJECT (menuitem), "enter-notify-event", G_CALLBACK (on_display_help), message);
     // g_signal_connect (G_OBJECT (menuitem), "leave-notify-event", G_CALLBACK (on_clear_help), message);
@@ -180,7 +184,7 @@ GuiMapedit::GuiMapedit ()
     
     // Close
     menuitem = gtk_image_menu_item_new_from_stock ("gtk-close", accel_group);
-    gtk_container_add (GTK_CONTAINER (submenu), menuitem);
+    gtk_menu_shell_append (GTK_MENU_SHELL (submenu), menuitem);
     // gtk_object_set_data (GTK_OBJECT (menuitem), "help-id", GINT_TO_POINTER (5));
     // g_signal_connect (G_OBJECT (menuitem), "enter-notify-event", G_CALLBACK (on_display_help), message);
     // g_signal_connect (G_OBJECT (menuitem), "leave-notify-event", G_CALLBACK (on_clear_help), message);
@@ -189,25 +193,37 @@ GuiMapedit::GuiMapedit ()
     
     // Seperator
     menuitem = gtk_menu_item_new ();
-    gtk_menu_append (GTK_MENU (submenu), menuitem);
+    gtk_menu_shell_append (GTK_MENU (submenu), menuitem);
     gtk_widget_set_sensitive (menuitem, FALSE);
      */
 
     // Quit
-    menuitem = gtk_image_menu_item_new_from_stock ("gtk-quit", accel_group);
-    gtk_menu_append (GTK_MENU (submenu), menuitem);
-    // gtk_object_set_data (GTK_OBJECT (menuitem), "help-id", GINT_TO_POINTER (6));
-    // g_signal_connect (G_OBJECT (menuitem), "enter-notify-event", G_CALLBACK (on_display_help), message);
-    // g_signal_connect (G_OBJECT (menuitem), "leave-notify-event", G_CALLBACK (on_clear_help), message);
-    g_signal_connect (G_OBJECT (menuitem), "activate", G_CALLBACK (on_widget_destroy), (gpointer) NULL);
-
+    GtkWidget* quit_item = gtk_image_menu_item_new_from_stock ("gtk-quit", accel_group);
+    gtk_menu_shell_append (GTK_MENU_SHELL (submenu), quit_item);
+    // gtk_object_set_data (GTK_OBJECT (quit_item), "help-id", GINT_TO_POINTER (6));
+    // g_signal_connect (G_OBJECT (quit_item), "enter-notify-event", G_CALLBACK (on_display_help), message);
+    // g_signal_connect (G_OBJECT (quit_item), "leave-notify-event", G_CALLBACK (on_clear_help), message);
+    g_signal_connect (G_OBJECT (quit_item), "activate", G_CALLBACK (on_widget_destroy), (gpointer) NULL);
+    
     // Attach File Menu
     menuitem = gtk_menu_item_new_with_mnemonic ("_File");
     gtk_menu_item_set_submenu (GTK_MENU_ITEM (menuitem), submenu);
-    gtk_container_add (GTK_CONTAINER (menu), menuitem);
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
 
+    gtk_box_pack_start (GTK_BOX (vbox), menu, FALSE, FALSE, 2);
     gtk_widget_show_all (menu);
 
+#ifdef MAC_INTEGRATION
+    // Mac OSX-Style menu
+    gtk_widget_hide (menu);
+    
+    ige_mac_menu_set_menu_bar (GTK_MENU_SHELL (menu));
+    ige_mac_menu_set_quit_menu_item (GTK_MENU_ITEM (quit_item));
+    
+    // IgeMacMenuGroup *group = ige_mac_menu_add_app_menu_group ();
+    // ige_mac_menu_add_app_menu_item (group, GTK_MENU_ITEM (quit_item), NULL);
+#endif
+    
     vpaned = gtk_vpaned_new ();
     gtk_box_pack_start (GTK_BOX (vbox), vpaned, TRUE, TRUE, 2);
     gtk_widget_show (vpaned);

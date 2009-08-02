@@ -27,6 +27,7 @@
  */
 
 #include "map_data.h"
+#include "map_entity.h"
 
 // ctor
 MapData::MapData() : world::area ()
@@ -41,8 +42,24 @@ MapData::~MapData()
 {
 }
 
+// count how often the given object is present on the map
+u_int32 MapData::getEntityCount (world::entity *ety) const
+{
+    u_int32 count = 0;
+    std::list<world::chunk_info*> result;
+    std::list<world::chunk_info*>::const_iterator i;
+    
+    objects_in_bbox (min(), max(), result, ety->get_object()->type());
+    for (i = result.begin(); i != result.end(); i++)
+    {
+        if ((*i)->get_entity() == ety) count++;
+    }
+    
+    return count;
+}
+
 // rename map entity
-world::placeable* MapData::renameEntity (world::named_entity *entity, const std::string & id)
+world::entity* MapData::renameEntity (MapEntity *entity, const std::string & id)
 {
     // first, check if the new name is valid
     std::hash_map<std::string, world::named_entity*>::const_iterator result = NamedEntities.find (id);
@@ -52,38 +69,30 @@ world::placeable* MapData::renameEntity (world::named_entity *entity, const std:
         return NULL;
     }
     
-    if (!entity->is_unique())
+    world::named_entity *ety = (world::named_entity *) entity->entity();
+    if (!ety->is_unique())
     {
         // create entity with new name and existing object
-        add_entity (entity->get_object(), id);
+        add_entity (ety->get_object(), id);
     }
     else
     {
         // create a completely new entity
-        add_entity (entity->get_object()->type(), id);
+        add_entity (ety->get_object()->type(), id);
     }
     world::entity *new_entity = getNewestEntity();
     
     // now replace old entity in map itself
-    std::list<world::chunk_info*> entity_list;
-    objects_in_bbox (min(), max(), entity_list, entity->get_object()->type());
-    for (std::list<world::chunk_info*>::const_iterator i = entity_list.begin(); i != entity_list.end(); i++)
-    {
-        // found our entity
-        if ((*i)->get_entity() == entity)
-        {
-            world::chunk_info new_ci (new_entity, (*i)->Min, (*i)->Max);
-            remove (*(*i));
-            add (new_ci);
-            break;
-        }
-    }
+    world::chunk_info *ci = entity->getLocation();
+    world::chunk_info new_ci (new_entity, ci->Min, ci->Max);
+    remove (*ci);
+    add (new_ci);
     
     // delete old entity
-    NamedEntities.erase (*entity->id());
+    NamedEntities.erase (*ety->id());
     for (std::vector<world::entity*>::iterator i = Entities.begin(); i != Entities.end(); i++)
     {
-        if (*i == entity)
+        if (*i == ety)
         {
             Entities.erase (i);
             delete *i;
@@ -91,6 +100,6 @@ world::placeable* MapData::renameEntity (world::named_entity *entity, const std:
         }
     }
     
-    delete entity;
-    return new_entity->get_object();
+    delete ety;
+    return new_entity;
 }

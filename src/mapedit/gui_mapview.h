@@ -39,6 +39,7 @@ namespace gfx
     class surface;
 };
 
+class MapEntity;
 class MapData;
 class GuiGrid;
 
@@ -142,7 +143,7 @@ public:
      * any previously picked object.
      * @param ety the new object to use for map editing.
      */
-    void selectObj (world::entity *ety);
+    void selectObj (MapEntity *ety);
     /**
      * Add currently selected object to the map.
      */
@@ -152,7 +153,7 @@ public:
      * the map, or NULL if there is no such object.
      * @return object used for map editing.
      */
-    world::entity *getSelectedObject() const { return DrawObj; }
+    MapEntity *getSelectedObject() const { return DrawObj; }
     /**
      * Discard the object that is currently used for map editing.
      */
@@ -219,10 +220,10 @@ private:
     GuiGrid *Grid;
     
     /// The currently highlighted object
-    world::chunk_info *CurObj;
-    
+    MapEntity *CurObj;
     /// The object used for "drawing"
-    world::entity *DrawObj;
+    MapEntity *DrawObj;
+    
     /// A rendered version of the object used for "drawing"
     gfx::surface *DrawObjSurface;
     /// Position of object used for drawing

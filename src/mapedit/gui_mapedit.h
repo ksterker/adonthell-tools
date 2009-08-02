@@ -69,12 +69,17 @@ public:
      * Retrieve the map view.
      * @return the widget containing the map being edited.
      */
-    GuiMapview *view () const     { return View; }
+    GuiMapview *view () const           { return View; }
     /**
      * Retrieve the main window of the applictaion.
      * @return a GtkWidget.
      */
-    GtkWidget *getWindow () const { return Wnd; }
+    GtkWidget *getWindow () const       { return Wnd; }
+    /**
+     * Retrieve the list of entities known to the editor.
+     * @return the entity list widget.
+     */
+    GuiEntityList *entityList () const  { return EntityList; }
     //@}
     
     /**

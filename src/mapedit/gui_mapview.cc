@@ -36,7 +36,9 @@
 #include "gui_mapedit.h"
 #include "gui_mapview.h"
 #include "gui_mapview_events.h"
+#include "gui_entity_list.h"
 #include "map_data.h"
+#include "map_entity.h"
 
 // ctor
 GuiMapview::GuiMapview(GtkWidget *paned)
@@ -212,24 +214,53 @@ void GuiMapview::mouseMoved (const GdkPoint * point)
         if (DrawObj == NULL)
         {
             GdkPoint p = { point->x + ox, point->y + oy - oz };
-            
+
             // find object that's being moused over
             std::list<world::chunk_info*> objects_under_mouse = area->objects_in_view (p.x, p.y, 0, 0, 0);
             world::chunk_info *obj = Renderer.findObjectBelowCursor (ox, oy - oz, &p, objects_under_mouse);
-            if (obj != CurObj) 
+            
+            // no object below cursor
+            if (obj == NULL)
             {
                 // reset previously highlighted object
-                renderObject (CurObj);
-                // highlight new object
-                renderObject (obj);
+                if (CurObj != NULL)
+                {
+                    renderObject (CurObj->getLocation());
+                }
+                
+                CurObj = NULL;
+                return;
+            }
+ 
+            // is object different from currently highlighted object?
+            if (CurObj == NULL || obj != CurObj->getLocation())
+            {
+                // reset previously highlighted object
+                if (CurObj != NULL)
+                {
+                    renderObject (CurObj->getLocation());
+                }
+                
                 // keep track of highlighted object
-                CurObj = obj;
+                CurObj = GuiMapedit::window->entityList()->findEntity (obj->get_entity());
+                if (CurObj != NULL)
+                {
+                    CurObj->setLocation (obj);
+                    // highlight new object
+                    renderObject (obj);
+                }
+                else
+                {
+                    // TODO: show error in status bar
+                    fprintf (stderr, "*** mouseMoved: cannot find entity in entity list!\n");
+                }
             }
         }
         else
-        {
+        {            
             // get object height
-            int h = DrawObj->get_object()->cur_z() + DrawObj->get_object()->height();
+            world::placeable *obj = DrawObj->entity()->get_object();
+            int h = obj->cur_z() + obj->height();
             
             GdkRectangle rect1 = { DrawObjPos.x(), DrawObjPos.y(), DrawObjSurface->length(), DrawObjSurface->height() };
             GdkRegion *region = gdk_region_rectangle (&rect1);
@@ -264,14 +295,14 @@ void GuiMapview::mouseMoved (const GdkPoint * point)
 // add red tint if object would overlap other objects on the map
 void GuiMapview::indicateOverlap ()
 {
-    world::placeable *obj = DrawObj->get_object();
+    world::placeable *obj = DrawObj->entity()->get_object();
     
     MapData *area = (MapData*) View->get_map();    
     int h = obj->cur_z() + obj->height() - obj->cur_y();
     world::vector3<s_int32> min (DrawObjPos.x() + area->x() + 1, DrawObjPos.y() + area->y() + h + 1, area->z() + 1); 
     world::vector3<s_int32> max (min.x() + obj->max_length() - 2, min.y() + obj->max_width() - 2, min.z() + obj->max_height() - 2);
     
-    world::chunk_info ci (DrawObj, min, max);
+    world::chunk_info ci (DrawObj->entity(), min, max);
     
     std::list<world::chunk_info*> objs_on_map = area->objects_in_bbox (ci.real_min(), ci.real_max());
     if (!objs_on_map.empty())
@@ -309,40 +340,15 @@ void GuiMapview::selectCurObj ()
 {
     if (CurObj != NULL)
     {
-        int x, y, l, h;
-        DrawObj = CurObj->get_entity();
-        getObjectExtend (CurObj, x, y, l, h);
-        
-        // create a surface onto which to draw the picked object
-        DrawObjSurface = gfx::create_surface ();
-        DrawObjSurface->set_alpha (128, true);
-        DrawObjSurface->resize (l, h);
-        DrawObjSurface->fillrect (0, 0, l, h, 0x00000000);
-
-        // properly render the object
-        std::list <world::chunk_info*> object_list;
-        object_list.push_back (CurObj);
-        gfx::drawing_area da (0, 0, l, h);
-        world::debug_renderer renderer (true);
-        renderer.render (-x, -y, object_list, da, DrawObjSurface);
-        
-        // give tile some contrast
-        DrawObjSurface->set_brightness (150);
-        
-        // update grid
-        MapData *area = (MapData*) View->get_map();
-        Grid->grid_from_object (*CurObj, area->x(), area->y());
-        Grid->set_visible (true);
-        Grid->draw ();
-        
-        // update screen
-        GdkRectangle rect = { 0, 0, Overlay->length(), Overlay->height() };
-        gdk_window_invalidate_rect (Screen->window, &rect, FALSE);        
+        if (!GuiMapedit::window->entityList()->setSelected (CurObj))
+        {
+            fprintf (stderr, "selectCurObj: not found in entity list\n");
+        }
     }
 }
 
 // use given object for drawing
-void GuiMapview::selectObj (world::entity *ety)
+void GuiMapview::selectObj (MapEntity *ety)
 {
     // already selected?
     if (DrawObj == ety) return;
@@ -354,22 +360,43 @@ void GuiMapview::selectObj (world::entity *ety)
         DrawObjSurface = NULL;
         DrawObj = NULL;
     }
-    
-    // make sure no object is drawn highlighted
-    Renderer.clearSelection();
-    
-    // build a fake object present on the map
-    world::placeable *obj = ety->get_object();
+
+    DrawObj = ety;
+    MapData *area = (MapData*) View->get_map();
+
+    // build a fake location
+    world::placeable *obj = ety->entity()->get_object();
     world::vector3<s_int32> min (0, 0, 0), max (obj->length(), obj->width(), obj->height());
-    world::chunk_info ci (ety, min, max);
+    world::chunk_info ci (ety->entity(), min, max);
     
-    // set this as the selected object ...
-    CurObj = &ci;
-    // ... and use if for drawing
-    selectCurObj();
+    // get object extend
+    int x, y, l, h;
+    getObjectExtend (&ci, x, y, l, h);
     
-    // cleanup
-    CurObj = NULL;
+    // create a surface onto which to draw the picked object
+    DrawObjSurface = gfx::create_surface ();
+    DrawObjSurface->set_alpha (128, true);
+    DrawObjSurface->resize (l, h);
+    DrawObjSurface->fillrect (0, 0, l, h, 0x00000000);
+    
+    // properly render the object
+    std::list <world::chunk_info*> object_list;
+    object_list.push_back (&ci);
+    gfx::drawing_area da (0, 0, l, h);
+    world::debug_renderer renderer (true);
+    renderer.render (-x, -y, object_list, da, DrawObjSurface);
+    
+    // give tile some contrast
+    DrawObjSurface->set_brightness (150);
+    
+    // update grid
+    Grid->grid_from_object (ety->getLocation() ? *ety->getLocation() : ci, area->x(), area->y());
+    Grid->set_visible (true);
+    Grid->draw ();
+    
+    // update screen
+    GdkRectangle rect = { 0, 0, Overlay->length(), Overlay->height() };
+    gdk_window_invalidate_rect (Screen->window, &rect, FALSE);        
 }
 
 // drop object currently picked for drawing
@@ -384,6 +411,9 @@ void GuiMapview::releaseObject ()
         // update screen
         GdkRectangle rect = { 0, 0, Overlay->length(), Overlay->height() };
         gdk_window_invalidate_rect (Screen->window, &rect, FALSE);
+        
+        // clear selection, so we can select it again
+        GuiMapedit::window->entityList()->setSelected (DrawObj, false);
 
         // cleanup
         delete DrawObjSurface;
@@ -409,15 +439,19 @@ void GuiMapview::placeCurObj()
     if (DrawObj != NULL)
     {
         MapData *area = (MapData*) View->get_map();
-
+        world::entity *ety = DrawObj->entity();
+        
         // get object height
-        int h = DrawObj->get_object()->cur_z() + DrawObj->get_object()->height() - DrawObj->get_object()->cur_y();
+        int h = ety->get_object()->cur_z() + ety->get_object()->height() - ety->get_object()->cur_y();
                 
         // get proper coordinates
         world::coordinates pos (DrawObjPos.x() + area->x(), DrawObjPos.y() + area->y() + h, area->z()); 
         
         // place object on map
-        area->add (DrawObj, pos);
+        area->add (ety, pos);
+        
+        // update refcount
+        DrawObj->incRef();
         
         // update screen
         render (DrawObjPos.x(), DrawObjPos.y(), DrawObjSurface->length(), DrawObjSurface->height());
@@ -431,11 +465,17 @@ void GuiMapview::deleteCurObj ()
     {
         // remove object from map
         MapData *area = (MapData*) View->get_map();
-        if (area->remove (*CurObj) != NULL)
+        if (area->remove (*CurObj->getLocation()) != NULL)
         {
             // on success, redraw area containing object
             Renderer.clearSelection();
-            renderObject (CurObj);
+            renderObject (CurObj->getLocation());
+
+            // clear selection, so we can select it again
+            GuiMapedit::window->entityList()->setSelected (CurObj, false);
+
+            // update refcount
+            CurObj->decRef();
             CurObj = NULL;
             
             // see if there's another object to select

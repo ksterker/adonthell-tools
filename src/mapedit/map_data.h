@@ -31,6 +31,8 @@
 
 #include <world/area.h>
 
+class MapEntity;
+
 class MapData : public world::area 
 {
 public:
@@ -79,7 +81,14 @@ public:
      * @param the new name for the entity.
      * @return NULL on failure, the new object otherwise.
      */
-    world::placeable * renameEntity (world::named_entity *entity, const std::string & id);
+    world::entity *renameEntity (MapEntity *entity, const std::string & id);
+    
+    /**
+     * Count how often this entity is present on the map.
+     * @param ety the entity to count.
+     * @return number of time this entity is present.
+     */
+    u_int32 getEntityCount (world::entity *ety) const;
     //@}    
     
     /**

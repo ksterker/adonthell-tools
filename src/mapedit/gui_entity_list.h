@@ -29,8 +29,8 @@
 
 #include <gtk/gtk.h>
 
-#include "mapedit/map_data.h"
-#include "mapedit/map_entity.h"
+#include "map_data.h"
+#include "map_entity.h"
 
 G_BEGIN_DECLS
 
@@ -70,6 +70,21 @@ public:
      * Create the user interface elements.
      */
     GuiEntityList ();
+    
+    /**
+     * Select the given entity in the entity list.
+     * @param etyToSelect the entity to select.
+     * @param select true to select object, false to clear selection.
+     * @return true if found, false otherwise.
+     */
+    bool setSelected (MapEntity *etyToSelect, const bool & select = true);        
+
+    /**
+     * Find the given entity in the entity list.
+     * @param etyToFind an entity present on the map.
+     * @return the editor's wrapper around the entity or NULL.
+     */
+    MapEntity *findEntity (const world::entity *etyToFind) const;
     
     /**
      * Set the map whose entities to display in the list.

@@ -28,7 +28,7 @@
 #define MAP_ENTITY_H
 
 #include <gdk-pixbuf/gdk-pixbuf.h>
-#include <world/entity.h>
+#include <world/chunk_info.h>
 
 /**
  * Wrapper around an entity on the map, for storage in a
@@ -40,8 +40,9 @@ public:
     /**
      * Create meta data container for map entity.
      * @param obj an entity on the map.
+     * @param count refcount of the entity.
      */
-    MapEntity (world::entity *obj);
+    MapEntity (world::entity *obj, const u_int32 & count = 0);
 
     /**
      * Create meta data container for object not yet 
@@ -65,6 +66,48 @@ public:
      * @return true on success, false otherwise.
      */
     bool update_entity (const world::placeable_type & obj_type, const char & entity_type, const std::string & id);
+    
+    /**
+     * @name Map related attributes
+     *
+     */
+    //@{
+    /**
+     * Call when object is added to the map.
+     */
+    void incRef ()                                      { RefCount++; }
+    /**
+     * Call when object is removed from the map.
+     */
+    void decRef ();
+    /**
+     * Get number of times this object is present on the map.
+     * @return the reference count.
+     */
+    u_int32 getRefCount () const                        { return RefCount; }
+    
+    /**
+     * Set location of this entity. For anonymous entities
+     * this will be temporary.
+     * @param location where this entity is placed on the map.
+     */
+    void setLocation ( world::chunk_info * location )   { Location = location; }
+    
+    /**
+     * Get location of this entity. This might be NULL if the
+     * entity is not part of the map or if the location is unknown.
+     *
+     * @return position of this entity on the map (or NULL).
+     */
+    world::chunk_info *getLocation() const              { return Location; }
+    
+    /**
+     * Whether this entity is already present on the map.
+     * Determines the background color of the row in the entity list.
+     * @return true if object is part of the map, false otherwise.
+     */
+    bool is_on_map () const { return Entity != NULL; };    
+    //@}
     
     /**
      * @name Meta-Data to display in GUI.
@@ -99,24 +142,22 @@ public:
      * @param size size of the rendered image.
      * @return rendering of the object at given size.
      */
-    GdkPixbuf *get_icon (const u_int32 & size = 32) const;
-  
-    /**
-     * Whether this entity is already present on the map.
-     * Determines the background color of the row in the entity list.
-     * @return true if object is part of the map, false otherwise.
-     */
-    bool is_on_map () const { return Entity != NULL; };
+    GdkPixbuf *get_icon (const u_int32 & size = 32) const;  
     //@}
 
 protected:
     void update_tags ();
     
 private:
+    /// number of times this object is present on the map
+    u_int32 RefCount;
+        
     /// the object this meta data is associated with 
     world::placeable *Object;
     /// the entity this meta data is associated with
     world::entity *Entity;
+    /// position of entity on map (for named entities only)
+    world::chunk_info *Location;
     /// list of tags associated with this entity
     std::vector<std::string> Tags;
 };

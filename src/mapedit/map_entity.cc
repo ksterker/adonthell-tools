@@ -32,10 +32,12 @@
 #include "map_data.h"
 
 // ctor
-MapEntity::MapEntity (world::entity *obj)
+MapEntity::MapEntity (world::entity *obj, const u_int32 & count)
 {
+    Location = NULL;
     Entity = obj;
     Object = obj->get_object ();
+    RefCount = count;
     
     update_tags ();
 }
@@ -43,9 +45,11 @@ MapEntity::MapEntity (world::entity *obj)
 // ctor
 MapEntity::MapEntity (world::placeable *obj)
 {
+    Location = NULL;
     Entity = NULL;
     Object = obj;
-
+    RefCount = 0;
+    
     update_tags ();
 }
 
@@ -55,9 +59,10 @@ bool MapEntity::update_entity (const world::placeable_type & obj_type, const cha
     // get map associated with the object
     MapData *map = (MapData*) &(Object->map());
     
-    world::placeable *result = NULL;
     if (Entity == NULL)
     {
+        world::placeable *result = NULL;
+        
         // create entity?
         switch (entity_type)
         {
@@ -75,6 +80,21 @@ bool MapEntity::update_entity (const world::placeable_type & obj_type, const cha
                 fprintf (stderr, "update_entity: unsupported entity type '%c'.\n", entity_type);
                 break;
         }
+        
+        // success?
+        if (result != NULL)
+        {
+            // get entity ...
+            Entity = map->getNewestEntity();
+            // and load object data
+            result->load (Object->filename());
+            
+            // and newly created object
+            delete Object;
+            Object = result;
+            
+            return true;
+        }        
     }
     else
     {        
@@ -84,30 +104,32 @@ bool MapEntity::update_entity (const world::placeable_type & obj_type, const cha
             case 'U':
             case 'S':
                 // makes only sense for named entities
-                result = map->renameEntity ((world::named_entity*) Entity, id);
+                world::entity *tmp = map->renameEntity (this, id);
+                if (tmp != NULL)
+                {
+                    // update entity, object stays the same
+                    Entity = tmp;
+                    return true;
+                }
                 break;
             default:
                 fprintf (stderr, "update_entity: unsupported entity type '%c'.\n", entity_type);
                 break;
         }
     }
-    
-    // success?
-    if (result != NULL)
-    {
-        // get entity ...
-        Entity = map->getNewestEntity();
-        // and load object data
-        result->load (Object->filename());
         
-        // and newly created object
-        delete Object;
-        Object = result;
-        
-        return true;
-    }
-    
     return false;
+}
+
+// decrease reference count
+void MapEntity::decRef ()
+{ 
+    RefCount--; 
+    
+    // it's no longer present on map
+    Location = NULL;
+    
+    // TODO: if RefCount == 0: fireEntityListChanged
 }
 
 // update tags
@@ -172,10 +194,27 @@ GdkPixbuf *MapEntity::get_icon (const u_int32 & size) const
     
     // render entity onto a pixmap
     gfx::screen_surface_gtk *surface = (gfx::screen_surface_gtk*) gfx::screen::get_surface();
+
+    // determine background color
+    u_int32 color = 0xFFFFFFFF;
+    if (is_on_map())
+    {
+        // present on map, but unused
+        if (RefCount == 0)
+        {
+            color = surface->map_color (0x80, 0xC8, 0xFE, 0xFF);
+        }
+    }
+    else
+    {
+        // not present on map yet
+        color = surface->map_color (0xFE, 0xB3, 0x80, 0xFF);
+    }
+    
     surface->set_drawable (pixmap);
     surface->set_alpha (255, true);
     surface->resize (l, h);
-    surface->fillrect (0, 0, l, h, is_on_map() ? 0xFFFFFFFF : surface->map_color (0xA8, 0xB8, 0xA8, 0xFF));
+    surface->fillrect (0, 0, l, h, color);
     
     // properly render the object
     world::vector3<s_int32> min (0, 0, 0), max (Object->length(), Object->width(), Object->height());
