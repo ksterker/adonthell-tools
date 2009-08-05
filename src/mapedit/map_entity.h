@@ -110,6 +110,12 @@ public:
     //@}
     
     /**
+     * Create an unused id by adding a number to this entities' id.
+     * @return an id that's not yet used on the entities map.
+     */
+    gchar* createNewId () const;
+    
+    /**
      * @name Meta-Data to display in GUI.
      */
     //@{

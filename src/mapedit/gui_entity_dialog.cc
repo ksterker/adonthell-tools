@@ -205,6 +205,8 @@ static char edit_entity_ui[] =
                                     "<property name=\"can_focus\">True</property>"
                                     "<property name=\"tooltip_text\" translatable=\"yes\">The unique Id for Shared and Unique entities. Scripts can refer to entities via that Id.</property>"
                                     "<property name=\"invisible_char\">&#x25CF;</property>"
+                                    "<property name=\"overwrite_mode\">True</property>"
+                                    "<property name=\"activates-default\">True</property>"
                                   "</object>"
                                   "<packing>"
                                     "<property name=\"left_attach\">1</property>"
@@ -532,7 +534,7 @@ static void on_type_changed (GtkToggleButton * button, gpointer user_data)
 }
 
 // ctor
-GuiEntityDialog::GuiEntityDialog (MapEntity *entity) 
+GuiEntityDialog::GuiEntityDialog (MapEntity *entity, const GuiEntityDialog::Mode & mode) 
     : GuiModalDialog (GTK_WINDOW(GuiMapedit::window->getWindow()))
 {
     GError *err = NULL;
@@ -554,10 +556,23 @@ GuiEntityDialog::GuiEntityDialog (MapEntity *entity)
     
     // get reference to dialog window
     window = GTK_WIDGET (gtk_builder_get_object (Ui, "entity_properties"));
+    switch (mode)
+    {
+        case READ_ONLY:
+            gtk_window_set_title (GTK_WINDOW (window), "View Entity Properties");
+            break;
+        case ADD_ENTITY_TO_MAP:
+            gtk_window_set_title (GTK_WINDOW (window), "Add new Entity to Map");
+            break;
+        case DUPLICATE_NAMED_ENTITY:
+            gtk_window_set_title (GTK_WINDOW (window), "Chose unique id for Entity");
+            break;
+    }
     
     // setup callbacks
     widget = gtk_builder_get_object (Ui, "btn_okay");
     g_signal_connect (widget, "clicked", G_CALLBACK (on_ok_button_pressed), this);
+    gtk_widget_set_sensitive (GTK_WIDGET (widget), mode != READ_ONLY);
     widget = gtk_builder_get_object (Ui, "btn_cancel");
     g_signal_connect (widget, "clicked", G_CALLBACK (on_cancel_button_pressed), this);
     
@@ -586,10 +601,24 @@ GuiEntityDialog::GuiEntityDialog (MapEntity *entity)
     g_free (str);
     
     // set id
-    str = entity->get_id();
+    if (mode == DUPLICATE_NAMED_ENTITY)
+    {
+        str = entity->createNewId();
+    }
+    else
+    {
+        str = entity->get_id();
+    }
+    
     if (str != NULL)
     {
         widget = gtk_builder_get_object (Ui, "entity_id");
+        
+        if (mode == DUPLICATE_NAMED_ENTITY)
+        {
+            gtk_widget_grab_focus (GTK_WIDGET (widget));
+        }
+            
         gtk_entry_set_text (GTK_ENTRY (widget), str);
         g_free (str);
     }

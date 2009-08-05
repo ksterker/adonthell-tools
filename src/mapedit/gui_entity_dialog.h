@@ -36,11 +36,18 @@
 class GuiEntityDialog : public GuiModalDialog
 {
 public:
+    typedef enum
+    {
+        READ_ONLY,
+        ADD_ENTITY_TO_MAP,
+        DUPLICATE_NAMED_ENTITY
+    } Mode;
+    
     /**
      * Show dialog to view and edit the given entity.
      * @param entity a map object.
      */
-    GuiEntityDialog (MapEntity *entity);
+    GuiEntityDialog (MapEntity *entity, const GuiEntityDialog::Mode & mode);
     
     /**
      * Destructor.

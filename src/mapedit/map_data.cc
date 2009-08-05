@@ -58,12 +58,18 @@ u_int32 MapData::getEntityCount (world::entity *ety) const
     return count;
 }
 
+// check for named entity presence
+bool MapData::exists (const std::string & entity_name)
+{
+    std::hash_map<std::string, world::named_entity*>::const_iterator result = NamedEntities.find (entity_name);
+    return (result != NamedEntities.end());
+}
+
 // rename map entity
 world::entity* MapData::renameEntity (MapEntity *entity, const std::string & id)
 {
     // first, check if the new name is valid
-    std::hash_map<std::string, world::named_entity*>::const_iterator result = NamedEntities.find (id);
-    if (result != NamedEntities.end())
+    if (exists (id))
     {
         // TODO: display message in status bar
         return NULL;

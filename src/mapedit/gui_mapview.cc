@@ -37,6 +37,7 @@
 #include "gui_mapview.h"
 #include "gui_mapview_events.h"
 #include "gui_entity_list.h"
+#include "gui_entity_dialog.h"
 #include "map_data.h"
 #include "map_entity.h"
 
@@ -441,6 +442,28 @@ void GuiMapview::placeCurObj()
         MapData *area = (MapData*) View->get_map();
         world::entity *ety = DrawObj->entity();
         
+        // check if object can be placed safely
+        if (ety->has_name() && DrawObj->getRefCount() > 0)
+        {
+            MapEntity *newObj = new MapEntity (ety);
+            
+            // need to make a copy with new id first
+            GuiEntityDialog dlg (newObj, GuiEntityDialog::DUPLICATE_NAMED_ENTITY);
+            if (!dlg.run())
+            {
+                // user cancelled and object has not been added to map
+                delete newObj;
+                return;
+            }
+
+            // update draw object
+            DrawObj = newObj;
+            ety = newObj->entity();
+            
+            // add new entity to entity list
+            GuiMapedit::window->entityList()->addEntity (newObj);
+        }
+
         // get object height
         int h = ety->get_object()->cur_z() + ety->get_object()->height() - ety->get_object()->cur_y();
                 

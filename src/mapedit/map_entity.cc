@@ -24,6 +24,7 @@
  * @brief Meta data for entities used on the map.
  */
 
+#include <cctype>
 #include <gtk/gtk.h>
 #include <world/renderer.h>
 
@@ -57,65 +58,44 @@ MapEntity::MapEntity (world::placeable *obj)
 bool MapEntity::update_entity (const world::placeable_type & obj_type, const char & entity_type, const std::string & id)
 {
     // get map associated with the object
-    MapData *map = (MapData*) &(Object->map());
+    MapData *map = (MapData*) &(Object->map());    
+    world::placeable *result = NULL;
     
-    if (Entity == NULL)
+    // create entity?
+    switch (entity_type)
     {
-        world::placeable *result = NULL;
-        
-        // create entity?
-        switch (entity_type)
-        {
-            case 'A':
-                result = map->add_entity(obj_type);
-                break;
-            case 'U':
-                result = map->add_entity(obj_type, id);
-                break;
-            case 'S':
-                result = map->add_entity(obj_type);
-                if (result) map->add_entity(result, id);
-                break;
-            default:
-                fprintf (stderr, "update_entity: unsupported entity type '%c'.\n", entity_type);
-                break;
-        }
-        
-        // success?
-        if (result != NULL)
-        {
-            // get entity ...
-            Entity = map->getNewestEntity();
-            // and load object data
-            result->load (Object->filename());
-            
-            // and newly created object
-            delete Object;
-            Object = result;
-            
-            return true;
-        }        
+        case 'A':
+            result = map->add_entity(obj_type);
+            break;
+        case 'U':
+            result = map->add_entity(obj_type, id);
+            break;
+        case 'S':
+            result = map->add_entity(obj_type);
+            if (result) map->add_entity(result, id);
+            break;
+        default:
+            fprintf (stderr, "update_entity: unsupported entity type '%c'.\n", entity_type);
+            break;
     }
-    else
-    {        
-        // update existing entity
-        switch (entity_type)
+    
+    // success?
+    if (result != NULL)
+    {
+        // cleanup
+        if (Entity == NULL)
         {
-            case 'U':
-            case 'S':
-                // makes only sense for named entities
-                world::entity *tmp = map->renameEntity (this, id);
-                if (tmp != NULL)
-                {
-                    // update entity, object stays the same
-                    Entity = tmp;
-                    return true;
-                }
-                break;
-            default:
-                fprintf (stderr, "update_entity: unsupported entity type '%c'.\n", entity_type);
-                break;
+            delete Object;
         }
+        
+        // get entity ...
+        Entity = map->getNewestEntity();
+        // and load object data
+        result->load (Object->filename());
+        // and newly created object
+        Object = result;
+        
+        return true;
     }
         
     return false;
@@ -156,6 +136,52 @@ gchar* MapEntity::get_name () const
     std::string path = Object->filename();
     gchar* name = g_path_get_basename (path.substr (0, path.rfind(".")).c_str());
     return name;
+}
+
+gchar* MapEntity::createNewId () const
+{
+    std::string base;
+    if (Entity && Entity->has_name ())
+    {
+        base = *Entity->id();
+    }
+    else
+    {
+        gchar *file_name = get_name();
+        base = std::string (file_name);
+        g_free (file_name);
+    }
+ 
+    // strip any trailing number from id
+    size_t pos = base.find_last_of ("-_");
+    if (pos != base.npos)
+    {
+        bool isnum = true;
+        for (size_t i = pos + 1; i < base.length(); i++)
+        {
+            isnum &= isdigit (base[i]);
+        }
+        if (isnum)
+        {
+            base = base.substr(0, pos);
+        }
+    }
+    
+    // get map associated with the object
+    MapData *map = (MapData*) &(Object->map());
+    
+    // try to create unique id
+    u_int32 i = 0;
+    std::stringstream id (std::ios::out);
+    do
+    {
+        id.str ("");
+        id << base << "_" << ++i;
+    }
+    while (map->exists (id.str()));
+
+    // return this id as newly allocated string
+    return g_strdup_printf ("%s_%i", base.c_str(), i);
 }
 
 // id of entity

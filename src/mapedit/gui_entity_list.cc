@@ -198,7 +198,7 @@ static void selected_event (GtkTreeSelection *selection, gpointer user_data)
         if (!obj->is_on_map ())
         {
             // allow user to add entity to map
-            GuiEntityDialog dlg (obj);
+            GuiEntityDialog dlg (obj, GuiEntityDialog::ADD_ENTITY_TO_MAP);
             if (!dlg.run())
             {
                 // user cancelled and object has not been added to map
@@ -265,6 +265,30 @@ MapEntity *GuiEntityList::findEntity (const world::entity *etyToFind) const
     }
     
     return NULL;
+}
+
+// add given entity
+void GuiEntityList::addEntity (MapEntity *ety)
+{
+    GtkTreeIter iter;
+    
+    // get model
+    GtkListStore *model = GTK_LIST_STORE (gtk_tree_view_get_model (TreeView));
+    
+    // get new row
+    gtk_list_store_append (model, &iter);
+    
+    // set our data
+    gtk_list_store_set (model, &iter, 0, ety, -1);    
+    
+    // select it
+    GtkTreeSelection *selection = gtk_tree_view_get_selection (TreeView);
+    gtk_tree_selection_select_iter (selection, &iter);
+    
+    // and scroll it into view
+    GtkTreePath *path = gtk_tree_model_get_path (GTK_TREE_MODEL (model), &iter);
+    gtk_tree_view_scroll_to_cell (TreeView, path, NULL, TRUE, 0.5f, 0.0f);
+    gtk_tree_path_free (path);    
 }
 
 // select given entity

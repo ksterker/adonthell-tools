@@ -89,6 +89,13 @@ public:
      * @return number of time this entity is present.
      */
     u_int32 getEntityCount (world::entity *ety) const;
+    
+    /**
+     * Checks if an entity with this name exists on the map.
+     * @param entity_name the entity to check for.
+     * @return true if found, false otherwise.
+     */
+    bool exists (const std::string & entity_name);
     //@}    
     
     /**

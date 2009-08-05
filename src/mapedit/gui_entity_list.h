@@ -87,6 +87,12 @@ public:
     MapEntity *findEntity (const world::entity *etyToFind) const;
     
     /**
+     * Add a new entity to the entity list.
+     * @param ety the entity to add to the list.
+     */
+    void addEntity (MapEntity *ety);
+    
+    /**
      * Set the map whose entities to display in the list.
      * @param map the map whose entities to display.
      */
