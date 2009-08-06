@@ -82,16 +82,17 @@ bool MapEntity::update_entity (const world::placeable_type & obj_type, const cha
     // success?
     if (result != NULL)
     {
-        // cleanup
+        // load object data
+        result->load (Object->filename());
+
+        // cleanup (only if object not yet on the map)
         if (Entity == NULL)
         {
             delete Object;
         }
         
-        // get entity ...
+        // update entity ...
         Entity = map->getNewestEntity();
-        // and load object data
-        result->load (Object->filename());
         // and newly created object
         Object = result;
         
