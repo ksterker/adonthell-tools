@@ -42,7 +42,8 @@ void on_widget_destroy (GtkWidget * widget, gpointer data)
 // File Menu: New
 void on_file_new_activate (GtkMenuItem * menuitem, gpointer user_data)
 {
-    // GuiMapedit *mapedit = (GuiMapedit *) user_data;
+    GuiMapedit *mapedit = (GuiMapedit *) user_data;
+    mapedit->newMap ();
 }
 
  // File Menu: Load

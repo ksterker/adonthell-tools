@@ -83,6 +83,11 @@ public:
     //@}
     
     /**
+     * Create a new map for editing.
+     */
+    void newMap ();
+    
+    /**
      * Load and display given map.
      * @param fname name of the map to load.
      */

@@ -66,7 +66,7 @@ int main (int argc, char *argv[])
     if (MapCmdline::sources >= argc)
     {
         // Nope -> create a new dialogue
-        // mapedit.newMap ();
+        mapedit.newMap ();
     }
     else
     {

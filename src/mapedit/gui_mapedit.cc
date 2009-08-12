@@ -34,6 +34,8 @@
 #include <gtk/gtk.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 
+#include <base/base.h>
+
 #ifdef MAC_INTEGRATION
 #include <ige-mac-integration.h>
 #endif
@@ -293,6 +295,19 @@ GuiMapedit::~GuiMapedit ()
 {
 }
 
+void GuiMapedit::newMap ()
+{
+    MapData *area = new MapData();
+    ActiveMap = LoadedMaps.size();
+    LoadedMaps.push_back (area);
+
+    View->setMap (area);
+    EntityList->setMap (area);
+    
+    std::string datadir = base::Paths.user_data_dir ();
+    EntityList->setDataDir (std::string (datadir) + "/models");
+}
+
 // load map from disk
 void GuiMapedit::loadMap (const std::string & fname)
 {
@@ -411,6 +426,16 @@ void GuiMapedit::setLocation (const int & x, const int & y, const int & z)
 // get the full path/name/extension of a dialogue
 std::string GuiMapedit::filename () const
 {
-    if (ActiveMap > 0) return LoadedMaps[ActiveMap]->filename();
-    return Directory + "/untitled.xml";
+    std::string fname = "";
+    if (ActiveMap < LoadedMaps.size()) 
+    {
+        LoadedMaps[ActiveMap]->filename();
+    }
+    
+    if (fname.size() == 0)
+    {
+        fname = Directory + "/untitled.xml";
+    }
+    
+    return fname;
 }
