@@ -84,6 +84,16 @@ public:
      */
     void set_visible (const bool & visible);
     
+    /**
+     * Toggle snapping on or off. Decides whether objects will be
+     * automatically aligned to the current grid.
+     * @param snap true to turn snapping on, false to turn it off.
+     */
+    void set_snap_to_grid (const bool & snap)
+    {
+        SnapToGrid = snap;
+    }
+    
 protected:
     /// x offset for grid
     s_int16 Ox;

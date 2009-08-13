@@ -39,7 +39,8 @@ void on_file_save_activate (GtkMenuItem *, gpointer);
 void on_file_save_as_activate (GtkMenuItem *, gpointer);
 // void on_file_revert_activate (GtkMenuItem *, gpointer);
 // void on_file_close_activate (GtkMenuItem *, gpointer);
-
+void on_grid_toggled (GtkToggleButton *, gpointer);
+                      
 // Statusbar callbacks
 // gboolean on_display_help (GtkWidget *widget, GdkEventCrossing *event, gpointer user_data);
 // gboolean on_clear_help (GtkWidget *widget, GdkEventCrossing *event, gpointer user_data);

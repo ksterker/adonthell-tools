@@ -265,6 +265,22 @@ GuiMapedit::GuiMapedit ()
     gtk_box_pack_start (GTK_BOX (hbox), status_help, TRUE, TRUE, 0);
     gtk_widget_set_usize (status_help, -2, 20);
 
+    // grid controls
+    GtkWidget *gridbox = gtk_hbox_new (FALSE, 4);
+    GtkWidget *snapToGrid = gtk_check_button_new_with_label ("Snap to Grid");
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(snapToGrid), TRUE);
+    gtk_box_pack_start (GTK_BOX (gridbox), snapToGrid, FALSE, TRUE, 0);
+    g_signal_connect (G_OBJECT (snapToGrid), "toggled", G_CALLBACK (on_grid_toggled), (gpointer) View);
+    GTK_WIDGET_UNSET_FLAGS(snapToGrid, GTK_CAN_FOCUS);
+    
+    GtkWidget *status_grid = gtk_frame_new (NULL);
+    gtk_frame_set_shadow_type (GTK_FRAME(status_grid), GTK_SHADOW_IN);
+    gtk_container_add (GTK_CONTAINER(status_grid), gridbox);
+    gtk_widget_show_all (status_grid);
+    gtk_widget_set_usize (status_grid, 150, 20);
+
+    gtk_box_pack_start (GTK_BOX (hbox), status_grid, FALSE, TRUE, 0);
+    
     // coordinates
     StatusCoordinates = gtk_statusbar_new ();
     g_object_ref (StatusCoordinates);
@@ -279,6 +295,7 @@ GuiMapedit::GuiMapedit ()
     
     // Display MainWindow
     gtk_widget_show (Wnd);
+    // gtk_window_present (GTK_WINDOW(Wnd));
 
     // init list of previously opened files
     initRecentFiles ();
@@ -427,7 +444,7 @@ void GuiMapedit::setLocation (const int & x, const int & y, const int & z)
 std::string GuiMapedit::filename () const
 {
     std::string fname = "";
-    if (ActiveMap < LoadedMaps.size()) 
+    if (ActiveMap < (int) LoadedMaps.size()) 
     {
         LoadedMaps[ActiveMap]->filename();
     }

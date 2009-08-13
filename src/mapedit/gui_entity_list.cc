@@ -202,6 +202,7 @@ static void selected_event (GtkTreeSelection *selection, gpointer user_data)
             if (!dlg.run())
             {
                 // user cancelled and object has not been added to map
+                gtk_tree_selection_unselect_iter (selection, &iter);                    
                 return;
             }
             

@@ -163,6 +163,12 @@ public:
      */
     void deleteCurObj ();
     //@}
+
+    /**
+     * Return the grid object of the mapview.
+     * @return the grid.
+     */
+    GuiGrid *getGrid () const { return Grid; }
     
     /**
      * @name Auto-Scrolling (TM) ;) functionality.
