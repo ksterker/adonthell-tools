@@ -1,2 +1,2 @@
-SUBDIRS = backend common dlgedit mapedit questedit 
+SUBDIRS = backend common dlgedit mapedit modeller questedit 
 

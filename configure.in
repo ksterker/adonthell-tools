@@ -233,6 +233,7 @@ src/backend/Makefile
 src/common/Makefile
 src/dlgedit/Makefile
 src/mapedit/Makefile
+src/modeller/Makefile
 src/questedit/Makefile
 test/Makefile
 ])

@@ -102,9 +102,19 @@ bool GuiFile::run ()
 
 void GuiFile::add_filter (const std::string & pattern, const std::string & name)
 {
+    unsigned long pos;
+    std::string pattern_str = pattern;
     GtkFileFilter *filter = gtk_file_filter_new ();
     gtk_file_filter_set_name (filter, name.c_str ());
-    gtk_file_filter_add_pattern (filter, pattern.c_str ());
+
+    while ((pos = pattern_str.find ('|')) != std::string::npos)
+    {
+        std::string filter_str = pattern_str.substr (0, pos);
+        pattern_str = pattern_str.substr (pos + 1);
+        gtk_file_filter_add_pattern (filter, filter_str.c_str ());
+    }
+    
+    gtk_file_filter_add_pattern (filter, pattern_str.c_str ());
     gtk_file_chooser_add_filter (GTK_FILE_CHOOSER(window), filter);    
     gtk_file_chooser_set_filter (GTK_FILE_CHOOSER(window), filter);
 }
