@@ -28,7 +28,9 @@
 
 #include <gtk/gtk.h>
 
-#include "gfx/gfx.h"
+#include <gfx/gfx.h>
+#include <world/placeable_model.h>
+
 #include "backend/gtk/screen_gtk.h"
 
 #include "gui_preview.h"
@@ -57,7 +59,7 @@ static gint expose_event (GtkWidget * widget, GdkEventExpose * event, gpointer d
 
 
 // ctor
-GuiPreview::GuiPreview (GtkWidget *drawing_area) : DrawingArea (drawing_area)
+GuiPreview::GuiPreview (GtkWidget *drawing_area) : DrawingArea (drawing_area), Model (NULL)
 {
 #ifdef __APPLE__
     // no need to use double buffering on OSX, but appears to be required elsewhere
@@ -74,7 +76,7 @@ GuiPreview::GuiPreview (GtkWidget *drawing_area) : DrawingArea (drawing_area)
                            GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK | GDK_KEY_PRESS_MASK);
     
     // create the render target
-    Target = gfx::create_surface();
+    Target = gfx::create_surface();    
 }
 
 // redraw the given part of the screen
@@ -116,7 +118,34 @@ void GuiPreview::render (const int & sx, const int & sy, const int & l, const in
     // reset target before drawing
     Target->fillrect (sx, sy, l, h, 0xFF000000);
 
+    if (Model != NULL)
+    {
+        gfx::sprite *sprt = Model->get_sprite();
+        if (sprt != NULL)
+        {
+            // set clipping rectangle
+            gfx::drawing_area da (sx, sy, l, h);
+            
+            // center on screen
+            s_int16 x = (Target->length() - sprt->length()) / 2;
+            s_int16 y = (Target->height() - sprt->height()) / 2;
+            
+            // draw
+            sprt->draw (x, y, &da, Target);
+        }
+    }
+        
     // schedule screen update
     GdkRectangle rect = { sx, sy, l, h };
     gdk_window_invalidate_rect (DrawingArea->window, &rect, FALSE);    
 }
+
+// set object being edited
+void GuiPreview::setCurModel (world::placeable_model *model)
+{
+    Model = model;
+    
+    // update screen
+    render ();
+}
+

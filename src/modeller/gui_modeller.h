@@ -47,6 +47,12 @@ public:
     GtkWidget *getWindow () const { return Window; }
     
     /**
+     * Get pointer to the preview area.
+     * @return the preview area.
+     */
+    GuiPreview *getPreview () const { return Preview; }
+    
+    /**
      * Return the directory used for loading sprites.
      * @return the directory the last sprite was picked from.
      */

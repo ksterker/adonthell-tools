@@ -44,8 +44,17 @@ static char modeller_ui[] =
 "<interface>"
   "<requires lib=\"gtk+\" version=\"2.16\"/>"
   "<!-- interface-naming-policy project-wide -->"
-  "<object class=\"GtkTreeStore\" id=\"sprite_list\"/>"
-  "<object class=\"GtkTreeStore\" id=\"shape_list\"/>"
+  "<object class=\"GtkTreeStore\" id=\"sprite_list\">"
+    "<columns>"
+      "<column type=\"gchararray\"/>"
+      "<column type=\"gpointer\"/>"
+    "</columns>"
+  "</object>"
+  "<object class=\"GtkTreeStore\" id=\"shape_list\">"
+    "<columns>"
+      "<column type=\"gchararray\"/>"
+    "</columns>"
+  "</object>"
   "<object class=\"GtkWindow\" id=\"main_window\">"
     "<property name=\"title\" translatable=\"yes\">Adonthell Modeller</property>"
     "<property name=\"default_width\">800</property>"
@@ -155,11 +164,14 @@ static char modeller_ui[] =
                                 "<property name=\"hscrollbar_policy\">automatic</property>"
                                 "<property name=\"shadow_type\">in</property>"
                                 "<child>"
-                                  "<object class=\"GtkTreeView\" id=\"treeview1\">"
+                                  "<object class=\"GtkTreeView\" id=\"sprite_view\">"
                                     "<property name=\"visible\">True</property>"
                                     "<property name=\"can_focus\">True</property>"
                                     "<property name=\"model\">sprite_list</property>"
-                                  "</object>"
+                                    "<property name=\"headers_visible\">False</property>"       
+                                    "<property name=\"headers_clickable\">False</property>"         
+                                    "<property name=\"fixed_height_mode\">True</property>"
+                                   "</object>"
                                 "</child>"
                               "</object>"
                               "<packing>"
@@ -241,10 +253,13 @@ static char modeller_ui[] =
                                 "<property name=\"hscrollbar_policy\">automatic</property>"
                                 "<property name=\"shadow_type\">in</property>"
                                 "<child>"
-                                  "<object class=\"GtkTreeView\" id=\"treeview2\">"
+                                  "<object class=\"GtkTreeView\" id=\"shape_view\">"
                                     "<property name=\"visible\">True</property>"
                                     "<property name=\"can_focus\">True</property>"
                                     "<property name=\"model\">shape_list</property>"
+                                    "<property name=\"headers_visible\">False</property>"       
+                                    "<property name=\"headers_clickable\">False</property>"         
+                                    "<property name=\"fixed_height_mode\">True</property>"
                                   "</object>"
                                 "</child>"
                               "</object>"
@@ -574,6 +589,47 @@ static void on_widget_destroy (GtkWidget * widget, gpointer data)
     gtk_widget_destroy (widget);
 }
 
+// callback for selection changes in sprite list
+static void anim_selected_event (GtkTreeSelection *selection, gpointer user_data)
+{
+    GtkTreeModel *tree_model;
+    GtkTreeIter iter;
+    
+    // anything selected at all? 
+    if (gtk_tree_selection_get_selected (selection, &tree_model, &iter))
+    {
+        // have we selected a leaf?
+        if (!gtk_tree_model_iter_has_child (tree_model, &iter))
+        {
+            gchar *anim_name;
+            gpointer data = NULL;
+            
+            // get name of selected animation
+            gtk_tree_model_get (tree_model, &iter, 0, &anim_name, -1);
+
+            // get selected model
+            GtkTreeIter parent;
+            gtk_tree_model_iter_parent (tree_model, &parent, &iter);
+            gtk_tree_model_get (tree_model, &parent, 1, &data, -1);            
+            
+            if (data != NULL)
+            {
+                world::placeable_model *model = (world::placeable_model *) data;
+                
+                // make selected shape current in model ...
+                model->set_shape (anim_name);
+                
+                // and display it in editor
+                GuiModeller *modeller = (GuiModeller *) user_data;
+                modeller->getPreview()->setCurModel (model);
+            }
+            
+            // cleanup
+            g_free (anim_name);
+        }
+    }
+}
+
 // load sprite from file
 static void on_add_sprite_pressed (GtkButton * button, gpointer user_data)
 {
@@ -631,8 +687,20 @@ GuiModeller::GuiModeller ()
     g_signal_connect (widget, "clicked", G_CALLBACK (on_add_sprite_pressed), this);
     widget = gtk_builder_get_object (Ui, "item_quit");    
     g_signal_connect (widget, "activate", G_CALLBACK (on_widget_destroy), (gpointer) NULL);
+    
+    // set tree columns and signals
+    // FIXME: this could be done in the ui description, but my glade appears buggy in that area.
+    GtkCellRenderer *renderer = gtk_cell_renderer_text_new ();
+    widget = gtk_builder_get_object (Ui, "sprite_view");
+    gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW(widget), -1, "Sprites", renderer, "text", 0, NULL);
+    GtkTreeSelection *selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(widget));
+    g_signal_connect (G_OBJECT(selection), "changed", G_CALLBACK(anim_selected_event), this);
+    
+    widget = gtk_builder_get_object (Ui, "shape_view");
+    gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW(widget), -1, "Shapes", renderer, "text", 0, NULL);
 }
 
+// add a new sprite to the model
 void GuiModeller::addSprite (const std::string & name)
 {
     // remember path to sprite for convenience
@@ -645,12 +713,46 @@ void GuiModeller::addSprite (const std::string & name)
     model->set_sprite (name);
     
     // try loading sprite
-    if (model->get_sprite ())
+    gfx::sprite *sprt = model->get_sprite ();
+    
+    if (sprt != NULL)
     {
-        // add to sprite list
+        gchar *sprite_name = g_path_get_basename (name.c_str());
         
-        // display in editor
-        Preview->render ();
+        GtkTreeIter sprite_iter;
+        GtkTreeIter anim_iter;
+        
+        GtkTreeStore *sprite_store = GTK_TREE_STORE(gtk_builder_get_object (Ui, "sprite_list"));
+        GtkTreeView *tree_view = GTK_TREE_VIEW(gtk_builder_get_object (Ui, "sprite_view"));
+        
+        // add to sprite list
+        gtk_tree_store_append (sprite_store, &sprite_iter, NULL);
+        gtk_tree_store_set (sprite_store, &sprite_iter, 0, sprite_name, 1, (gpointer) model, -1);
+
+        // show all entries
+        gtk_tree_view_expand_all (tree_view);
+                
+        // default anim for selection
+        std::string cur_anim = model->current_shape_name();
+
+        // add animations of the sprite to the sprite list
+        for (gfx::sprite::animation_map::const_iterator anim = sprt->begin(); anim != sprt->end(); anim++)
+        {
+            // add corresponding shape to model
+            model->add_shape (anim->first);
+            
+            gtk_tree_store_append (sprite_store, &anim_iter, &sprite_iter);
+            gtk_tree_store_set (sprite_store, &anim_iter, 0, anim->first.c_str(), -1);
+            
+            // select default animation
+            if (cur_anim == anim->first)
+            {
+                GtkTreeSelection *selection = gtk_tree_view_get_selection (tree_view);
+                gtk_tree_selection_select_iter (selection, &anim_iter);
+            }            
+        }
+        
+        // cleanup
+        g_free (sprite_name);
     }
 }
-

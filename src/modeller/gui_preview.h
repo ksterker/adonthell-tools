@@ -35,6 +35,11 @@ namespace gfx
     class surface;
 };
 
+namespace world
+{
+    class placeable_model;
+};
+
 /**
  * This shows the model as it is assembled from sprites and shapes.
  * Allows to position the sprites and shapes relative to each other
@@ -78,11 +83,19 @@ public:
      */
     void render (const int & sx, const int & sy, const int & l, const int & h);
     
+    /**
+     * Set the model being displayed/edited.
+     * @param model the model being edited.
+     */
+    void setCurModel (world::placeable_model *model);
+    
 private:
     /// the display widget
     GtkWidget *DrawingArea;
     /// the render surface
     gfx::surface *Target;
+    /// the model currently being edited
+    world::placeable_model *Model;
 };
 
 #endif

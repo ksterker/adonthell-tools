@@ -416,6 +416,7 @@ bool surface_gtk::put_png (std::ofstream & file) const
 void surface_gtk::create_mask ()
 {
     if (mask) cairo_surface_destroy (mask);
+    if (!vis) return;
     
     mask = cairo_image_surface_create (CAIRO_FORMAT_A8, length(), height());
     u_int8 *mask_data = cairo_image_surface_get_data (mask);
