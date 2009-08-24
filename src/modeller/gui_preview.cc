@@ -1,6 +1,4 @@
 /*
- $Id: mdl_cmdline.h,v 1.1 2009/03/29 12:27:27 ksterker Exp $
- 
  Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
  Part of the Adonthell Project http://adonthell.linuxgames.com
  
@@ -33,6 +31,7 @@
 
 #include "backend/gtk/screen_gtk.h"
 
+#include "mdl_handle.h"
 #include "gui_preview.h"
 
 // Window resized
@@ -57,6 +56,17 @@ static gint expose_event (GtkWidget * widget, GdkEventExpose * event, gpointer d
     return TRUE;
 }
 
+// Mouse moved over drawing area
+gint motion_notify_event (GtkWidget *widget, GdkEventMotion *event, gpointer data)
+{
+    GuiPreview *view = (GuiPreview *) data;
+    GdkPoint point = { event->x, event->y };
+    
+    // highlight handles under cursor
+    view->mouseMoved (&point);
+    
+    return FALSE;
+}
 
 // ctor
 GuiPreview::GuiPreview (GtkWidget *drawing_area) : DrawingArea (drawing_area), Model (NULL)
@@ -68,7 +78,7 @@ GuiPreview::GuiPreview (GtkWidget *drawing_area) : DrawingArea (drawing_area), M
 
     g_signal_connect (G_OBJECT (DrawingArea), "expose_event", G_CALLBACK(expose_event), this);
     g_signal_connect (G_OBJECT (DrawingArea), "configure_event", G_CALLBACK(configure_event), this);
-    // g_signal_connect (G_OBJECT (DrawingArea), "motion_notify_event", G_CALLBACK(motion_notify_event), this);
+    g_signal_connect (G_OBJECT (DrawingArea), "motion_notify_event", G_CALLBACK(motion_notify_event), this);
     // g_signal_connect (G_OBJECT (DrawingArea), "button_press_event", G_CALLBACK(button_press_event), this);
     // g_signal_connect (G_OBJECT (GuiMapedit::window->getWindow ()), "key_press_event", G_CALLBACK(key_press_notify_event), this);
     
@@ -120,19 +130,11 @@ void GuiPreview::render (const int & sx, const int & sy, const int & l, const in
 
     if (Model != NULL)
     {
-        gfx::sprite *sprt = Model->get_sprite();
-        if (sprt != NULL)
-        {
-            // set clipping rectangle
-            gfx::drawing_area da (sx, sy, l, h);
-            
-            // center on screen
-            s_int16 x = (Target->length() - sprt->length()) / 2;
-            s_int16 y = (Target->height() - sprt->height()) / 2;
-            
-            // draw
-            sprt->draw (x, y, &da, Target);
-        }
+        // set clipping rectangle
+        gfx::drawing_area da (sx, sy, l, h);
+        
+        // draw to target
+        Renderer.render (Model, Handles, da, Target);
     }
         
     // schedule screen update
@@ -149,3 +151,32 @@ void GuiPreview::setCurModel (world::placeable_model *model)
     render ();
 }
 
+// set shape being edited
+void GuiPreview::setCurShape (world::cube3 *shape)
+{
+    Renderer.setActiveShape (shape);
+    
+    // update screen
+    render ();
+}
+
+// notification of mouse movement
+void GuiPreview::mouseMoved (const GdkPoint *point)
+{
+    for (int i = 0; i < MAX_HANDLES; i++)
+    {
+        GdkRectangle rect = { Handles[i].x, Handles[i].y, HANDLE_SIZE, HANDLE_SIZE };
+        GdkRegion *region = gdk_region_rectangle (&rect);
+
+        // printf ("[%i, %i] <-> [%i, %i]\n", Handles[i].x, Handles[i].y, point->x, point->y); 
+        bool overHandle = gdk_region_point_in (region, point->x, point->y);
+        
+        // hightlight handle
+        Renderer.drawHandle (Handles[i], overHandle, Target);
+        // refresh screen
+        gdk_window_invalidate_rect (DrawingArea->window, &rect, FALSE);    
+        
+        // cleanup
+        gdk_region_destroy (region);
+    }
+}

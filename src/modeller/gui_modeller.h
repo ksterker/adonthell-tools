@@ -30,6 +30,11 @@
 #ifndef GUI_MODELLER_H
 #define GUI_MODELLER_H
 
+namespace world
+{
+    class placeable_model;
+};
+
 class GuiPreview;
 
 class GuiModeller
@@ -63,6 +68,18 @@ public:
      * @param name filename of the sprite.
      */
     void addSprite (const std::string & name);
+    
+    /**
+     * Add a new shape to the selected model.
+     * 
+     */
+    void addShape ();
+    
+    /**
+     * Update shape list from selected model.
+     * @param model the model whose shapes to display.
+     */
+    void updateShapeList (world::placeable_model *model);
     
 private:
     /// the main window

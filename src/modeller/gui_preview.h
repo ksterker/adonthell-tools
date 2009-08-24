@@ -1,6 +1,4 @@
 /*
- $Id: mdl_cmdline.h,v 1.1 2009/03/29 12:27:27 ksterker Exp $
- 
  Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
  Part of the Adonthell Project http://adonthell.linuxgames.com
  
@@ -30,15 +28,7 @@
 #ifndef GUI_PREVIEW_H
 #define GUI_PREVIEW_H
 
-namespace gfx
-{
-    class surface;
-};
-
-namespace world
-{
-    class placeable_model;
-};
+#include "mdl_renderer.h"
 
 /**
  * This shows the model as it is assembled from sprites and shapes.
@@ -48,6 +38,7 @@ namespace world
 class GuiPreview 
 {
 public:
+
     /**
      * Create new preview.
      * @param drawing_area the surface to draw on
@@ -84,18 +75,34 @@ public:
     void render (const int & sx, const int & sy, const int & l, const int & h);
     
     /**
+     * Process mouse movement over preview area.
+     * @param point location of the mouse pointer.
+     */
+    void mouseMoved (const GdkPoint *point);
+
+    /**
      * Set the model being displayed/edited.
      * @param model the model being edited.
      */
     void setCurModel (world::placeable_model *model);
     
+    /**
+     * Set the shape being displayed/edited.
+     * @param shape the shape being edited.
+     */
+    void setCurShape (world::cube3 *shape);
+    
 private:
+    /// the renderer
+    ModelRenderer Renderer;
     /// the display widget
     GtkWidget *DrawingArea;
     /// the render surface
     gfx::surface *Target;
     /// the model currently being edited
     world::placeable_model *Model;
+    /// the position of the edit handles
+    GdkPoint Handles[4];
 };
 
 #endif

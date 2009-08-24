@@ -53,6 +53,7 @@ static char modeller_ui[] =
   "<object class=\"GtkTreeStore\" id=\"shape_list\">"
     "<columns>"
       "<column type=\"gchararray\"/>"
+      "<column type=\"gpointer\"/>"
     "</columns>"
   "</object>"
   "<object class=\"GtkWindow\" id=\"main_window\">"
@@ -273,7 +274,7 @@ static char modeller_ui[] =
                                 "<property name=\"spacing\">4</property>"
                                 "<property name=\"layout_style\">center</property>"
                                 "<child>"
-                                  "<object class=\"GtkButton\" id=\"button3\">"
+                                  "<object class=\"GtkButton\" id=\"add_shape\">"
                                     "<property name=\"label\">gtk-add</property>"
                                     "<property name=\"visible\">True</property>"
                                     "<property name=\"can_focus\">True</property>"
@@ -287,7 +288,7 @@ static char modeller_ui[] =
                                   "</packing>"
                                 "</child>"
                                 "<child>"
-                                  "<object class=\"GtkButton\" id=\"button4\">"
+                                  "<object class=\"GtkButton\" id=\"remove_shape\">"
                                     "<property name=\"label\">gtk-remove</property>"
                                     "<property name=\"visible\">True</property>"
                                     "<property name=\"can_focus\">True</property>"
@@ -603,7 +604,9 @@ static void anim_selected_event (GtkTreeSelection *selection, gpointer user_data
         {
             gchar *anim_name;
             gpointer data = NULL;
-            
+
+            // TODO: disable del_sprite button
+
             // get name of selected animation
             gtk_tree_model_get (tree_model, &iter, 0, &anim_name, -1);
 
@@ -621,11 +624,45 @@ static void anim_selected_event (GtkTreeSelection *selection, gpointer user_data
                 
                 // and display it in editor
                 GuiModeller *modeller = (GuiModeller *) user_data;
-                modeller->getPreview()->setCurModel (model);
+                modeller->updateShapeList (model);
             }
             
             // cleanup
             g_free (anim_name);
+        }
+        else
+        {
+            // TODO: activate del_sprite button
+        }
+    }
+}
+
+// shape selected in the shape list
+static void shape_selected_event (GtkTreeSelection *selection, gpointer user_data)
+{
+    GtkTreeModel *tree_model;
+    GtkTreeIter iter;
+    
+    // anything selected at all? 
+    if (gtk_tree_selection_get_selected (selection, &tree_model, &iter))
+    {
+        // have we selected a leaf?
+        if (!gtk_tree_model_iter_has_child (tree_model, &iter))
+        {
+            // TODO: enable remove_shape button
+            
+            world::cube3 *cube = NULL;
+            gtk_tree_model_get (tree_model, &iter, 1, &cube, -1);   
+            if (cube != NULL)
+            {
+                // and display it in editor
+                GuiModeller *modeller = (GuiModeller *) user_data;
+                modeller->getPreview ()->setCurShape (cube);
+            }
+        }
+        else
+        {
+            // TODO: disable remove_shape button
         }
     }
 }
@@ -643,6 +680,13 @@ static void on_add_sprite_pressed (GtkButton * button, gpointer user_data)
     if (fs.run ()) modeller->addSprite (fs.getSelection ());
 }
 
+static void on_add_shape_pressed (GtkButton * button, gpointer user_data)
+{
+    GuiModeller *modeller = (GuiModeller *) user_data;
+    modeller->addShape ();
+}
+
+
 // ctor
 GuiModeller::GuiModeller ()
 {
@@ -657,7 +701,7 @@ GuiModeller::GuiModeller ()
         g_error_free (err);
         return;
     }
-    
+
     // get reference to dialog window
     Window = GTK_WIDGET (gtk_builder_get_object (Ui, "main_window"));
     gtk_widget_show_all (Window);
@@ -677,14 +721,16 @@ GuiModeller::GuiModeller ()
     // IgeMacMenuGroup *group = ige_mac_menu_add_app_menu_group ();
     // ige_mac_menu_add_app_menu_item (group, GTK_MENU_ITEM (quit_item), NULL);
 #endif
-    
+
     // setup preview
     widget = gtk_builder_get_object (Ui, "model_area");
     Preview = new GuiPreview (GTK_WIDGET (widget));
-    
+        
     // connect signals
     widget = gtk_builder_get_object (Ui, "add_sprite");
     g_signal_connect (widget, "clicked", G_CALLBACK (on_add_sprite_pressed), this);
+    widget = gtk_builder_get_object (Ui, "add_shape");
+    g_signal_connect (widget, "clicked", G_CALLBACK (on_add_shape_pressed), this);
     widget = gtk_builder_get_object (Ui, "item_quit");    
     g_signal_connect (widget, "activate", G_CALLBACK (on_widget_destroy), (gpointer) NULL);
     
@@ -698,6 +744,8 @@ GuiModeller::GuiModeller ()
     
     widget = gtk_builder_get_object (Ui, "shape_view");
     gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW(widget), -1, "Shapes", renderer, "text", 0, NULL);
+    selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(widget));
+    g_signal_connect (G_OBJECT(selection), "changed", G_CALLBACK(shape_selected_event), this);
 }
 
 // add a new sprite to the model
@@ -729,11 +777,9 @@ void GuiModeller::addSprite (const std::string & name)
         gtk_tree_store_append (sprite_store, &sprite_iter, NULL);
         gtk_tree_store_set (sprite_store, &sprite_iter, 0, sprite_name, 1, (gpointer) model, -1);
 
-        // show all entries
-        gtk_tree_view_expand_all (tree_view);
-                
         // default anim for selection
-        std::string cur_anim = model->current_shape_name();
+        // FIXME: newly created model has no current shape
+        // std::string cur_anim = model->current_shape_name();
 
         // add animations of the sprite to the sprite list
         for (gfx::sprite::animation_map::const_iterator anim = sprt->begin(); anim != sprt->end(); anim++)
@@ -745,14 +791,93 @@ void GuiModeller::addSprite (const std::string & name)
             gtk_tree_store_set (sprite_store, &anim_iter, 0, anim->first.c_str(), -1);
             
             // select default animation
-            if (cur_anim == anim->first)
+            if (anim == sprt->begin())
             {
+                GtkTreePath *path = gtk_tree_model_get_path (GTK_TREE_MODEL(sprite_store), &anim_iter);
+                gtk_tree_view_expand_to_path (tree_view, path);
+                
                 GtkTreeSelection *selection = gtk_tree_view_get_selection (tree_view);
-                gtk_tree_selection_select_iter (selection, &anim_iter);
+                gtk_tree_selection_select_path (selection, path);
+                
+                gtk_tree_path_free (path);
             }            
         }
         
         // cleanup
         g_free (sprite_name);
     }
+}
+
+// add shape to selected model
+void GuiModeller::addShape ()
+{
+    GtkTreeIter iter;
+    GtkTreeIter root;
+
+    GtkTreeStore *shape_store = GTK_TREE_STORE(gtk_builder_get_object (Ui, "shape_list"));
+
+    if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL(shape_store), &root))
+    {
+        world::placeable_shape *shape = NULL;
+        gtk_tree_model_get (GTK_TREE_MODEL(shape_store), &root, 1, &shape, -1);            
+        if (shape != NULL)
+        {
+            // TODO: set cube extension to sprite area + some height
+            world::cube3 *cube = new world::cube3 (100, 100, 100);
+
+            shape->add_part (cube);
+            
+            gtk_tree_store_append (shape_store, &iter, &root);
+            gtk_tree_store_set (shape_store, &iter, 0, "cube", 1, (gpointer) cube, -1);
+            
+            // select newly added shape
+            GtkTreeView *tree_view = GTK_TREE_VIEW(gtk_builder_get_object (Ui, "shape_view"));
+            GtkTreePath *path = gtk_tree_model_get_path (GTK_TREE_MODEL(shape_store), &iter);
+            gtk_tree_view_expand_to_path (tree_view, path);
+            
+            GtkTreeSelection *selection = gtk_tree_view_get_selection (tree_view);
+            gtk_tree_selection_select_path (selection, path);
+            
+            gtk_tree_path_free (path);
+        }
+    }
+}
+
+// display model in shape list
+void GuiModeller::updateShapeList (world::placeable_model *model)
+{
+    // set model in preview
+    Preview->setCurModel (model);
+
+    GtkTreeIter anim_iter;
+    GtkTreeIter shape_iter;
+
+    // set shape(s) in shape_list
+    GtkTreeStore *shape_store = GTK_TREE_STORE(gtk_builder_get_object (Ui, "shape_list"));
+
+    // remove previous contents
+    gtk_tree_store_clear (shape_store);
+
+    world::placeable_shape *shape = model->current_shape ();
+    if (shape == NULL)
+    {
+        // TODO: message to statusbar
+        fprintf (stderr, "*** error: no current shape set in selected model!\n");
+        return;
+    }
+
+    // set animation name as root of shape list
+    std::string cur_anim = model->current_shape_name();
+    gtk_tree_store_append (shape_store, &anim_iter, NULL);
+    gtk_tree_store_set (shape_store, &anim_iter, 0, cur_anim.c_str(), 1, (gpointer) shape, -1);
+    
+    // add all existing shapes (if any)
+    for (std::vector<world::cube3*>::const_iterator i = shape->begin(); i != shape->end(); i++)
+    {
+        gtk_tree_store_append (shape_store, &shape_iter, &anim_iter);
+        gtk_tree_store_set (shape_store, &shape_iter, 0, "cube", 1, (gpointer) *i, -1);
+    }
+    
+    // TODO: enable add shape button
+    // TODO: update solid flag and image offset (X and Y only)
 }
