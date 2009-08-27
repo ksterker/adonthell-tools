@@ -30,6 +30,7 @@
 // ctor
 ModelRenderer::ModelRenderer () : world::default_renderer ()
 {
+    ActiveShape = NULL;
 }
 
 // render model and handles
@@ -50,13 +51,10 @@ void ModelRenderer::render (world::placeable_model *model, GdkPoint *handles, co
         draw (handles, x, y, ri, da, target);
         
         // render handles
-        if (ActiveShape != NULL)
+        for (int i = 0; i < MAX_HANDLES; i++)
         {
-            for (int i = 0; i < MAX_HANDLES; i++)
-            {
-                drawHandle (handles[i], false, target);
-            }
-        }        
+            drawHandle (handles[i], false, da, target);
+        }
     }
 }
 
@@ -65,17 +63,28 @@ void ModelRenderer::draw (GdkPoint *handles, const s_int16 & x, const s_int16 & 
 {
     // render sprite
     renderer_base::draw (x, y, ri, da, target);
+
+    // sprite screen coordinates
+    s_int16 sx = x + ri.screen_x ();
+    s_int16 sy = y + ri.screen_y ();
+    
+    // draw border around sprite
+    u_int32 color = target->map_color (0xD8, 0x77, 0x2D);
+    drawRect (sx, sy, ri.Sprite->length(), ri.Sprite->height(), color, da, target);
     
     // render shapes, if any
     for (std::vector<world::cube3*>::const_iterator i = ri.Shape->begin(); i != ri.Shape->end(); i++)
     {
-        s_int16 ox = x + ri.x();
-        s_int16 oy = y + ri.y() - ri.z();
-        
+        s_int16 ox = sx + (*i)->min_x();
+        s_int16 oy = sy + (*i)->min_y() + (*i)->max_z();
+
         (*i)->draw (ox, oy, &da, target);
         
         if (ActiveShape == *i)
         {
+            ox += (*i)->min_x();
+            oy += (*i)->min_y() - (*i)->min_z(); // ???
+            
             updateHandles (handles, ox, oy);
         }
     }    
@@ -100,24 +109,33 @@ void ModelRenderer::updateHandles (GdkPoint *handles, const s_int16 & x, const s
     handles[WIDTH].x = x - HANDLE_OFFSET + length / 2;
     handles[WIDTH].y = y - HANDLE_OFFSET - height + width;
 
-    // change height handle in the bottom south vertice of the shape
+    // change height handle in the top north vertice of the shape
     handles[HEIGHT].x = x - HANDLE_OFFSET + length / 2;
-    handles[HEIGHT].y = y - HANDLE_OFFSET + width;    
+    handles[HEIGHT].y = y - HANDLE_OFFSET - height;
 }
 
 // render a shape handle
-void ModelRenderer::drawHandle (const GdkPoint & handle, const bool & highlight, gfx::surface * target) const
+void ModelRenderer::drawHandle (const GdkPoint & handle, const bool & highlight, const gfx::drawing_area & da, gfx::surface * target) const
 {
-    s_int16 sx = handle.x;
-    s_int16 sy = handle.y;
-    
-    u_int32 color = highlight ? target->map_color (0xB8, 0xE7, 0x2D) : target->map_color (0xC8, 0xC7, 0x2D);
-    u_int32 frame = highlight ? target->map_color (0xFF, 0xFF, 0xFF) : target->map_color (0xEE, 0xEE, 0xEE);
+    if (ActiveShape != NULL)
+    {
+        s_int16 sx = handle.x;
+        s_int16 sy = handle.y;
+        
+        u_int32 color = highlight ? target->map_color (0x98, 0xC7, 0x0D) : target->map_color (0xC8, 0xC7, 0x2D);
+        u_int32 frame = highlight ? target->map_color (0xFF, 0xFF, 0xFF) : target->map_color (0xDD, 0xDD, 0xDD);
 
-    // draw handle with border
-    target->fillrect (sx, sy, HANDLE_SIZE, HANDLE_SIZE, color, NULL);
-    target->draw_line (sx, sy, sx + HANDLE_SIZE, sy, frame, NULL);
-    target->draw_line (sx, sy, sx, sy + HANDLE_SIZE, frame, NULL);
-    target->draw_line (sx + HANDLE_SIZE, sy, sx + HANDLE_SIZE, sy + HANDLE_SIZE, frame, NULL);
-    target->draw_line (sx, sy + HANDLE_SIZE, sx + HANDLE_SIZE, sy + HANDLE_SIZE, frame, NULL);    
+        // draw handle with border
+        target->fillrect (sx, sy, HANDLE_SIZE, HANDLE_SIZE, color, NULL);
+        drawRect (sx, sy, HANDLE_SIZE, HANDLE_SIZE, frame, da, target);
+    }
+}
+
+// draw a rectangle
+void ModelRenderer::drawRect (const s_int16 & x, const s_int16 & y, const u_int16 & l, const u_int16 & h, const u_int32 & color, const gfx::drawing_area & da, gfx::surface * target) const
+{
+    target->draw_line (x, y, x + l, y, color, &da);
+    target->draw_line (x, y, x, y + h, color, &da);
+    target->draw_line (x + l, y, x + l, y + h, color, &da);
+    target->draw_line (x, y + h, x + l, y + h, color, &da);    
 }

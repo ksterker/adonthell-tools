@@ -622,8 +622,12 @@ static void anim_selected_event (GtkTreeSelection *selection, gpointer user_data
                 // make selected shape current in model ...
                 model->set_shape (anim_name);
                 
-                // and display it in editor
                 GuiModeller *modeller = (GuiModeller *) user_data;
+
+                // reset preview
+                modeller->getPreview ()->setCurShape (NULL);
+                
+                // and display it in editor
                 modeller->updateShapeList (model);
             }
             
@@ -701,7 +705,11 @@ GuiModeller::GuiModeller ()
         g_error_free (err);
         return;
     }
-
+    
+    // setup preview -- needs to happen before window is realized
+    widget = gtk_builder_get_object (Ui, "model_area");
+    Preview = new GuiPreview (GTK_WIDGET (widget));
+    
     // get reference to dialog window
     Window = GTK_WIDGET (gtk_builder_get_object (Ui, "main_window"));
     gtk_widget_show_all (Window);
@@ -721,10 +729,6 @@ GuiModeller::GuiModeller ()
     // IgeMacMenuGroup *group = ige_mac_menu_add_app_menu_group ();
     // ige_mac_menu_add_app_menu_item (group, GTK_MENU_ITEM (quit_item), NULL);
 #endif
-
-    // setup preview
-    widget = gtk_builder_get_object (Ui, "model_area");
-    Preview = new GuiPreview (GTK_WIDGET (widget));
         
     // connect signals
     widget = gtk_builder_get_object (Ui, "add_sprite");

@@ -81,6 +81,35 @@ public:
     void mouseMoved (const GdkPoint *point);
 
     /**
+     * Modifying selected shape.
+     */
+    //@{
+    /**
+     * Process dragging shape handles.
+     * @param point location of the mouse pointer.
+     */
+    void handleDragged (GdkPoint *point);
+
+    /**
+     * Return whether a handle is currently being dragged.
+     * @return true if this is the case, false otherwise.
+     */
+    bool isHandleDragged () const 
+    { 
+        return PrevPos != NULL; 
+    }
+
+    /**
+     * Stop dragging the current handle.
+     */
+    void stopDragging ()
+    {
+        delete PrevPos;
+        PrevPos = NULL;
+    }
+    //@}
+    
+    /**
      * Set the model being displayed/edited.
      * @param model the model being edited.
      */
@@ -99,8 +128,14 @@ private:
     GtkWidget *DrawingArea;
     /// the render surface
     gfx::surface *Target;
+    /// the shape currently being edited 
+    world::cube3 *Shape;
     /// the model currently being edited
     world::placeable_model *Model;
+    /// the currently selected handle
+    int SelectedHandle;
+    /// previous position when dragging
+    GdkPoint *PrevPos;
     /// the position of the edit handles
     GdkPoint Handles[4];
 };

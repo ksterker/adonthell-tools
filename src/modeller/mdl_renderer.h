@@ -60,9 +60,10 @@ public:
      * Draw the handle at given index.
      * @param handle the handle to draw.
      * @param highlight whether to highlight the handle.
+     * @param da clipping rectangle.
      * @param target canvas to draw on.
      */
-    void drawHandle (const GdkPoint & handle, const bool & highlight, gfx::surface * target) const;
+    void drawHandle (const GdkPoint & handle, const bool & highlight, const gfx::drawing_area & da, gfx::surface * target) const;
     
     /**
      * Set the shape that is being edited, so we can draw the handles.
@@ -92,6 +93,17 @@ protected:
      * @param y y-offset of rendered model
      */
     void updateHandles (GdkPoint *handles, const s_int16 & x, const s_int16 & y) const;
+
+    /**
+     * Draw a rectangular outline.
+     * @param x x-offset
+     * @param y y-offset
+     * @param l length of rectangle
+     * @param h height of rectangle
+     * @param da clipping rectangle
+     * @param target render target
+     */
+    void drawRect (const s_int16 & x, const s_int16 & y, const u_int16 & l, const u_int16 & h, const u_int32 & color, const gfx::drawing_area & da, gfx::surface * target) const;
 
 private:
     /// this is the shape currently being edited

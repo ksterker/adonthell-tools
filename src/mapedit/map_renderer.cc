@@ -105,13 +105,13 @@ void MapRenderer::draw (const s_int16 & x, const s_int16 & y, const world::rende
             highlight->draw_line (highlight->length() - 1, 0, highlight->length() - 1, highlight->height() - 1, col);
             highlight->draw_line (0, highlight->height() - 1, highlight->length() - 1, highlight->height() - 1, col);
             
-            highlight->draw (x + obj.x () + obj.Shape->ox(), y + obj.y () + obj.Shape->oy() - obj.z() - obj.Shape->height(), &da, target);
+            highlight->draw (x + obj.screen_x(), y + obj.screen_y(), &da, target);
             delete highlight;
         }
         else
         {
             // render object unchanged
-            obj.Sprite->draw (x + obj.x () + obj.Shape->ox(), y + obj.y () + obj.Shape->oy() - obj.z() - obj.Shape->height(), &da, target);
+            obj.Sprite->draw (x + obj.screen_x(), y + obj.screen_y(), &da, target);
         }
     }
 }

@@ -62,14 +62,27 @@ gint motion_notify_event (GtkWidget *widget, GdkEventMotion *event, gpointer dat
     GuiPreview *view = (GuiPreview *) data;
     GdkPoint point = { event->x, event->y };
     
+    // drag handle?
+    if (event->state == GDK_BUTTON_PRESS_MASK)
+    {
+        view->handleDragged (&point);
+    }
+    else
+    {
+        if (view->isHandleDragged())
+        {
+            view->stopDragging();
+        }
+    }
+
     // highlight handles under cursor
     view->mouseMoved (&point);
-    
+        
     return FALSE;
 }
 
 // ctor
-GuiPreview::GuiPreview (GtkWidget *drawing_area) : DrawingArea (drawing_area), Model (NULL)
+GuiPreview::GuiPreview (GtkWidget *drawing_area) : DrawingArea (drawing_area)
 {
 #ifdef __APPLE__
     // no need to use double buffering on OSX, but appears to be required elsewhere
@@ -87,6 +100,12 @@ GuiPreview::GuiPreview (GtkWidget *drawing_area) : DrawingArea (drawing_area), M
     
     // create the render target
     Target = gfx::create_surface();    
+    
+    // no handle selected
+    SelectedHandle = -1;
+    PrevPos = NULL;
+    Model = NULL;
+    Shape = NULL;
 }
 
 // redraw the given part of the screen
@@ -147,6 +166,9 @@ void GuiPreview::setCurModel (world::placeable_model *model)
 {
     Model = model;
     
+    // no handle selected, initially
+    SelectedHandle = -1;
+    
     // update screen
     render ();
 }
@@ -155,7 +177,13 @@ void GuiPreview::setCurModel (world::placeable_model *model)
 void GuiPreview::setCurShape (world::cube3 *shape)
 {
     Renderer.setActiveShape (shape);
+
+    // remember shape for updates
+    Shape = shape;
     
+    // no handle selected, initially
+    SelectedHandle = -1;
+
     // update screen
     render ();
 }
@@ -163,20 +191,157 @@ void GuiPreview::setCurShape (world::cube3 *shape)
 // notification of mouse movement
 void GuiPreview::mouseMoved (const GdkPoint *point)
 {
+    if (Shape == NULL) return;
+    
+    // restrict drawing to view size
+    gfx::drawing_area da (0, 0, Target->length()-1, Target->height()-1);
+    // handle below cursor
+    int curHandle = -1;
+    
     for (int i = 0; i < MAX_HANDLES; i++)
     {
         GdkRectangle rect = { Handles[i].x, Handles[i].y, HANDLE_SIZE, HANDLE_SIZE };
         GdkRegion *region = gdk_region_rectangle (&rect);
 
         // printf ("[%i, %i] <-> [%i, %i]\n", Handles[i].x, Handles[i].y, point->x, point->y); 
-        bool overHandle = gdk_region_point_in (region, point->x, point->y);
-        
-        // hightlight handle
-        Renderer.drawHandle (Handles[i], overHandle, Target);
-        // refresh screen
-        gdk_window_invalidate_rect (DrawingArea->window, &rect, FALSE);    
+        if (gdk_region_point_in (region, point->x, point->y))
+        {
+            curHandle = i;
+            break;
+        }
         
         // cleanup
         gdk_region_destroy (region);
     }
+
+    // selection changed?
+    if (curHandle == SelectedHandle) return;
+
+    // was handle selected?
+    if (SelectedHandle != -1)
+    {
+        // deselect handle
+        Renderer.drawHandle (Handles[SelectedHandle], false, da, Target);
+        // refresh screen
+        GdkRectangle rect = { Handles[SelectedHandle].x, Handles[SelectedHandle].y, HANDLE_SIZE, HANDLE_SIZE };
+        gdk_window_invalidate_rect (DrawingArea->window, &rect, FALSE);    
+    }
+            
+    // is new handle selected?
+    if (curHandle != -1)
+    {
+        // hightlight handle
+        Renderer.drawHandle (Handles[curHandle], true, da, Target);
+        // refresh screen
+        GdkRectangle rect = { Handles[curHandle].x, Handles[curHandle].y, HANDLE_SIZE, HANDLE_SIZE };
+        gdk_window_invalidate_rect (DrawingArea->window, &rect, FALSE);    
+    }
+            
+    // update handle
+    SelectedHandle = curHandle;        
+}
+
+// update shape size or position
+void GuiPreview::handleDragged (GdkPoint *point)
+{
+    // dragging has just started
+    if (PrevPos == NULL)
+    {
+        PrevPos = new GdkPoint();
+        PrevPos->x = point->x;
+        PrevPos->y = point->y;
+    }
+    
+    // any change at all?
+    if (PrevPos->x == point->x && PrevPos->y == point->y) 
+    {
+        return;
+    }
+    
+    // list of points that will get updated
+    int points[world::cube3::NUM_CORNERS];
+    // the offset by which the points will be moved
+    world::vector3<s_int16> offset;
+    
+    switch (SelectedHandle)
+    {
+        case POSITION:
+        {
+            // move the whole cube
+            points[0] = world::cube3::BOTTOM_FRONT_LEFT;
+            points[1] = world::cube3::BOTTOM_FRONT_RIGHT;
+            points[2] = world::cube3::BOTTOM_BACK_RIGHT;
+            points[3] = world::cube3::BOTTOM_BACK_LEFT;
+            points[4] = world::cube3::TOP_FRONT_LEFT;
+            points[5] = world::cube3::TOP_FRONT_RIGHT;
+            points[6] = world::cube3::TOP_BACK_RIGHT;
+            points[7] = world::cube3::TOP_BACK_LEFT;
+
+            offset.set_x (point->x - PrevPos->x);
+            offset.set_y (point->y - PrevPos->y);
+            break;
+        }
+        case LENGTH:
+        {
+            // move the points on the cube's right side (x axis)
+            points[0] = world::cube3::TOP_BACK_RIGHT;
+            points[1] = world::cube3::TOP_FRONT_RIGHT;
+            points[2] = world::cube3::BOTTOM_BACK_RIGHT;
+            points[3] = world::cube3::BOTTOM_FRONT_RIGHT;
+            points[4] = -1;
+            
+            offset.set_x (point->x - PrevPos->x);
+            break;
+        }
+        case WIDTH:
+        {
+            // move the points on the cube's back side (y axis)
+            points[0] = world::cube3::TOP_BACK_RIGHT;
+            points[1] = world::cube3::TOP_BACK_LEFT;
+            points[2] = world::cube3::BOTTOM_BACK_RIGHT;
+            points[3] = world::cube3::BOTTOM_BACK_LEFT;
+            points[4] = -1;
+
+            offset.set_y (point->y - PrevPos->y);
+            break;
+        }
+        case HEIGHT:
+        {
+            // move the points on the cube's bottom side (z axis)
+            points[0] = world::cube3::TOP_FRONT_LEFT;
+            points[1] = world::cube3::TOP_FRONT_RIGHT;
+            points[2] = world::cube3::TOP_BACK_RIGHT;
+            points[3] = world::cube3::TOP_BACK_LEFT;
+            points[4] = -1;
+            
+            offset.set_z (PrevPos->y - point->y);
+            break;
+        }
+        default:
+        {
+            // no handle selected
+            return;
+        }
+    }
+    
+    // now update the selected points
+    for (int i = 0; i < world::cube3::NUM_CORNERS; i++)
+    {
+        if (points[i] == -1) break;
+        
+        world::vector3<s_int16> curPos = Shape->get_point (points[i]);
+        Shape->set_point (points[i], curPos + offset);
+    }
+    
+    // remember position for next iteration
+    PrevPos->x = point->x;
+    PrevPos->y = point->y;
+    
+    // update the bounding box and model
+    Model->current_shape ()->remove_part (Shape);
+    Shape->create_bounding_box ();
+    Model->current_shape ()->add_part (Shape);
+    
+    // and finally the screen
+    render ();
 }

@@ -83,7 +83,6 @@ public:
         mchar->load ("data/models/char/npc/ng.xml");
         
         // set position and speed
-        mchar->set_speed (1.5);
         mchar->set_position (398, 322);
         mchar->set_z (0);
         
