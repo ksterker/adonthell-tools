@@ -62,24 +62,75 @@ public:
      * @return the directory the last sprite was picked from.
      */
     std::string spriteDirectory () const { return SpriteDir; }
+
+    /**
+     * Return the directory used for loading/saving models.
+     * @return the directory the last model was loaded from/saved to.
+     */
+    std::string modelDirectory () const { return ModelDir; }
+    
+    /**
+     * Return the filename of the current model (without the path).
+     * @return filename of the current model.
+     */
+    std::string filename () const { return Filename; }
+    
+    /**
+     * Start working on a new model. Clears all current data.
+     */
+    void newModel ();
+
+    /**
+     * Load the model from the given file.
+     * @param name file to load the model from.
+     */
+    void loadModel (const std::string & name);    
+    
+    /**
+     * Save the model to the given file.
+     * @param name file to save the model to.
+     */
+    void saveModel (const std::string & name);
     
     /**
      * Add the given sprite to the model.
      * @param name filename of the sprite.
      */
     void addSprite (const std::string & name);
+
+    /**
+     * Remove a sprite from the model.
+     */
+    void removeSprite ();
+
+    /**
+     * Add a new model to the UI.
+     * @param model the actual model.
+     */
+    void addModel (world::placeable_model *model);    
     
     /**
      * Add a new shape to the selected model.
-     * 
      */
     void addShape ();
+
+    /**
+     * Remove a shape from the selected model.
+     */
+    void removeShape ();
     
     /**
      * Update shape list from selected model.
      * @param model the model whose shapes to display.
      */
     void updateShapeList (world::placeable_model *model);
+    
+    /**
+     * Enable or disable the widget with the given id.
+     * @param id the widget name
+     * @param sensitive true to enable, false to disable widget
+     */
+    void setActive (const std::string & id, const bool & sensitive);
     
 private:
     /// the main window
@@ -90,6 +141,10 @@ private:
     GuiPreview *Preview;
     /// directory of last loaded sprite
     std::string SpriteDir;
+    /// directory of last model
+    std::string ModelDir;
+    /// name of model
+    std::string Filename;
 };
 
 #endif

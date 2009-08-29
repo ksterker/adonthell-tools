@@ -34,6 +34,19 @@
 #include "mdl_handle.h"
 #include "gui_preview.h"
 
+/// indices of text fields 
+enum
+{
+    EDIT_OFFSET_X = 0,
+    EDIT_OFFSET_Y = 1,
+    EDIT_POS_X = 2,
+    EDIT_POS_Y = 3,
+    EDIT_POS_Z = 4,
+    EDIT_SIZE_X = 5,
+    EDIT_SIZE_Y = 6,
+    EDIT_SIZE_Z = 7
+};
+
 // Window resized
 static gint configure_event (GtkWidget *widget, GdkEventConfigure *event, gpointer data)
 {
@@ -82,7 +95,7 @@ gint motion_notify_event (GtkWidget *widget, GdkEventMotion *event, gpointer dat
 }
 
 // ctor
-GuiPreview::GuiPreview (GtkWidget *drawing_area) : DrawingArea (drawing_area)
+GuiPreview::GuiPreview (GtkWidget *drawing_area, GtkEntry** shape_data) : DrawingArea (drawing_area), ShapeData (shape_data)
 {
 #ifdef __APPLE__
     // no need to use double buffering on OSX, but appears to be required elsewhere
@@ -168,6 +181,18 @@ void GuiPreview::setCurModel (world::placeable_model *model)
     
     // no handle selected, initially
     SelectedHandle = -1;
+
+    // update offset
+    if (model != NULL)
+    {
+        setShapeData (EDIT_OFFSET_X, Model->current_shape()->ox());
+        setShapeData (EDIT_OFFSET_Y, Model->current_shape()->oy());
+    }
+    else
+    {
+        gtk_entry_set_text (GTK_ENTRY(ShapeData[EDIT_OFFSET_X]), "");
+        gtk_entry_set_text (GTK_ENTRY(ShapeData[EDIT_OFFSET_Y]), "");
+    }
     
     // update screen
     render ();
@@ -180,6 +205,9 @@ void GuiPreview::setCurShape (world::cube3 *shape)
 
     // remember shape for updates
     Shape = shape;
+    
+    // display shape extends and position
+    updateShapeData ();
     
     // no handle selected, initially
     SelectedHandle = -1;
@@ -222,6 +250,8 @@ void GuiPreview::mouseMoved (const GdkPoint *point)
     {
         // deselect handle
         Renderer.drawHandle (Handles[SelectedHandle], false, da, Target);
+        // reset value
+        indicateEditingField (SelectedHandle, false);
         // refresh screen
         GdkRectangle rect = { Handles[SelectedHandle].x, Handles[SelectedHandle].y, HANDLE_SIZE, HANDLE_SIZE };
         gdk_window_invalidate_rect (DrawingArea->window, &rect, FALSE);    
@@ -230,8 +260,10 @@ void GuiPreview::mouseMoved (const GdkPoint *point)
     // is new handle selected?
     if (curHandle != -1)
     {
-        // hightlight handle
+        // highlight handle
         Renderer.drawHandle (Handles[curHandle], true, da, Target);
+        // highlight value
+        indicateEditingField (curHandle, true);
         // refresh screen
         GdkRectangle rect = { Handles[curHandle].x, Handles[curHandle].y, HANDLE_SIZE, HANDLE_SIZE };
         gdk_window_invalidate_rect (DrawingArea->window, &rect, FALSE);    
@@ -239,6 +271,59 @@ void GuiPreview::mouseMoved (const GdkPoint *point)
             
     // update handle
     SelectedHandle = curHandle;        
+}
+
+// indicate which value will be affected by dragging handle
+void GuiPreview::indicateEditingField (const s_int32 & handle, const bool & highlight)
+{
+    int fields[] = { -1, -1, -1 };
+    
+    switch (handle)
+    {
+        case POSITION:
+        {
+            fields[0] = EDIT_POS_X;
+            fields[1] = EDIT_POS_Y;
+            break;
+        }
+        case LENGTH:
+        {
+            fields[0] = EDIT_SIZE_X;
+            break;
+        }
+        case WIDTH:
+        {
+            fields[0] = EDIT_SIZE_Y;
+            break;
+        }
+        case HEIGHT:
+        {
+            fields[0] = EDIT_SIZE_Z;
+            break;
+        }
+        default:
+        {
+            return;
+        }
+    }
+    
+    GtkStyle *style = gtk_widget_get_default_style ();
+    if (highlight)
+    {
+        GdkColor color = { 0, 43760, 55745, 8315 };
+        style = gtk_style_copy (style);
+        style->base[GTK_STATE_NORMAL]   = color;
+        style->base[GTK_STATE_ACTIVE]   = color;
+        style->base[GTK_STATE_PRELIGHT] = color;
+        style->base[GTK_STATE_SELECTED] = color;
+    }
+    
+    for (int i = 0; i < 3; i++)
+    {
+        if (fields[i] == -1) break;
+        
+        gtk_widget_set_style (GTK_WIDGET (ShapeData[fields[i]]), style);    
+    }
 }
 
 // update shape size or position
@@ -342,6 +427,41 @@ void GuiPreview::handleDragged (GdkPoint *point)
     Shape->create_bounding_box ();
     Model->current_shape ()->add_part (Shape);
     
+    // display new size and position
+    updateShapeData ();
+    
     // and finally the screen
     render ();
+}
+
+// display size and position of current shape
+void GuiPreview::updateShapeData () const
+{
+    if (Shape != NULL)
+    {
+        setShapeData (EDIT_POS_X, Shape->min_x());
+        setShapeData (EDIT_POS_Y, Shape->min_y());
+        setShapeData (EDIT_POS_Z, Shape->min_z());
+        setShapeData (EDIT_SIZE_X, Shape->max_x() - Shape->min_x());
+        setShapeData (EDIT_SIZE_Y, Shape->max_y() - Shape->min_y());
+        setShapeData (EDIT_SIZE_Z, Shape->max_z() - Shape->min_z());
+    }
+    else
+    {
+        gtk_entry_set_text (GTK_ENTRY(ShapeData[EDIT_POS_X]), "");
+        gtk_entry_set_text (GTK_ENTRY(ShapeData[EDIT_POS_Y]), "");
+        gtk_entry_set_text (GTK_ENTRY(ShapeData[EDIT_POS_Z]), "");
+        gtk_entry_set_text (GTK_ENTRY(ShapeData[EDIT_SIZE_X]), "");
+        gtk_entry_set_text (GTK_ENTRY(ShapeData[EDIT_SIZE_Y]), "");
+        gtk_entry_set_text (GTK_ENTRY(ShapeData[EDIT_SIZE_Z]), "");
+    }
+}
+
+// set shape data
+void GuiPreview::setShapeData (const u_int32 & data, const s_int32 & value) const
+{
+    std::stringstream strval (std::ios::out);
+    strval << value;
+    
+    gtk_entry_set_text (GTK_ENTRY(ShapeData[data]), strval.str().c_str());
 }

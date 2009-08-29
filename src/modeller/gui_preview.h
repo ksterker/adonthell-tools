@@ -38,12 +38,12 @@
 class GuiPreview 
 {
 public:
-
     /**
      * Create new preview.
      * @param drawing_area the surface to draw on
+     * @param shape_data gui elements for displaying shape information.
      */
-    GuiPreview (GtkWidget *drawing_area);
+    GuiPreview (GtkWidget *drawing_area, GtkEntry** shape_data);
 
     /**
      * Update (part of) the screen from backing pixmap.
@@ -120,12 +120,34 @@ public:
      * @param shape the shape being edited.
      */
     void setCurShape (world::cube3 *shape);
-    
+
+protected:
+    /**
+     * Indicate which value will be affected by dragging a handle.
+     * @param handle index of the handle being dragged.
+     * @param highlight true to turn indicator on, false to turn indicator off.
+     */
+    void indicateEditingField (const s_int32 & handle, const bool & highlight);
+
+    /**
+     * Display size and position of current shape.
+     */
+    void updateShapeData () const;
+
+    /**
+     * Fill in one piece of data of the given shape.
+     * @param data the index into the ShapeData array.
+     * @param value the new value to display.
+     */
+    void setShapeData (const u_int32 & data, const s_int32 & value) const;
+
 private:
     /// the renderer
     ModelRenderer Renderer;
     /// the display widget
     GtkWidget *DrawingArea;
+    /// the fields for displaying/editing shape data
+    GtkEntry **ShapeData; 
     /// the render surface
     gfx::surface *Target;
     /// the shape currently being edited 

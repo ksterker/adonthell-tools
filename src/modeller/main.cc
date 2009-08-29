@@ -65,13 +65,12 @@ int main (int argc, char *argv[])
     // are there any sources given?
     if (MdlCmdline::sources >= argc)
     {
-        // Nope -> create a new model
-        // modeller.newModel ();
+        // Nope -> a new model is created
     }
     else
     {
         // Yep -> load model
-        // modeller.loadModel (argv[MapCmdline::sources]);
+        modeller.loadModel (argv[MdlCmdline::sources]);
     }
     
     // Start the main loop
