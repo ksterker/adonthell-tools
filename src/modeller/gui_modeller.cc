@@ -32,6 +32,15 @@
 #include <ige-mac-integration.h>
 #endif
 
+#include <sys/param.h>
+#include <stdlib.h>
+
+#ifdef WIN32
+#define realpath(N,R) _fullpath((R),(N),_MAX_PATH)
+#undef PATH_MAX
+#define PATH_MAX _MAX_PATH
+#endif WIN32
+
 #include <base/base.h>
 #include <base/diskio.h>
 #include <world/placeable_model.h>
@@ -637,12 +646,16 @@ static void on_file_save_as_activate (GtkMenuItem * menuitem, gpointer user_data
     GtkWindow *parent = GTK_WINDOW(modeller->getWindow());
     
     std::string spriteDir = modeller->spriteDirectory ();
-    size_t index = spriteDir.find ("gfx/"); 
+    size_t index = spriteDir.find ("/gfx/"); 
     if (index != std::string::npos)
     {
-        spriteDir.replace (index, 3, "model");
+        spriteDir.replace (index, 4, "/models");
     }
-    
+
+    // try to create directory, if it doesn't exist
+    // TODO: make a program setting for that instead of doing it by default 
+    // g_mkdir_with_parents (spriteDir.c_str(), 0755);
+        
     GuiFile fs (parent, GTK_FILE_CHOOSER_ACTION_SAVE, "Save Model", spriteDir + "/" + modeller->filename ());
     fs.add_filter ("*.xml", "Adonthell Model");
     
@@ -983,13 +996,41 @@ void GuiModeller::saveModel (const std::string & name)
 void GuiModeller::addSprite (const std::string & name)
 {
     // remember path to sprite for convenience
-    gchar* sprite_path = g_path_get_dirname (name.c_str());
-    SpriteDir = sprite_path;
-    g_free (sprite_path);
+    gchar* sprite_dir = g_path_get_dirname (name.c_str());
+    SpriteDir = sprite_dir;
+    g_free (sprite_dir);
 
     // create new model
     world::placeable_model *model = new world::placeable_model();
-    model->set_sprite (name);
+    std::string base_path = base::Paths.user_data_dir();
+    std::string sprite_path = name;
+    
+    // make sure to use path relative to (user defined) data directory
+    if (base_path == "" || !getRelativeSpritePath (sprite_path, base_path))
+    {
+        // fallback to builtin data dir if that doesn't seem to work
+        base_path = base::Paths.game_data_dir();
+        if (!getRelativeSpritePath (sprite_path, base_path))
+        {
+            // if everythin fails, try locating gfx/ in the path and use 
+            // that as relative path
+            size_t pos = sprite_path.rfind ("gfx/");
+            if (pos != std::string::npos)
+            {
+                sprite_path = sprite_path.substr (pos);
+            }
+        }
+    }
+
+    // still couldn't create a relative sprite path
+    if (g_path_is_absolute (sprite_path.c_str()))
+    {
+        // FIXME: display error in status bar
+        printf ("*** warning: cannot create sprite path relative to data directory!\n");
+    }
+    
+    // set relatice sprite name
+    model->set_sprite (sprite_path);
     
     // and add it to the UI
     addModel (model);
@@ -1217,4 +1258,30 @@ void GuiModeller::setActive (const std::string & id, const bool & sensitive)
 {
     GtkWidget *widget = GTK_WIDGET(gtk_builder_get_object (Ui, id.c_str()));
     gtk_widget_set_sensitive (widget, sensitive);
+}
+
+// try to get relative sprite path
+bool GuiModeller::getRelativeSpritePath (std::string & sprite_path, std::string & base_path)
+{
+    // make canonical base path
+    char canonical_path[PATH_MAX];
+    if (realpath(base_path.c_str(), canonical_path))
+    {
+        base_path = canonical_path;
+        if (realpath(sprite_path.c_str(), canonical_path))
+        {
+            sprite_path = canonical_path;
+            if (sprite_path.compare (0, base_path.size(), base_path) == 0)
+            {
+                sprite_path = sprite_path.substr (base_path.length());
+                if (sprite_path[0] == '/' || sprite_path[0] == '\\')
+                {
+                    sprite_path = sprite_path.substr (1);
+                    return true;
+                }
+            }
+        }
+    }
+    
+    return false;
 }

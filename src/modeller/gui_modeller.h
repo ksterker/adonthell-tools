@@ -132,6 +132,20 @@ public:
      */
     void setActive (const std::string & id, const bool & sensitive);
     
+    /**
+     * Try to create a sprite path relative to the given base path.
+     * This is used so we can store the sprite relative to the data directory
+     * in the resulting model.
+     *
+     * @note Note that sprite_path will be modified by the method to be a relative
+     * path on success or a canonical absolute path on failure.
+     *
+     * @param sprite_path full path to the sprite.
+     * @param base_path path to the data directory.
+     * @return true if base path was subtracted from sprite path.
+     */
+    bool getRelativeSpritePath (std::string & sprite_path, std::string & base_path);
+
 private:
     /// the main window
     GtkWidget *Window;
