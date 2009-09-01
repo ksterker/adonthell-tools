@@ -644,19 +644,43 @@ static void on_file_save_as_activate (GtkMenuItem * menuitem, gpointer user_data
 {
     GuiModeller *modeller = (GuiModeller *) user_data;
     GtkWindow *parent = GTK_WINDOW(modeller->getWindow());
-    
-    std::string spriteDir = modeller->spriteDirectory ();
-    size_t index = spriteDir.find ("/gfx/"); 
-    if (index != std::string::npos)
-    {
-        spriteDir.replace (index, 4, "/models");
-    }
 
+    std::string saveDir;
+    std::string filename = modeller->filename ();
+    
+    /*
+    // filename might end in .png if we loaded a 'default' sprite
+     
+     * Actually, for now the filename will always be 'untitled.xml' if
+     * we are working on a new model or end in '.xml' if we loaded an
+     * existing model.
+    if (filename.find (".png", filename.size() - 4) != std::string::npos)
+    {
+        filename = filename.replace (filename.size() - 3, 3, "xml");
+    }
+    */
+    
+    // generate save directory from sprite directory for new models
+    if (filename.find ("untitled") != filename.npos)
+    {        
+        saveDir = modeller->spriteDirectory ();
+        size_t index = saveDir.find ("/gfx/"); 
+        if (index != std::string::npos)
+        {
+            saveDir.replace (index, 4, "/models");
+        }
+    }
+    // otherwise save to directory the model came from
+    else
+    {
+        saveDir = modeller->modelDirectory ();
+    }
+    
     // try to create directory, if it doesn't exist
     // TODO: make a program setting for that instead of doing it by default 
     // g_mkdir_with_parents (spriteDir.c_str(), 0755);
         
-    GuiFile fs (parent, GTK_FILE_CHOOSER_ACTION_SAVE, "Save Model", spriteDir + "/" + modeller->filename ());
+    GuiFile fs (parent, GTK_FILE_CHOOSER_ACTION_SAVE, "Save Model", saveDir + "/" + modeller->filename ());
     fs.add_filter ("*.xml", "Adonthell Model");
     
     // File selection closed with OK
@@ -918,6 +942,16 @@ void GuiModeller::loadModel (const std::string & name)
         fprintf (stderr, "*** loadModel: error loading model >%s<\n", name.c_str());
         return;
     }
+    
+    // remember path to model for convenience
+    gchar* model_path = g_path_get_dirname (name.c_str());
+    ModelDir = model_path;
+    g_free (model_path);
+    
+    // remember model file for convenience
+    gchar* model_file = g_path_get_basename (name.c_str());
+    Filename = model_file;
+    g_free (model_file);
     
     base::flat entity = placeable.get_flat ("entity");
     

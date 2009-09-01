@@ -75,15 +75,15 @@ void ModelRenderer::draw (GdkPoint *handles, const s_int16 & x, const s_int16 & 
     // render shapes, if any
     for (std::vector<world::cube3*>::const_iterator i = ri.Shape->begin(); i != ri.Shape->end(); i++)
     {
-        s_int16 ox = sx + (*i)->min_x();
-        s_int16 oy = sy + (*i)->min_y() + (*i)->max_z();
+        s_int16 ox = sx;
+        s_int16 oy = sy + (*i)->max_z() - (*i)->min_z();
 
         (*i)->draw (ox, oy, &da, target);
         
         if (ActiveShape == *i)
         {
             ox += (*i)->min_x();
-            oy += (*i)->min_y() - (*i)->min_z(); // ???
+            oy += (*i)->min_y() - (*i)->min_z();
             
             updateHandles (handles, ox, oy);
         }
