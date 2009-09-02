@@ -76,7 +76,7 @@ void ModelRenderer::draw (GdkPoint *handles, const s_int16 & x, const s_int16 & 
     for (std::vector<world::cube3*>::const_iterator i = ri.Shape->begin(); i != ri.Shape->end(); i++)
     {
         s_int16 ox = sx - ri.Shape->ox();
-        s_int16 oy = sy + (*i)->max_z() - (*i)->min_z() - ri.Shape->oy();
+        s_int16 oy = sy + (*i)->max_z() /*- (*i)->min_z()*/ - ri.Shape->oy();
 
         (*i)->draw (ox, oy, &da, target);
         

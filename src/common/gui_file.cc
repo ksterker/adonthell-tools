@@ -56,9 +56,16 @@ GuiFile::GuiFile (GtkWindow *parent, GtkFileChooserAction action, const std::str
     // forbid multiple selections
     gtk_file_chooser_set_select_multiple (GTK_FILE_CHOOSER(window), FALSE);
     
-    // set current directory and file
-    gtk_file_chooser_set_filename (GTK_FILE_CHOOSER(window), file.c_str ());
-    // gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER(window), file.c_str ());
+    // set current directory or file
+    if (file[file.length()-1] == '/')
+    {
+        gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER(window), file.c_str ());
+    }
+    else
+    {
+        gtk_file_chooser_set_filename (GTK_FILE_CHOOSER(window), file.c_str ());
+    }
+    
     if (action == GTK_FILE_CHOOSER_ACTION_SAVE || action == GTK_FILE_CHOOSER_ACTION_CREATE_FOLDER)
     {
         gchar *name = g_path_get_basename (file.c_str ());

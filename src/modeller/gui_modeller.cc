@@ -632,7 +632,7 @@ static void on_file_load (GtkMenuItem * menuitem, gpointer user_data)
     }
     
     // open file chooser
-    GuiFile fs (parent, GTK_FILE_CHOOSER_ACTION_OPEN, "Open Model", directory);
+    GuiFile fs (parent, GTK_FILE_CHOOSER_ACTION_OPEN, "Open Model", directory + "/");
     fs.add_filter ("*.xml", "Adonthell Model");
     
     // File selection closed with OK
@@ -799,7 +799,7 @@ static void on_add_sprite_pressed (GtkButton * button, gpointer user_data)
     GuiModeller *modeller = (GuiModeller *) user_data;
     GtkWindow *parent = GTK_WINDOW(modeller->getWindow());
     
-    GuiFile fs (parent, GTK_FILE_CHOOSER_ACTION_OPEN, "Load Sprite", modeller->spriteDirectory ());
+    GuiFile fs (parent, GTK_FILE_CHOOSER_ACTION_OPEN, "Load Sprite", modeller->spriteDirectory () + "/");
     fs.add_filter ("*.xml|*.png", "Adonthell Sprite");
     
     // File selection closed with OK
@@ -935,6 +935,9 @@ void GuiModeller::newModel ()
 // load model from disk
 void GuiModeller::loadModel (const std::string & name)
 {
+    // reset
+    newModel();
+    
     base::diskio placeable (base::diskio::BY_EXTENSION);
     if (!placeable.get_record (name))
     {
