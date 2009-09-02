@@ -72,11 +72,11 @@ void ModelRenderer::draw (GdkPoint *handles, const s_int16 & x, const s_int16 & 
     u_int32 color = target->map_color (0xD8, 0x77, 0x2D);
     drawRect (sx, sy, ri.Sprite->length(), ri.Sprite->height(), color, da, target);
     
-    // render shapes, if any
+    // render shapes, if any, relative to sprite
     for (std::vector<world::cube3*>::const_iterator i = ri.Shape->begin(); i != ri.Shape->end(); i++)
     {
-        s_int16 ox = sx;
-        s_int16 oy = sy + (*i)->max_z() - (*i)->min_z();
+        s_int16 ox = sx - ri.Shape->ox();
+        s_int16 oy = sy + (*i)->max_z() - (*i)->min_z() - ri.Shape->oy();
 
         (*i)->draw (ox, oy, &da, target);
         
