@@ -236,4 +236,5 @@ src/mapedit/Makefile
 src/modeller/Makefile
 src/questedit/Makefile
 test/Makefile
+util/Makefile
 ])

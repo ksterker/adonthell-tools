@@ -860,8 +860,9 @@ GuiModeller::GuiModeller ()
     
     // get reference to dialog window
     Window = GTK_WIDGET (gtk_builder_get_object (Ui, "main_window"));
+    g_signal_connect (Window, "delete-event", G_CALLBACK (on_widget_destroy), (gpointer) NULL); 
     gtk_widget_show_all (Window);
-    
+
 #ifdef MAC_INTEGRATION
     GtkWidget* menu = GTK_WIDGET (gtk_builder_get_object (Ui, "menu_bar"));
     GtkWidget* separator = GTK_WIDGET (gtk_builder_get_object (Ui, "item_quit_separator"));
