@@ -76,9 +76,9 @@ gint motion_notify_event (GtkWidget *widget, GdkEventMotion *event, gpointer dat
     GdkPoint point = { event->x, event->y };
     
     // drag handle?
-    if (event->state == GDK_BUTTON_PRESS_MASK)
+    if (event->state & GDK_BUTTON1_MASK)
     {
-        view->handleDragged (&point);
+        view->handleDragged (&point, event->state & GDK_SHIFT_MASK);
     }
     else
     {
@@ -92,6 +92,13 @@ gint motion_notify_event (GtkWidget *widget, GdkEventMotion *event, gpointer dat
     view->mouseMoved (&point);
         
     return FALSE;
+}
+
+// direct editing of shape
+static void on_number_changed (GtkEditable *editable, gpointer data) 
+{
+    GuiPreview *view = (GuiPreview *) data;
+    view->updateShape (GTK_ENTRY(editable));
 }
 
 // ctor
@@ -110,6 +117,12 @@ GuiPreview::GuiPreview (GtkWidget *drawing_area, GtkEntry** shape_data) : Drawin
     
     gtk_widget_set_events (DrawingArea, GDK_EXPOSURE_MASK | GDK_LEAVE_NOTIFY_MASK | GDK_BUTTON_PRESS_MASK |
                            GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK | GDK_KEY_PRESS_MASK);
+
+    // callbacks for directly editing shape
+    for (int i = EDIT_OFFSET_X; i <= EDIT_SIZE_Z; i++)
+    {
+        g_signal_connect (G_OBJECT (shape_data[i]), "changed", G_CALLBACK(on_number_changed), this); 
+    }
     
     // create the render target
     Target = gfx::create_surface();    
@@ -284,6 +297,7 @@ void GuiPreview::indicateEditingField (const s_int32 & handle, const bool & high
         {
             fields[0] = EDIT_POS_X;
             fields[1] = EDIT_POS_Y;
+            fields[2] = EDIT_POS_Z; // with modifier key
             break;
         }
         case LENGTH:
@@ -327,7 +341,7 @@ void GuiPreview::indicateEditingField (const s_int32 & handle, const bool & high
 }
 
 // update shape size or position
-void GuiPreview::handleDragged (GdkPoint *point)
+void GuiPreview::handleDragged (GdkPoint *point, const bool & modifier)
 {
     // dragging has just started
     if (PrevPos == NULL)
@@ -362,8 +376,15 @@ void GuiPreview::handleDragged (GdkPoint *point)
             points[6] = world::cube3::TOP_BACK_RIGHT;
             points[7] = world::cube3::TOP_BACK_LEFT;
 
-            offset.set_x (point->x - PrevPos->x);
-            offset.set_y (point->y - PrevPos->y);
+            if (modifier)
+            {
+                offset.set_z (PrevPos->y - point->y);
+            }
+            else
+            {
+                offset.set_x (point->x - PrevPos->x);
+                offset.set_y (point->y - PrevPos->y);
+            }
             break;
         }
         case LENGTH:
@@ -432,6 +453,137 @@ void GuiPreview::handleDragged (GdkPoint *point)
     
     // and finally the screen
     render ();
+}
+
+// update shape from direct text entry
+void GuiPreview::updateShape (GtkEntry *entry)
+{
+    if (Shape == NULL) return;
+     
+    // do we have a valid value
+    int value;
+    std::stringstream in (gtk_entry_get_text (entry));        
+    in >> std::skipws >> value; 
+    if (in.fail ()) return;
+    
+    int pos = -1;
+    for (int i = 0; i < 8; i++)
+    {
+        // find the entry we just edited
+        if (ShapeData[i] == entry)
+        {
+            pos = i;
+            break;
+        }
+    }
+    
+    // list of points that will get updated
+    int points[world::cube3::NUM_CORNERS];
+    // the offset by which the points will be moved    
+    world::vector3<s_int16> offset;
+
+    switch (pos)
+    {
+        case EDIT_POS_X:
+        {
+            // move the whole cube
+            points[0] = world::cube3::BOTTOM_FRONT_LEFT;
+            points[1] = world::cube3::BOTTOM_FRONT_RIGHT;
+            points[2] = world::cube3::BOTTOM_BACK_RIGHT;
+            points[3] = world::cube3::BOTTOM_BACK_LEFT;
+            points[4] = world::cube3::TOP_FRONT_LEFT;
+            points[5] = world::cube3::TOP_FRONT_RIGHT;
+            points[6] = world::cube3::TOP_BACK_RIGHT;
+            points[7] = world::cube3::TOP_BACK_LEFT;
+
+            offset.set_x (value - Shape->min_x());
+            break;
+        }
+        case EDIT_POS_Y:
+        {
+            // move the whole cube
+            points[0] = world::cube3::BOTTOM_FRONT_LEFT;
+            points[1] = world::cube3::BOTTOM_FRONT_RIGHT;
+            points[2] = world::cube3::BOTTOM_BACK_RIGHT;
+            points[3] = world::cube3::BOTTOM_BACK_LEFT;
+            points[4] = world::cube3::TOP_FRONT_LEFT;
+            points[5] = world::cube3::TOP_FRONT_RIGHT;
+            points[6] = world::cube3::TOP_BACK_RIGHT;
+            points[7] = world::cube3::TOP_BACK_LEFT;
+            
+            offset.set_y (value - Shape->min_y());
+            break;
+        }
+        case EDIT_POS_Z:
+        {
+            // move the whole cube
+            points[0] = world::cube3::BOTTOM_FRONT_LEFT;
+            points[1] = world::cube3::BOTTOM_FRONT_RIGHT;
+            points[2] = world::cube3::BOTTOM_BACK_RIGHT;
+            points[3] = world::cube3::BOTTOM_BACK_LEFT;
+            points[4] = world::cube3::TOP_FRONT_LEFT;
+            points[5] = world::cube3::TOP_FRONT_RIGHT;
+            points[6] = world::cube3::TOP_BACK_RIGHT;
+            points[7] = world::cube3::TOP_BACK_LEFT;
+            
+            offset.set_z (value - Shape->min_z());
+            break;
+        }
+        case EDIT_SIZE_X:
+        {
+            // move the points on the cube's right side (x axis)
+            points[0] = world::cube3::TOP_BACK_RIGHT;
+            points[1] = world::cube3::TOP_FRONT_RIGHT;
+            points[2] = world::cube3::BOTTOM_BACK_RIGHT;
+            points[3] = world::cube3::BOTTOM_FRONT_RIGHT;
+            points[4] = -1;
+            
+            offset.set_x (value - (Shape->max_x() - Shape->min_x()));
+            break;
+        }
+        case EDIT_SIZE_Y:
+        {
+            // move the points on the cube's back side (y axis)
+            points[0] = world::cube3::TOP_BACK_RIGHT;
+            points[1] = world::cube3::TOP_BACK_LEFT;
+            points[2] = world::cube3::BOTTOM_BACK_RIGHT;
+            points[3] = world::cube3::BOTTOM_BACK_LEFT;
+            points[4] = -1;
+            
+            offset.set_y (value - (Shape->max_y() - Shape->min_y()));
+            break;
+        }
+        case EDIT_SIZE_Z:
+        {
+            // move the points on the cube's bottom side (z axis)
+            points[0] = world::cube3::TOP_FRONT_LEFT;
+            points[1] = world::cube3::TOP_FRONT_RIGHT;
+            points[2] = world::cube3::TOP_BACK_RIGHT;
+            points[3] = world::cube3::TOP_BACK_LEFT;
+            points[4] = -1;
+            
+            offset.set_z (value - (Shape->max_z() - Shape->min_z()));
+            break;
+        }
+        default: return;
+    }
+    
+    // now update the selected points
+    for (int i = 0; i < world::cube3::NUM_CORNERS; i++)
+    {
+        if (points[i] == -1) break;
+        
+        world::vector3<s_int16> curPos = Shape->get_point (points[i]);
+        Shape->set_point (points[i], curPos + offset);
+    }
+    
+    // update the bounding box and model
+    Model->current_shape ()->remove_part (Shape);
+    Shape->create_bounding_box ();
+    Model->current_shape ()->add_part (Shape);
+    
+    // and finally the screen
+    render ();    
 }
 
 // display size and position of current shape

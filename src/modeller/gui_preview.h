@@ -87,8 +87,9 @@ public:
     /**
      * Process dragging shape handles.
      * @param point location of the mouse pointer.
+     * @param modifier whether modifier (shift) key is pressed.
      */
-    void handleDragged (GdkPoint *point);
+    void handleDragged (GdkPoint *point, const bool & modifier);
 
     /**
      * Return whether a handle is currently being dragged.
@@ -108,7 +109,13 @@ public:
         PrevPos = NULL;
     }
     //@}
-    
+
+    /**
+     * Update shape from value entered into the field.
+     * @param entry a text entry field.
+     */
+    void updateShape (GtkEntry *entry);
+
     /**
      * Set the model being displayed/edited.
      * @param model the model being edited.
