@@ -24,6 +24,8 @@
  * @brief A renderer for single shapes
  */
 
+#include <gfx/gfx.h>
+
 #include "mdl_handle.h"
 #include "mdl_renderer.h"
 
@@ -31,6 +33,26 @@
 ModelRenderer::ModelRenderer () : world::default_renderer ()
 {
     ActiveShape = NULL;
+    ActiveModel = NULL;
+    Overlay = gfx::create_surface();
+    Overlay->set_alpha(96, true);
+}
+
+void ModelRenderer::render (std::list <world::render_info> & objectlist, const gfx::drawing_area & da, gfx::surface * target) const
+{
+    // reset overlay
+    Overlay->resize (target->length(), target->height());
+    Overlay->fillrect (0, 0, target->length(), target->height(), 0);
+
+    // center on screen
+    s_int16 x = target->length() / 2;
+    s_int16 y = target->height() / 2;
+    
+    // render
+    default_renderer::render (x, y, objectlist, da, target);
+    
+    // finish rendering
+    Overlay->draw (0, 0, &da, target);
 }
 
 // render model and handles
@@ -38,14 +60,14 @@ void ModelRenderer::render (world::placeable_model *model, GdkPoint *handles, co
 {
     gfx::sprite *sprt = model->get_sprite();
     if (sprt != NULL)
-    {        
+    {
         // information required for rendering
         std::vector<world::shadow_info> shadow;
         world::render_info ri (model->current_shape(), sprt, world::vector3<s_int32>(), &shadow);
         
         // center on screen
-        s_int16 x = (target->length() - sprt->length()) / 2;
-        s_int16 y = (target->height() - sprt->height()) / 2;
+        s_int16 x = target->length() / 2;
+        s_int16 y = target->height() / 2;
         
         // draw to target
         draw (handles, x, y, ri, da, target);
@@ -58,11 +80,26 @@ void ModelRenderer::render (world::placeable_model *model, GdkPoint *handles, co
     }
 }
 
+// draw with translucency
+void ModelRenderer::draw (const s_int16 & x, const s_int16 & y, const world::render_info & obj, const gfx::drawing_area & da, gfx::surface * target) const
+{
+    if (ActiveModel != NULL && obj.Shape == ActiveModel->current_shape())
+    {
+        Overlay->draw (0, 0, &da, target);
+        Overlay->fillrect (0, 0, Overlay->length(), Overlay->height(), 0);
+        renderer_base::draw (x, y, obj, da, target);        
+    }
+    else
+    {
+        renderer_base::draw (x, y, obj, da, Overlay);        
+    }
+}
+
 // draw cube outline(s)
 void ModelRenderer::draw (GdkPoint *handles, const s_int16 & x, const s_int16 & y, const world::render_info & ri, const gfx::drawing_area & da, gfx::surface * target) const
 {
     // render sprite
-    renderer_base::draw (x, y, ri, da, target);
+    // renderer_base::draw (x, y, ri, da, target);
 
     // sprite screen coordinates
     s_int16 sx = x + ri.screen_x ();
@@ -75,15 +112,12 @@ void ModelRenderer::draw (GdkPoint *handles, const s_int16 & x, const s_int16 & 
     // render shapes, if any, relative to sprite
     for (std::vector<world::cube3*>::const_iterator i = ri.Shape->begin(); i != ri.Shape->end(); i++)
     {
-        s_int16 ox = sx - ri.Shape->ox();
-        s_int16 oy = sy + (*i)->max_z() /*- (*i)->min_z()*/ - ri.Shape->oy();
-
-        (*i)->draw (ox, oy, &da, target);
+        (*i)->draw (x, y, &da, target);
         
         if (ActiveShape == *i)
         {
-            ox += (*i)->min_x();
-            oy += (*i)->min_y() - (*i)->min_z();
+            s_int16 ox = x + (*i)->min_x();
+            s_int16 oy = y + (*i)->min_y() - (*i)->min_z();
             
             updateHandles (handles, ox, oy);
         }

@@ -856,7 +856,8 @@ GuiModeller::GuiModeller ()
     
     // setup preview -- needs to happen before window is realized
     widget = gtk_builder_get_object (Ui, "model_area");
-    Preview = new GuiPreview (GTK_WIDGET (widget), shapeData);
+    GtkTreeModel *sprites = GTK_TREE_MODEL(gtk_builder_get_object (Ui, "sprite_list"));
+    Preview = new GuiPreview (GTK_WIDGET (widget), shapeData, sprites);
     
     // get reference to dialog window
     Window = GTK_WIDGET (gtk_builder_get_object (Ui, "main_window"));
@@ -1067,7 +1068,7 @@ void GuiModeller::addSprite (const std::string & name)
         printf ("*** warning: cannot create sprite path relative to data directory!\n");
     }
     
-    // set relatice sprite name
+    // set relative sprite name
     model->set_sprite (sprite_path);
     
     // and add it to the UI
@@ -1288,7 +1289,7 @@ void GuiModeller::updateShapeList (world::placeable_model *model)
     // enable add shape button
     setActive ("add_shape", true);
     
-    // TODO: update solid flag and image offset (X and Y only)
+    // TODO: update solid flag
 }
 
 // enable or disable a widget

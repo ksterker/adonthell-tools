@@ -43,7 +43,7 @@ public:
      * @param drawing_area the surface to draw on
      * @param shape_data gui elements for displaying shape information.
      */
-    GuiPreview (GtkWidget *drawing_area, GtkEntry** shape_data);
+    GuiPreview (GtkWidget *drawing_area, GtkEntry** shape_data, GtkTreeModel *models);
 
     /**
      * Update (part of) the screen from backing pixmap.
@@ -155,6 +155,8 @@ private:
     GtkWidget *DrawingArea;
     /// the fields for displaying/editing shape data
     GtkEntry **ShapeData; 
+    /// list of model parts
+    GtkTreeModel *ModelList;
     /// the render surface
     gfx::surface *Target;
     /// the shape currently being edited 

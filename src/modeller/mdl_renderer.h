@@ -47,9 +47,13 @@ public:
      */
     virtual ~ModelRenderer () {}
     
+    void render (std::list <world::render_info> & objectlist, const gfx::drawing_area & da, gfx::surface * target) const;
+    
+    void draw (const s_int16 & x, const s_int16 & y, const world::render_info & obj, const gfx::drawing_area & da, gfx::surface * target) const;
+
     /**
      * Render the given shape.
-     * @param model the model to draw.
+     * @param model the model being currently edited.
      * @param handles the handles for the currently edited shape.
      * @param da clipping rectangle.
      * @param target surface to draw on.
@@ -64,6 +68,15 @@ public:
      * @param target canvas to draw on.
      */
     void drawHandle (const GdkPoint & handle, const bool & highlight, const gfx::drawing_area & da, gfx::surface * target) const;
+    
+    /**
+     * Set the model that is being edited, so we can draw it specially.
+     * @param model the model being edited or NULL to reset.
+     */
+    void setActiveModel (world::placeable_model *model)
+    {
+        ActiveModel = model;
+    }
     
     /**
      * Set the shape that is being edited, so we can draw the handles.
@@ -106,8 +119,12 @@ protected:
     void drawRect (const s_int16 & x, const s_int16 & y, const u_int16 & l, const u_int16 & h, const u_int32 & color, const gfx::drawing_area & da, gfx::surface * target) const;
 
 private:
+    /// this is the model currently being edited
+    world::placeable_model *ActiveModel;
     /// this is the shape currently being edited
     world::cube3 *ActiveShape;
+    /// additional surface for rendering with translucency
+    gfx::surface *Overlay;
 };
 
 #endif

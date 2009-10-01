@@ -102,7 +102,8 @@ static void on_number_changed (GtkEditable *editable, gpointer data)
 }
 
 // ctor
-GuiPreview::GuiPreview (GtkWidget *drawing_area, GtkEntry** shape_data) : DrawingArea (drawing_area), ShapeData (shape_data)
+GuiPreview::GuiPreview (GtkWidget *drawing_area, GtkEntry** shape_data, GtkTreeModel *models) 
+: DrawingArea (drawing_area), ShapeData (shape_data), ModelList (models)
 {
 #ifdef __APPLE__
     // no need to use double buffering on OSX, but appears to be required elsewhere
@@ -178,7 +179,40 @@ void GuiPreview::render (const int & sx, const int & sy, const int & l, const in
         // set clipping rectangle
         gfx::drawing_area da (sx, sy, l, h);
         
-        // draw to target
+        // render x and y axis
+        u_int32 color = Target->map_color (0x40, 0x40, 0x40);
+        Target->draw_line (0, Target->height()/2, Target->length(), Target->height()/2, color, &da);
+        Target->draw_line (Target->length()/2, 0, Target->length()/2, Target->height(), color, &da);
+
+        // collect all the sprites we have for rendering
+        GtkTreeIter iter;
+        std::list<world::render_info> models;
+        if (gtk_tree_model_get_iter_first (ModelList, &iter))
+        {
+            world::placeable_model *model = NULL;
+            std::vector<world::shadow_info> shadow;
+
+            do
+            {
+                gtk_tree_model_get (ModelList, &iter, 1, &model, -1);
+                if (model != NULL)
+                {
+                    gfx::sprite *sprt = model->get_sprite();
+                    if (sprt != NULL)
+                    {
+                        // information required for rendering
+                        world::render_info ri (model->current_shape(), sprt, world::vector3<s_int32>(), &shadow);
+                        models.push_back (ri);
+                    }
+                }
+            }
+            while (gtk_tree_model_iter_next (ModelList, &iter));
+        }
+        
+        // draw models
+        Renderer.render (models, da, Target);
+        
+        // draw handles
         Renderer.render (Model, Handles, da, Target);
     }
         
@@ -190,8 +224,11 @@ void GuiPreview::render (const int & sx, const int & sy, const int & l, const in
 // set object being edited
 void GuiPreview::setCurModel (world::placeable_model *model)
 {
+    Renderer.setActiveModel (model);
+
+    // remember model for updates
     Model = model;
-    
+
     // no handle selected, initially
     SelectedHandle = -1;
 
