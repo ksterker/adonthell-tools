@@ -27,4 +27,5 @@ stamp-h1
 .project
 .DS_Store
 po/Makevars.template
-
+modeller.glade.h
+questedit.glade.h
