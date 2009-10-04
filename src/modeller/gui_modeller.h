@@ -32,11 +32,15 @@
 
 namespace world
 {
+    class placeable_shape;
     class placeable_model;
 };
 
 class GuiPreview;
 
+/**
+ * The application main window.
+ */
 class GuiModeller
 {
 public:
@@ -115,15 +119,40 @@ public:
     void addShape ();
 
     /**
+     * Copy shapes from currently selected model.
+     */
+    void copyShapes ();
+
+    /**
+     * Paste previously copied shape into the selected model.
+     */
+    void pasteShapes ();
+    
+    /**
      * Remove a shape from the selected model.
      */
     void removeShape ();
     
     /**
+     * Update the current shape's solid flag.
+     * @param is_solid whether to make the shape solid or not.
+     */
+    void setSolid (const bool & is_solid);
+
+    /**
      * Update shape list from selected model.
      * @param model the model whose shapes to display.
      */
     void updateShapeList (world::placeable_model *model);
+    
+    /**
+     * Check whether there is a shape to paste into sprite.
+     * @return true if shape is available for pasting, false otherwise.
+     */
+    bool shapeInClipboard () const
+    {
+        return ShapeToPaste != NULL;
+    }
     
     /**
      * Enable or disable the widget with the given id.
@@ -147,6 +176,8 @@ public:
     bool getRelativeSpritePath (std::string & sprite_path, std::string & base_path);
 
 private:
+    /// a shape that has been copied
+    world::placeable_shape *ShapeToPaste;
     /// the main window
     GtkWidget *Window;
     /// the user interface

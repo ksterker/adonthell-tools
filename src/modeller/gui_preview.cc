@@ -182,7 +182,7 @@ void GuiPreview::render (const int & sx, const int & sy, const int & l, const in
         // render x and y axis
         u_int32 color = Target->map_color (0x40, 0x40, 0x40);
         Target->draw_line (0, Target->height()/2, Target->length(), Target->height()/2, color, &da);
-        Target->draw_line (Target->length()/2, 0, Target->length()/2, Target->height(), color, &da);
+        Target->draw_line (X_AXIS_POS, 0, X_AXIS_POS, Target->height(), color, &da);
 
         // collect all the sprites we have for rendering
         GtkTreeIter iter;
@@ -197,6 +197,7 @@ void GuiPreview::render (const int & sx, const int & sy, const int & l, const in
                 gtk_tree_model_get (ModelList, &iter, 1, &model, -1);
                 if (model != NULL)
                 {
+                    model->set_shape(Model->current_shape_name());
                     gfx::sprite *sprt = model->get_sprite();
                     if (sprt != NULL)
                     {
@@ -521,6 +522,20 @@ void GuiPreview::updateShape (GtkEntry *entry)
 
     switch (pos)
     {
+        case EDIT_OFFSET_X:
+        {
+            world::placeable_shape* shape = Model->current_shape ();
+            shape->set_offset (value, shape->oy());
+            render ();
+            return;
+        }
+        case EDIT_OFFSET_Y:
+        {
+            world::placeable_shape* shape = Model->current_shape ();
+            shape->set_offset (shape->ox(), value);
+            render ();
+            return;
+        }
         case EDIT_POS_X:
         {
             // move the whole cube

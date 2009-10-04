@@ -57,19 +57,22 @@ static char modeller_ui[] =
   "<!-- interface-naming-policy project-wide -->"
   "<object class=\"GtkTreeStore\" id=\"sprite_list\">"
     "<columns>"
+      "<!-- column-name gchararray -->"
       "<column type=\"gchararray\"/>"
+      "<!-- column-name gpointer -->"
       "<column type=\"gpointer\"/>"
     "</columns>"
   "</object>"
   "<object class=\"GtkTreeStore\" id=\"shape_list\">"
     "<columns>"
+      "<!-- column-name gchararray -->"
       "<column type=\"gchararray\"/>"
+      "<!-- column-name gpointer -->"
       "<column type=\"gpointer\"/>"
     "</columns>"
   "</object>"
   "<object class=\"GtkWindow\" id=\"main_window\">"
     "<property name=\"title\" translatable=\"yes\">Adonthell Modeller</property>"
-    "<property name=\"resizable\">True</property>"
     "<property name=\"default_width\">800</property>"
     "<property name=\"default_height\">600</property>"
     "<child>"
@@ -172,9 +175,9 @@ static char modeller_ui[] =
                         "<property name=\"visible\">True</property>"
                         "<property name=\"left_padding\">12</property>"
                         "<child>"
-                          "<object class=\"GtkVBox\" id=\"vbox3\">"
+                          "<object class=\"GtkHBox\" id=\"hbox2\">"
                             "<property name=\"visible\">True</property>"
-                            "<property name=\"orientation\">vertical</property>"
+                            "<property name=\"spacing\">4</property>"
                             "<child>"
                               "<object class=\"GtkScrolledWindow\" id=\"scrolledwindow1\">"
                                 "<property name=\"visible\">True</property>"
@@ -186,10 +189,10 @@ static char modeller_ui[] =
                                     "<property name=\"visible\">True</property>"
                                     "<property name=\"can_focus\">True</property>"
                                     "<property name=\"model\">sprite_list</property>"
-                                    "<property name=\"headers_visible\">False</property>"       
-                                    "<property name=\"headers_clickable\">False</property>"         
+                                    "<property name=\"headers_visible\">False</property>"
+                                    "<property name=\"search_column\">0</property>"
                                     "<property name=\"fixed_height_mode\">True</property>"
-                                   "</object>"
+                                  "</object>"
                                 "</child>"
                               "</object>"
                               "<packing>"
@@ -197,17 +200,17 @@ static char modeller_ui[] =
                               "</packing>"
                             "</child>"
                             "<child>"
-                              "<object class=\"GtkHButtonBox\" id=\"hbuttonbox1\">"
+                              "<object class=\"GtkVButtonBox\" id=\"vbuttonbox1\">"
                                 "<property name=\"visible\">True</property>"
                                 "<property name=\"spacing\">4</property>"
-                                "<property name=\"layout_style\">center</property>"
+                                "<property name=\"layout_style\">start</property>"
                                 "<child>"
                                   "<object class=\"GtkButton\" id=\"add_sprite\">"
-                                    "<property name=\"label\">gtk-add</property>"
                                     "<property name=\"visible\">True</property>"
                                     "<property name=\"can_focus\">True</property>"
                                     "<property name=\"receives_default\">True</property>"
-                                    "<property name=\"use_stock\">True</property>"
+                                    "<property name=\"tooltip_text\" translatable=\"yes\">Add a new sprite</property>"
+                                    "<property name=\"image\">img_add</property>"
                                   "</object>"
                                   "<packing>"
                                     "<property name=\"expand\">False</property>"
@@ -217,12 +220,12 @@ static char modeller_ui[] =
                                 "</child>"
                                 "<child>"
                                   "<object class=\"GtkButton\" id=\"remove_sprite\">"
-                                    "<property name=\"label\">gtk-remove</property>"
                                     "<property name=\"visible\">True</property>"
                                     "<property name=\"sensitive\">False</property>"
                                     "<property name=\"can_focus\">True</property>"
                                     "<property name=\"receives_default\">True</property>"
-                                    "<property name=\"use_stock\">True</property>"
+                                    "<property name=\"tooltip_text\" translatable=\"yes\">Remove selected sprite</property>"
+                                    "<property name=\"image\">img_remove</property>"
                                   "</object>"
                                   "<packing>"
                                     "<property name=\"expand\">False</property>"
@@ -230,10 +233,25 @@ static char modeller_ui[] =
                                     "<property name=\"position\">1</property>"
                                   "</packing>"
                                 "</child>"
+                                "<child>"
+                                  "<object class=\"GtkButton\" id=\"paste_shape\">"
+                                    "<property name=\"visible\">True</property>"
+                                    "<property name=\"sensitive\">False</property>"
+                                    "<property name=\"can_focus\">True</property>"
+                                    "<property name=\"receives_default\">True</property>"
+                                    "<property name=\"tooltip_text\" translatable=\"yes\">Set shape(s) of selected sprite from clipboard</property>"
+                                    "<property name=\"image\">img_paste</property>"
+                                  "</object>"
+                                  "<packing>"
+                                    "<property name=\"expand\">False</property>"
+                                    "<property name=\"fill\">False</property>"
+                                    "<property name=\"position\">2</property>"
+                                  "</packing>"
+                                "</child>"
                               "</object>"
                               "<packing>"
                                 "<property name=\"expand\">False</property>"
-                                "<property name=\"padding\">4</property>"
+                                "<property name=\"fill\">False</property>"
                                 "<property name=\"position\">1</property>"
                               "</packing>"
                             "</child>"
@@ -260,60 +278,89 @@ static char modeller_ui[] =
                     "<child>"
                       "<object class=\"GtkAlignment\" id=\"alignment2\">"
                         "<property name=\"visible\">True</property>"
+                        "<property name=\"yscale\">0.5</property>"
                         "<property name=\"left_padding\">12</property>"
                         "<child>"
-                          "<object class=\"GtkVBox\" id=\"vbox4\">"
+                          "<object class=\"GtkVBox\" id=\"vbox3\">"
                             "<property name=\"visible\">True</property>"
                             "<property name=\"orientation\">vertical</property>"
+                            "<property name=\"spacing\">2</property>"
                             "<child>"
-                              "<object class=\"GtkScrolledWindow\" id=\"scrolledwindow2\">"
+                              "<object class=\"GtkVBox\" id=\"vbox4\">"
                                 "<property name=\"visible\">True</property>"
-                                "<property name=\"can_focus\">True</property>"
-                                "<property name=\"hscrollbar_policy\">automatic</property>"
-                                "<property name=\"shadow_type\">in</property>"
-                                "<child>"
-                                  "<object class=\"GtkTreeView\" id=\"shape_view\">"
-                                    "<property name=\"visible\">True</property>"
-                                    "<property name=\"can_focus\">True</property>"
-                                    "<property name=\"model\">shape_list</property>"
-                                    "<property name=\"headers_visible\">False</property>"       
-                                    "<property name=\"headers_clickable\">False</property>"         
-                                    "<property name=\"fixed_height_mode\">True</property>"
-                                  "</object>"
-                                "</child>"
-                              "</object>"
-                              "<packing>"
-                                "<property name=\"position\">0</property>"
-                              "</packing>"
-                            "</child>"
-                            "<child>"
-                              "<object class=\"GtkHButtonBox\" id=\"hbuttonbox2\">"
-                                "<property name=\"visible\">True</property>"
+                                "<property name=\"orientation\">horizontal</property>"
                                 "<property name=\"spacing\">4</property>"
-                                "<property name=\"layout_style\">center</property>"
                                 "<child>"
-                                  "<object class=\"GtkButton\" id=\"add_shape\">"
-                                    "<property name=\"label\">gtk-add</property>"
+                                  "<object class=\"GtkScrolledWindow\" id=\"scrolledwindow2\">"
                                     "<property name=\"visible\">True</property>"
-                                    "<property name=\"sensitive\">False</property>"
                                     "<property name=\"can_focus\">True</property>"
-                                    "<property name=\"receives_default\">True</property>"
-                                    "<property name=\"use_stock\">True</property>"
+                                    "<property name=\"hscrollbar_policy\">automatic</property>"
+                                    "<property name=\"shadow_type\">in</property>"
+                                    "<child>"
+                                      "<object class=\"GtkTreeView\" id=\"shape_view\">"
+                                        "<property name=\"visible\">True</property>"
+                                        "<property name=\"can_focus\">True</property>"
+                                        "<property name=\"model\">shape_list</property>"
+                                        "<property name=\"headers_visible\">False</property>"
+                                        "<property name=\"search_column\">0</property>"
+                                        "<property name=\"fixed_height_mode\">True</property>"
+                                      "</object>"
+                                    "</child>"
                                   "</object>"
                                   "<packing>"
-                                    "<property name=\"expand\">False</property>"
-                                    "<property name=\"fill\">False</property>"
                                     "<property name=\"position\">0</property>"
                                   "</packing>"
                                 "</child>"
                                 "<child>"
-                                  "<object class=\"GtkButton\" id=\"remove_shape\">"
-                                    "<property name=\"label\">gtk-remove</property>"
+                                  "<object class=\"GtkVButtonBox\" id=\"vbuttonbox2\">"
                                     "<property name=\"visible\">True</property>"
-                                    "<property name=\"sensitive\">False</property>"
-                                    "<property name=\"can_focus\">True</property>"
-                                    "<property name=\"receives_default\">True</property>"
-                                    "<property name=\"use_stock\">True</property>"
+                                    "<property name=\"spacing\">4</property>"
+                                    "<property name=\"layout_style\">start</property>"
+                                    "<child>"
+                                      "<object class=\"GtkButton\" id=\"add_shape\">"
+                                        "<property name=\"visible\">True</property>"
+                                        "<property name=\"sensitive\">False</property>"
+                                        "<property name=\"can_focus\">True</property>"
+                                        "<property name=\"receives_default\">True</property>"
+                                        "<property name=\"image\">img_add2</property>"
+                                        "<property name=\"tooltip_text\" translatable=\"yes\">Add new shape</property>"
+                                      "</object>"
+                                      "<packing>"
+                                        "<property name=\"expand\">False</property>"
+                                        "<property name=\"fill\">False</property>"
+                                        "<property name=\"position\">0</property>"
+                                      "</packing>"
+                                    "</child>"
+                                    "<child>"
+                                      "<object class=\"GtkButton\" id=\"remove_shape\">"
+                                        "<property name=\"visible\">True</property>"
+                                        "<property name=\"sensitive\">False</property>"
+                                        "<property name=\"can_focus\">True</property>"
+                                        "<property name=\"receives_default\">True</property>"
+                                        "<property name=\"image\">img_remove2</property>"
+                                        "<property name=\"tooltip_text\" translatable=\"yes\">Remove selected shape</property>"
+                                      "</object>"
+                                      "<packing>"
+                                        "<property name=\"expand\">False</property>"
+                                        "<property name=\"fill\">False</property>"
+                                        "<property name=\"position\">1</property>"
+                                      "</packing>"
+                                    "</child>"
+                                    "<child>"
+                                      "<object class=\"GtkButton\" id=\"copy_shape\">"
+                                        "<property name=\"visible\">True</property>"
+                                        "<property name=\"sensitive\">False</property>"
+                                        "<property name=\"can_focus\">True</property>"
+                                        "<property name=\"receives_default\">True</property>"
+                                        "<property name=\"image\">img_copy</property>"
+                                        "<property name=\"tooltip_text\" translatable=\"yes\">Copy current shape(s) to clipboard</property>"
+                                      "</object>"
+                                      "<packing>"
+                                        "<property name=\"expand\">False</property>"
+                                        "<property name=\"fill\">False</property>"
+                                        "<property name=\"position\">2</property>"
+                                      "</packing>"
+                                    "</child>"
                                   "</object>"
                                   "<packing>"
                                     "<property name=\"expand\">False</property>"
@@ -323,8 +370,21 @@ static char modeller_ui[] =
                                 "</child>"
                               "</object>"
                               "<packing>"
+                                "<property name=\"position\">0</property>"
+                              "</packing>"
+                            "</child>"
+                            "<child>"
+                              "<object class=\"GtkCheckButton\" id=\"is_solid\">"
+                                "<property name=\"label\" translatable=\"yes\">Solid</property>"
+                                "<property name=\"visible\">True</property>"
+                                "<property name=\"can_focus\">True</property>"
+                                "<property name=\"receives_default\">False</property>"
+                                "<property name=\"tooltip_text\" translatable=\"yes\">Non-solid shapes are ignored by collision detection</property>"
+                                "<property name=\"draw_indicator\">True</property>"
+                              "</object>"
+                              "<packing>"
                                 "<property name=\"expand\">False</property>"
-                                "<property name=\"padding\">4</property>"
+                                "<property name=\"fill\">False</property>"
                                 "<property name=\"position\">1</property>"
                               "</packing>"
                             "</child>"
@@ -341,6 +401,8 @@ static char modeller_ui[] =
                     "</child>"
                   "</object>"
                   "<packing>"
+                    "<property name=\"expand\">False</property>"
+                    "<property name=\"fill\">False</property>"
                     "<property name=\"position\">1</property>"
                   "</packing>"
                 "</child>"
@@ -358,10 +420,7 @@ static char modeller_ui[] =
                             "<property name=\"n_rows\">4</property>"
                             "<property name=\"n_columns\">4</property>"
                             "<property name=\"column_spacing\">4</property>"
-                            "<property name=\"homogeneous\">True</property>"
-                            "<child>"
-                              "<placeholder/>"
-                            "</child>"
+                            "<property name=\"row_spacing\">2</property>"
                             "<child>"
                               "<object class=\"GtkLabel\" id=\"label3\">"
                                 "<property name=\"visible\">True</property>"
@@ -370,7 +429,7 @@ static char modeller_ui[] =
                               "<packing>"
                                 "<property name=\"left_attach\">1</property>"
                                 "<property name=\"right_attach\">2</property>"
-                                "<property name=\"x_options\">GTK_FILL</property>"
+                                "<property name=\"y_options\">GTK_FILL</property>"
                               "</packing>"
                             "</child>"
                             "<child>"
@@ -381,7 +440,7 @@ static char modeller_ui[] =
                               "<packing>"
                                 "<property name=\"left_attach\">2</property>"
                                 "<property name=\"right_attach\">3</property>"
-                                "<property name=\"x_options\">GTK_FILL</property>"
+                                "<property name=\"y_options\">GTK_FILL</property>"
                               "</packing>"
                             "</child>"
                             "<child>"
@@ -392,7 +451,7 @@ static char modeller_ui[] =
                               "<packing>"
                                 "<property name=\"left_attach\">3</property>"
                                 "<property name=\"right_attach\">4</property>"
-                                "<property name=\"x_options\">GTK_FILL</property>"
+                                "<property name=\"y_options\">GTK_FILL</property>"
                               "</packing>"
                             "</child>"
                             "<child>"
@@ -403,6 +462,7 @@ static char modeller_ui[] =
                               "<packing>"
                                 "<property name=\"top_attach\">1</property>"
                                 "<property name=\"bottom_attach\">2</property>"
+                                "<property name=\"y_options\">GTK_FILL</property>"
                               "</packing>"
                             "</child>"
                             "<child>"
@@ -413,6 +473,7 @@ static char modeller_ui[] =
                               "<packing>"
                                 "<property name=\"top_attach\">2</property>"
                                 "<property name=\"bottom_attach\">3</property>"
+                                "<property name=\"y_options\">GTK_FILL</property>"
                               "</packing>"
                             "</child>"
                             "<child>"
@@ -423,6 +484,7 @@ static char modeller_ui[] =
                               "<packing>"
                                 "<property name=\"top_attach\">3</property>"
                                 "<property name=\"bottom_attach\">4</property>"
+                                "<property name=\"y_options\">GTK_FILL</property>"
                               "</packing>"
                             "</child>"
                             "<child>"
@@ -437,7 +499,7 @@ static char modeller_ui[] =
                                 "<property name=\"right_attach\">2</property>"
                                 "<property name=\"top_attach\">1</property>"
                                 "<property name=\"bottom_attach\">2</property>"
-                                "<property name=\"x_options\">GTK_FILL</property>"
+                                "<property name=\"y_options\">GTK_FILL</property>"
                               "</packing>"
                             "</child>"
                             "<child>"
@@ -452,24 +514,9 @@ static char modeller_ui[] =
                                 "<property name=\"right_attach\">3</property>"
                                 "<property name=\"top_attach\">1</property>"
                                 "<property name=\"bottom_attach\">2</property>"
-                                "<property name=\"x_options\">GTK_FILL</property>"
+                                "<property name=\"y_options\">GTK_FILL</property>"
                               "</packing>"
                             "</child>"
-                            "<!-- child>"
-                              "<object class=\"GtkEntry\" id=\"offset_z\">"
-                                "<property name=\"visible\">True</property>"
-                                "<property name=\"can_focus\">True</property>"
-                                "<property name=\"invisible_char\">&#x25CF;</property>"
-                                "<property name=\"width_chars\">3</property>"
-                              "</object>"
-                              "<packing>"
-                                "<property name=\"left_attach\">3</property>"
-                                "<property name=\"right_attach\">4</property>"
-                                "<property name=\"top_attach\">1</property>"
-                                "<property name=\"bottom_attach\">2</property>"
-                                "<property name=\"x_options\">GTK_FILL</property>"
-                              "</packing>"
-                            "</child -->"
                             "<child>"
                               "<object class=\"GtkEntry\" id=\"pos_x\">"
                                 "<property name=\"visible\">True</property>"
@@ -482,7 +529,7 @@ static char modeller_ui[] =
                                 "<property name=\"right_attach\">2</property>"
                                 "<property name=\"top_attach\">2</property>"
                                 "<property name=\"bottom_attach\">3</property>"
-                                "<property name=\"x_options\">GTK_FILL</property>"
+                                "<property name=\"y_options\">GTK_FILL</property>"
                               "</packing>"
                             "</child>"
                             "<child>"
@@ -497,7 +544,7 @@ static char modeller_ui[] =
                                 "<property name=\"right_attach\">3</property>"
                                 "<property name=\"top_attach\">2</property>"
                                 "<property name=\"bottom_attach\">3</property>"
-                                "<property name=\"x_options\">GTK_FILL</property>"
+                                "<property name=\"y_options\">GTK_FILL</property>"
                               "</packing>"
                             "</child>"
                             "<child>"
@@ -512,7 +559,7 @@ static char modeller_ui[] =
                                 "<property name=\"right_attach\">4</property>"
                                 "<property name=\"top_attach\">2</property>"
                                 "<property name=\"bottom_attach\">3</property>"
-                                "<property name=\"x_options\">GTK_FILL</property>"
+                                "<property name=\"y_options\">GTK_FILL</property>"
                               "</packing>"
                             "</child>"
                             "<child>"
@@ -527,7 +574,7 @@ static char modeller_ui[] =
                                 "<property name=\"right_attach\">2</property>"
                                 "<property name=\"top_attach\">3</property>"
                                 "<property name=\"bottom_attach\">4</property>"
-                                "<property name=\"x_options\">GTK_FILL</property>"
+                                "<property name=\"y_options\">GTK_FILL</property>"
                               "</packing>"
                             "</child>"
                             "<child>"
@@ -542,7 +589,7 @@ static char modeller_ui[] =
                                 "<property name=\"right_attach\">3</property>"
                                 "<property name=\"top_attach\">3</property>"
                                 "<property name=\"bottom_attach\">4</property>"
-                                "<property name=\"x_options\">GTK_FILL</property>"
+                                "<property name=\"y_options\">GTK_FILL</property>"
                               "</packing>"
                             "</child>"
                             "<child>"
@@ -557,8 +604,14 @@ static char modeller_ui[] =
                                 "<property name=\"right_attach\">4</property>"
                                 "<property name=\"top_attach\">3</property>"
                                 "<property name=\"bottom_attach\">4</property>"
-                                "<property name=\"x_options\">GTK_FILL</property>"
+                                "<property name=\"y_options\">GTK_FILL</property>"
                               "</packing>"
+                            "</child>"
+                            "<child>"
+                              "<placeholder/>"
+                            "</child>"
+                            "<child>"
+                              "<placeholder/>"
                             "</child>"
                           "</object>"
                         "</child>"
@@ -567,12 +620,13 @@ static char modeller_ui[] =
                     "<child type=\"label\">"
                       "<object class=\"GtkLabel\" id=\"label2\">"
                         "<property name=\"visible\">True</property>"
-                        "<property name=\"label\" translatable=\"yes\">&lt;b&gt;Edit&lt;/b&gt;</property>"
+                        "<property name=\"label\" translatable=\"yes\">&lt;b&gt;Edit selected shape&lt;/b&gt;</property>"
                         "<property name=\"use_markup\">True</property>"
                       "</object>"
                     "</child>"
                   "</object>"
                   "<packing>"
+                    "<property name=\"expand\">False</property>"
                     "<property name=\"position\">2</property>"
                   "</packing>"
                 "</child>"
@@ -602,6 +656,30 @@ static char modeller_ui[] =
     "</child>"
   "</object>"
   "<object class=\"GtkAccelGroup\" id=\"menu_accelerators\"/>"
+  "<object class=\"GtkImage\" id=\"img_paste\">"
+    "<property name=\"visible\">True</property>"
+    "<property name=\"stock\">gtk-paste</property>"
+  "</object>"
+  "<object class=\"GtkImage\" id=\"img_remove\">"
+    "<property name=\"visible\">True</property>"
+    "<property name=\"stock\">gtk-remove</property>"
+  "</object>"
+  "<object class=\"GtkImage\" id=\"img_add\">"
+    "<property name=\"visible\">True</property>"
+    "<property name=\"stock\">gtk-add</property>"
+  "</object>"
+  "<object class=\"GtkImage\" id=\"img_add2\">"
+    "<property name=\"visible\">True</property>"
+    "<property name=\"stock\">gtk-add</property>"
+  "</object>"
+  "<object class=\"GtkImage\" id=\"img_remove2\">"
+    "<property name=\"visible\">True</property>"
+    "<property name=\"stock\">gtk-remove</property>"
+  "</object>"
+  "<object class=\"GtkImage\" id=\"img_copy\">"
+    "<property name=\"visible\">True</property>"
+    "<property name=\"stock\">gtk-copy</property>"
+  "</object>"
 "</interface>";
 
 // Main Window: on_widget_destroy App
@@ -726,6 +804,9 @@ static void anim_selected_event (GtkTreeSelection *selection, gpointer user_data
 
             // disable del_sprite button
             modeller->setActive ("remove_sprite", false);
+            
+            // activate paste_shape button if there is a shape to paste
+            modeller->setActive ("paste_shape", modeller->shapeInClipboard());
 
             // get name of selected animation
             gtk_tree_model_get (tree_model, &iter, 0, &anim_name, -1);
@@ -756,6 +837,8 @@ static void anim_selected_event (GtkTreeSelection *selection, gpointer user_data
         {
             // activate del_sprite button
             modeller->setActive ("remove_sprite", true);
+            // de-activate paste shape button
+            modeller->setActive ("paste_shape", false);
         }
     }
 }
@@ -820,11 +903,32 @@ static void on_add_shape_pressed (GtkButton * button, gpointer user_data)
     modeller->addShape ();
 }
 
+// copy shapes to clipboard
+static void on_copy_shape_pressed (GtkButton * button, gpointer user_data)
+{
+    GuiModeller *modeller = (GuiModeller *) user_data;
+    modeller->copyShapes ();
+}
+
+// paste shapes from clipboard
+static void on_paste_shape_pressed (GtkButton * button, gpointer user_data)
+{
+    GuiModeller *modeller = (GuiModeller *) user_data;
+    modeller->pasteShapes ();
+}
+
 // remove shape from model
 static void on_remove_shape_pressed (GtkButton * button, gpointer user_data)
 {
     GuiModeller *modeller = (GuiModeller *) user_data;
     modeller->removeShape ();
+}
+
+// changed solid state of shape
+static void on_solid_state_changed (GtkToggleButton *togglebutton, gpointer user_data)
+{
+    GuiModeller *modeller = (GuiModeller *) user_data;
+    modeller->setSolid (gtk_toggle_button_get_active (togglebutton));
 }
 
 // ctor
@@ -880,7 +984,7 @@ GuiModeller::GuiModeller ()
     // ige_mac_menu_add_app_menu_item (group, GTK_MENU_ITEM (quit_item), NULL);
 #endif
         
-    // connect signals
+    // connect menu signals
     widget = gtk_builder_get_object (Ui, "item_new");
     g_signal_connect (widget, "activate", G_CALLBACK (on_file_new), (gpointer) this);
     widget = gtk_builder_get_object (Ui, "item_load");
@@ -889,17 +993,25 @@ GuiModeller::GuiModeller ()
     g_signal_connect (widget, "activate", G_CALLBACK (on_file_save_activate), (gpointer) this);
     widget = gtk_builder_get_object (Ui, "item_save_as");
     g_signal_connect (widget, "activate", G_CALLBACK (on_file_save_as_activate), (gpointer) this);
+    widget = gtk_builder_get_object (Ui, "item_quit");    
+    g_signal_connect (widget, "activate", G_CALLBACK (on_widget_destroy), (gpointer) NULL);
 
+    // connect button signals
     widget = gtk_builder_get_object (Ui, "add_sprite");
     g_signal_connect (widget, "clicked", G_CALLBACK (on_add_sprite_pressed), this);
     widget = gtk_builder_get_object (Ui, "remove_sprite");
     g_signal_connect (widget, "clicked", G_CALLBACK (on_remove_sprite_pressed), this);
     widget = gtk_builder_get_object (Ui, "add_shape");
     g_signal_connect (widget, "clicked", G_CALLBACK (on_add_shape_pressed), this);
+    widget = gtk_builder_get_object (Ui, "copy_shape");
+    g_signal_connect (widget, "clicked", G_CALLBACK (on_copy_shape_pressed), this);
+    widget = gtk_builder_get_object (Ui, "paste_shape");
+    g_signal_connect (widget, "clicked", G_CALLBACK (on_paste_shape_pressed), this);
     widget = gtk_builder_get_object (Ui, "remove_shape");
     g_signal_connect (widget, "clicked", G_CALLBACK (on_remove_shape_pressed), this);
-    widget = gtk_builder_get_object (Ui, "item_quit");    
-    g_signal_connect (widget, "activate", G_CALLBACK (on_widget_destroy), (gpointer) NULL);
+    
+    widget = gtk_builder_get_object (Ui, "is_solid");    
+    g_signal_connect (widget, "toggled", G_CALLBACK (on_solid_state_changed), (gpointer) this);
     
     // set tree columns and signals
     // FIXME: this could be done in the ui description, but my glade appears buggy in that area.
@@ -929,7 +1041,9 @@ void GuiModeller::newModel ()
     Filename = "untitled.xml";
     
     // set initial button state
+    setActive("is_solid", false);
     setActive("add_shape", false);
+    setActive("copy_shape", false);
     setActive("remove_shape", false);
     setActive("remove_sprite", false);
 }
@@ -1160,11 +1274,17 @@ void GuiModeller::removeSprite ()
             // clear shape list
             gtk_tree_store_clear (GTK_TREE_STORE(gtk_builder_get_object (Ui, "shape_list")));
             
+            // just a precaution, as it might have been part of the model we just deleted
+            ShapeToPaste = NULL;
+            
             // no other model selected
             Preview->setCurModel (NULL);
             Preview->setCurShape (NULL);
             
+            setActive ("is_solid", false);
             setActive ("add_shape", false);
+            setActive ("copy_shape", false);
+            setActive ("paste_shape", false);
             setActive ("remove_shape", false);
             setActive ("remove_sprite", false);            
         }
@@ -1203,6 +1323,83 @@ void GuiModeller::addShape ()
             
             gtk_tree_path_free (path);
         }
+    }
+}
+
+// copy shapes to clipboard
+void GuiModeller::copyShapes ()
+{
+    GtkTreeIter root;    
+    GtkTreeStore *shape_store = GTK_TREE_STORE(gtk_builder_get_object (Ui, "shape_list"));
+    
+    if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL(shape_store), &root))
+    {
+        gtk_tree_model_get (GTK_TREE_MODEL(shape_store), &root, 1, &ShapeToPaste, -1);
+    }
+}
+
+// paste shapes from clipboard
+void GuiModeller::pasteShapes ()
+{
+    if (ShapeToPaste == NULL) return;
+    
+    GtkTreeIter iter;
+    GtkTreeModel *tree_model;
+    GtkTreeView *tree_view = GTK_TREE_VIEW(gtk_builder_get_object (Ui, "sprite_view"));
+    GtkTreeSelection *selection = gtk_tree_view_get_selection (tree_view);
+    
+    // anything selected at all?
+    if (gtk_tree_selection_get_selected (selection, &tree_model, &iter))
+    {
+        // have we selected a leaf?
+        if (!gtk_tree_model_iter_has_child (tree_model, &iter))
+        {
+            // get selected model
+            GtkTreeIter parent;
+            gtk_tree_model_iter_parent (tree_model, &parent, &iter);
+            
+            world::placeable_model *model;
+            gtk_tree_model_get (tree_model, &parent, 1, &model, -1);            
+            
+            if (model != NULL)
+            {
+                // finally get selected shape
+                world::placeable_shape *shape = model->current_shape();
+                
+                // selected shape different from pasted shape?
+                if (shape == ShapeToPaste)
+                {
+                    return;
+                }
+                
+                // clear current shape
+                std::vector<world::cube3*>::const_iterator i;
+                while ((i = shape->begin()) != shape->end())
+                {
+                    shape->remove_part (*i);
+                    delete *i;
+                }
+                
+                // clone pasted shape
+                for (i = ShapeToPaste->begin(); i != ShapeToPaste->end(); i++)
+                {
+                    world::cube3 *part = new world::cube3 (0, 0, 0);
+                    for (int j = 0; j < world::cube3::NUM_CORNERS; j++)
+                    {
+                        part->set_point (j, (*i)->get_point (j));
+                    }
+                    
+                    part->create_bounding_box ();
+                    shape->add_part (part);
+                }
+                
+                // copy offset
+                shape->set_offset (ShapeToPaste->ox(), ShapeToPaste->oy());
+                
+                // update preview
+                updateShapeList (model);
+            }                
+        }            
     }
 }
 
@@ -1251,6 +1448,24 @@ void GuiModeller::removeShape ()
     }
 }
 
+// update the current shape's solid flag
+void GuiModeller::setSolid (const bool & is_solid)
+{
+    GtkTreeIter root;
+    
+    GtkTreeStore *shape_store = GTK_TREE_STORE(gtk_builder_get_object (Ui, "shape_list"));
+    
+    if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL(shape_store), &root))
+    {
+        world::placeable_shape *shape = NULL;
+        gtk_tree_model_get (GTK_TREE_MODEL(shape_store), &root, 1, &shape, -1);            
+        if (shape != NULL)
+        {
+            shape->set_solid (is_solid);
+        }
+    }
+}
+
 // display model in shape list
 void GuiModeller::updateShapeList (world::placeable_model *model)
 {
@@ -1287,9 +1502,13 @@ void GuiModeller::updateShapeList (world::placeable_model *model)
     }
     
     // enable add shape button
+    setActive ("copy_shape", true);
     setActive ("add_shape", true);
+    setActive ("is_solid", true);
     
-    // TODO: update solid flag
+    // update solid flag
+    GtkToggleButton *is_solid = GTK_TOGGLE_BUTTON(gtk_builder_get_object (Ui, "is_solid"));
+    gtk_toggle_button_set_active (is_solid, shape->is_solid ());
 }
 
 // enable or disable a widget

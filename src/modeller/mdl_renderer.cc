@@ -45,7 +45,7 @@ void ModelRenderer::render (std::list <world::render_info> & objectlist, const g
     Overlay->fillrect (0, 0, target->length(), target->height(), 0);
 
     // center on screen
-    s_int16 x = target->length() / 2;
+    s_int16 x = X_AXIS_POS;
     s_int16 y = target->height() / 2;
     
     // render
@@ -66,7 +66,7 @@ void ModelRenderer::render (world::placeable_model *model, GdkPoint *handles, co
         world::render_info ri (model->current_shape(), sprt, world::vector3<s_int32>(), &shadow);
         
         // center on screen
-        s_int16 x = target->length() / 2;
+        s_int16 x = X_AXIS_POS;
         s_int16 y = target->height() / 2;
         
         // draw to target

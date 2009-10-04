@@ -31,6 +31,8 @@
 #include <gdk/gdk.h>
 #include <world/renderer.h>
 
+#define X_AXIS_POS 80
+
 /**
  * Renders a single shape using the logic of the in-game renderer.
  */
