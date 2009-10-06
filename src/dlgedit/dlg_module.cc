@@ -81,9 +81,14 @@ void DlgModule::clear ()
 // calculate shape of sub-dialogue
 void DlgModule::initShape (const DlgPoint &center)
 {
+    int width;
+    
     // calculate width of the module icon
-    GdkFont *font = GuiResources::font ();
-    int width = gdk_string_width (font, name ().c_str ()) + 10;
+    PangoLayout *font = GuiResources::font ();
+    pango_layout_set_text (font, name().c_str(), -1);
+    pango_layout_get_pixel_size (font, &width, NULL);
+
+    width += 10;
     
     // align module to the (imaginary) grid and set shape
     top_left = DlgPoint (center.x (), center.y ());
@@ -288,12 +293,16 @@ void DlgModule::draw (GdkPixmap *surface, DlgPoint &offset, GtkWidget *widget)
     gdk_draw_rectangle (surface, gc, FALSE, position.x (), position.y (), width (), height ());
 
     // get the font to draw name
-    GdkFont *font = GuiResources::font ();
-
+    PangoLayout *font = GuiResources::font ();
+    pango_layout_set_text (font, name().c_str(), -1);
+    
     // place text in module's center
+    int h;
+    pango_layout_get_pixel_size (font, NULL, &h);
+    
     int x = position.x () + 5;
-    int y = position.y () + (height () + gdk_string_height (font, name ().c_str ())) / 2;
-    gdk_draw_string (surface, font, gc, x, y, name ().c_str ());
+    int y = position.y () + (height () + h) / 2;
+    gdk_draw_layout (surface, gc, x, y, font);
 
     // Update the drawing area
     update (widget, area);
@@ -481,13 +490,17 @@ void DlgModule::loadSubdialogue ()
             case LOAD_POS:
             {
                 int x, y;
-                GdkFont *font = GuiResources::font ();
-                int width = gdk_string_width (font, name ().c_str ()) + 10;
+                int width;
+                
+                PangoLayout *font = GuiResources::font ();
+                pango_layout_set_text (font, name().c_str(), -1);
+                pango_layout_get_pixel_size (font, &width, NULL);
+                
                 if (parse_dlgfile (s, n) == LOAD_NUM) x = n;
                 if (parse_dlgfile (s, n) == LOAD_NUM) y = n;
 
                 top_left = DlgPoint (x, y);
-                bottom_right = DlgPoint (x + width, y + 20);
+                bottom_right = DlgPoint (x + width + 10, y + 20);
             }
 
            default: break;

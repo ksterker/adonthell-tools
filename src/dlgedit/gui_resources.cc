@@ -32,7 +32,7 @@
 /**
  * The font for text output.
  */
-GdkFont *GuiResources::Font;
+PangoLayout *GuiResources::Font;
 
 /**
  * Some pens for line drawing.
@@ -43,8 +43,8 @@ GdkGC *GuiResources::Color[MAX_GC];
 void GuiResources::init (GtkWidget *widget)
 {
     // font to use on the drawing area
-    Font = gdk_font_load ("-*-*-medium-r-normal-sans-12-*-*-*-*-*-iso8859-1");
-
+    Font = gtk_widget_create_pango_layout (widget, NULL);
+    
     GdkColor c;
 
     GdkWindow     *window = gtk_widget_get_parent_window (widget);

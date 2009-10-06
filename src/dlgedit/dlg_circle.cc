@@ -111,12 +111,16 @@ void DlgCircle::draw (GdkPixmap *surface, DlgPoint &os, GtkWidget *widget)
         if (entry_->loop ()) g_string_append_c (code, 'o');
         
         // get the font to use
-        GdkFont *font = GuiResources::font ();
-    
+        PangoLayout *font = GuiResources::font ();
+        pango_layout_set_text (font, code->str, -1);
+
         // place text in circles center
-        int x = position.x () + (width () - gdk_string_width (font, code->str)) / 2;
-        int y = position.y () + (height () + 1 + gdk_string_height (font, code->str)) / 2;
-        gdk_draw_string (surface, font, gc, x, y, code->str);
+        int w, h;
+        pango_layout_get_pixel_size (font, &w, &h);
+        
+        int x = position.x () + (width () - w) / 2;
+        int y = position.y () + (height () + 1 - h) / 2;
+        gdk_draw_layout (surface, gc, x, y, font);
 
         g_string_free (code, TRUE);
     }

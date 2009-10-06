@@ -214,6 +214,7 @@ private:
     GtkWidget *wnd;                 // actual main window
     GtkWidget *menuItem[MAX_ITEM];  // pointers to a few menu-items
     GtkWidget *windowMenu;          // the 'Windows' dropdown menu
+    GtkWidget *mainMenu;            // the menu bar
     GtkWidget *status_mode;         // statusbar displaying the program state
     std::vector<DlgModule*> dialogues_;// dialogues currently loaded
     std::string directory_;            // directory used in last file-selection

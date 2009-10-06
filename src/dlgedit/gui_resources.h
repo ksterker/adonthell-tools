@@ -29,6 +29,7 @@
 #ifndef GUI_RESOURCES_H
 #define GUI_RESOURCES_H
 
+#include <pango/pango.h>
 #include <gtk/gtkstyle.h>
 #include "dlg_types.h"
 
@@ -70,12 +71,12 @@ public:
     static GdkGC *getFill (mode_type mode, node_type type);
     /**
      * Retrieve the font used to draw text onto a drawing area.
-     * @return a GdkFont.
+     * @return a PangoLayout.
      */
-    static GdkFont *font ()         { return Font; }
+    static PangoLayout *font ()         { return Font; }
 
 private:
-    static GdkFont *Font;           // font for text-output
+    static PangoLayout *Font;       // font for text-output
     static GdkGC *Color[MAX_GC];    // custom Pens    
 };
 
