@@ -13,6 +13,7 @@ noinst_HEADERS = \
     map_cmdline.h \
     map_data.h \
     map_entity.h \
+    map_mgr.h \
     map_renderer.h
     
 mapedit_SOURCES = \

@@ -75,37 +75,14 @@ world::entity* MapData::renameEntity (MapEntity *entity, const std::string & id)
         return NULL;
     }
     
+    // remove entity under its current name
     world::named_entity *ety = (world::named_entity *) entity->entity();
-    if (!ety->is_unique())
-    {
-        // create entity with new name and existing object
-        add_entity (ety->get_object(), id);
-    }
-    else
-    {
-        // create a completely new entity
-        add_entity (ety->get_object()->type(), id);
-    }
-    world::entity *new_entity = getNewestEntity();
+    std::string *name = (std::string*) ety->id();
+    NamedEntities.erase (*name);
     
-    // now replace old entity in map itself
-    world::chunk_info *ci = entity->getLocation();
-    world::chunk_info new_ci (new_entity, ci->Min, ci->Max);
-    remove (*ci);
-    add (new_ci);
+    // set renamed entity
+    name->replace(name->begin(), name->end(), id);
+    NamedEntities[id] = ety;
     
-    // delete old entity
-    NamedEntities.erase (*ety->id());
-    for (std::vector<world::entity*>::iterator i = Entities.begin(); i != Entities.end(); i++)
-    {
-        if (*i == ety)
-        {
-            Entities.erase (i);
-            delete *i;
-            break;
-        }
-    }
-    
-    delete ety;
-    return new_entity;
+    return ety;
 }

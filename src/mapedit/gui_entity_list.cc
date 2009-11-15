@@ -416,9 +416,15 @@ void GuiEntityList::scanDir (const std::string & datadir, GtkListStore *model)
                     if (isPresentOnMap (filepath)) continue;
                     
                     // not present on map, so add it to the list
+                    
+                    // note: we load it as an object, as we do not yet
+                    // know which type it will have later.
                     world::object *obj = new world::object(*Map);
-                    if (obj->load (filepath))
+                    if (obj->load_model (filepath))
                     {
+                        // set default state
+                        obj->set_state ("");
+                        
                         // create meta data object
                         MapEntity *ety = new MapEntity (obj);
                         
@@ -444,7 +450,7 @@ bool GuiEntityList::isPresentOnMap (const std::string & filename) const
     for (MapData::entity_iter e = Map->firstEntity(); e != Map->lastEntity(); e++)
     {
         world::placeable *obj = (*e)->get_object();
-        std::string objname = obj->filename();
+        std::string objname = obj->modelfile();
 
         if (objname.size() <= filename.size())
         {

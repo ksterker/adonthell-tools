@@ -27,6 +27,8 @@
 #include <cctype>
 #include <gtk/gtk.h>
 #include <world/renderer.h>
+#include <world/object.h>
+#include <world/character.h>
 
 #include "backend/gtk/screen_gtk.h"
 #include "map_entity.h"
@@ -59,31 +61,34 @@ bool MapEntity::update_entity (const world::placeable_type & obj_type, const cha
 {
     // get map associated with the object
     MapData *map = (MapData*) &(Object->map());    
-    world::placeable *result = NULL;
-    
-    // create entity?
-    switch (entity_type)
+
+    // do we have a shared entity?
+    if (entity_type != 'S')
     {
-        case 'A':
-            result = map->add_entity(obj_type);
-            break;
-        case 'U':
-            result = map->add_entity(obj_type, id);
-            break;
-        case 'S':
-            result = map->add_entity(obj_type);
-            if (result) map->add_entity(result, id);
-            break;
-        default:
-            fprintf (stderr, "update_entity: unsupported entity type '%c'.\n", entity_type);
-            break;
-    }
-    
-    // success?
-    if (result != NULL)
-    {
+        world::placeable *obj = NULL;
+        
+        // create object
+        switch (obj_type)
+        {
+            case world::OBJECT:
+            {
+                obj = new world::object (*map);
+                break;
+            }
+            case world::CHARACTER:
+            {
+                obj = new world::character (*map);
+                break;
+            }
+            default:
+            {
+                fprintf (stderr, "*** area::get_state: unknown object type %i\n", obj_type);
+                return false;
+            }
+        }
+        
         // load object data
-        result->load (Object->filename());
+        obj->load_model (Object->modelfile());
 
         // cleanup (only if object not yet on the map)
         if (Entity == NULL)
@@ -91,15 +96,35 @@ bool MapEntity::update_entity (const world::placeable_type & obj_type, const cha
             delete Object;
         }
         
-        // update entity ...
-        Entity = map->getNewestEntity();
-        // and newly created object
-        Object = result;
-        
-        return true;
+        Object = obj;
+    }    
+
+    // create entity?
+    switch (entity_type)
+    {
+        case 'A':
+        {
+            Entity = new world::entity(Object);
+            break;
+        }
+        case 'U':
+        {
+            Entity = new world::named_entity(Object, id, true);
+            break;
+        }
+        case 'S':
+        {
+            Entity = new world::named_entity(Object, id, false);
+            break;
+        }
+        default:
+        {
+            fprintf (stderr, "update_entity: unsupported entity type '%c'.\n", entity_type);
+            return false;
+        }
     }
-        
-    return false;
+    
+    return true;
 }
 
 // decrease reference count
@@ -118,7 +143,7 @@ void MapEntity::update_tags ()
 {
     Tags.clear ();
 
-    std::string path = Object->filename();
+    std::string path = Object->modelfile();
     gchar *dir_name = g_path_get_dirname (path.c_str());
     gchar **tags = g_strsplit (dir_name, "/", -1);
 
@@ -134,7 +159,7 @@ void MapEntity::update_tags ()
 // name of entity
 gchar* MapEntity::get_name () const
 {
-    std::string path = Object->filename();
+    std::string path = Object->modelfile();
     gchar* name = g_path_get_basename (path.substr (0, path.rfind(".")).c_str());
     return name;
 }

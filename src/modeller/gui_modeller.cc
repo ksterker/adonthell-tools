@@ -444,21 +444,19 @@ void GuiModeller::loadModel (const std::string & name)
     Filename = model_file;
     g_free (model_file);
     
-    base::flat entity = placeable.get_flat ("entity");
-    
     char *id;
     void *value;
     u_int32 size;
     
     // iterate over placeable object
-    while (entity.next (&value, &size, &id) != base::flat::T_UNKNOWN)
+    while (placeable.next (&value, &size, &id) != base::flat::T_UNKNOWN)
     {
         // found model data
         if (strcmp ("model", id) == 0)
         {            
             // load model
             world::placeable_model * model = new world::placeable_model ();
-            model->get_state (entity);
+            model->get_state (placeable);
             
             // and add it to the UI
             addModel (model);
@@ -479,41 +477,26 @@ void GuiModeller::saveModel (const std::string & name)
     Filename = model_file;
     g_free (model_file);
     
-    base::flat entity;
     world::placeable_model *model = NULL;
+    base::diskio placeable (base::diskio::BY_EXTENSION);
 
-    GtkTreeIter iter, child;
+    GtkTreeIter iter;
     GtkTreeModel *tree_model = GTK_TREE_MODEL(gtk_builder_get_object (Ui, "sprite_list"));
     
     // iterate over models in sprite_tree
     if (gtk_tree_model_get_iter_first (tree_model, &iter))
     {
-        // get default state
-        if (gtk_tree_model_iter_children (tree_model, &child, &iter))
-        {
-            gchar *state = NULL;
-            gtk_tree_model_get (tree_model, &child, 0, &state, -1);
-            if (state != NULL)
-            {
-                entity.put_string ("state", state);
-                g_free (state);
-            }
-        }
-        
         do
         {
             gtk_tree_model_get (tree_model, &iter, 1, &model, -1);
             if (model != NULL)
             {
-                model->put_state (entity);
+                model->put_state (placeable);
             }
         }
         while (gtk_tree_model_iter_next (tree_model, &iter));
     }
     
-    // create list "entity" with string "state"
-    base::diskio placeable (base::diskio::BY_EXTENSION);
-    placeable.put_flat ("entity", entity);
     placeable.put_record (name);
 }
 

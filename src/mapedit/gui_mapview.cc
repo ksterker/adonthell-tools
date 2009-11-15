@@ -40,6 +40,7 @@
 #include "gui_entity_dialog.h"
 #include "map_data.h"
 #include "map_entity.h"
+#include "map_mgr.h"
 
 // ctor
 GuiMapview::GuiMapview(GtkWidget *paned)
@@ -71,8 +72,9 @@ GuiMapview::GuiMapview(GtkWidget *paned)
                            GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK | GDK_KEY_PRESS_MASK);
 
     // create view
-    View = new world::mapview (800, 600, &Renderer);
-    View->set_map (NULL);
+    View = world::area_manager::get_mapview ();
+    View->set_renderer (&Renderer);
+    View->resize (800, 600);
     
     // create the render target
     Target = gfx::create_surface();
@@ -92,7 +94,6 @@ GuiMapview::GuiMapview(GtkWidget *paned)
 // dtor
 GuiMapview::~GuiMapview()
 {
-    delete View;
     delete Target;
     delete Overlay;
 }
@@ -100,7 +101,8 @@ GuiMapview::~GuiMapview()
 // set map to render
 void GuiMapview::setMap (MapData *area)
 {
-    View->set_map (area);
+    MapMgr::set_map (area);
+    
     View->set_position (area->x(), area->y());
     View->set_z (area->z());
     
@@ -143,7 +145,7 @@ void GuiMapview::render (const int & sx, const int & sy, const int & l, const in
     Target->fillrect (sx, sy, l, h, 0xFF000000);
     
     // is there a map attached to the view at all?
-    MapData *area = (MapData*) View->get_map();
+    MapData *area = (MapData*) MapMgr::get_map();
     if (area != NULL)
     {
         // update position of map
@@ -170,7 +172,7 @@ void GuiMapview::renderObject (world::chunk_info *obj)
         getObjectExtend (obj, x, y, l, h);
         
         // get map offset
-        MapData *area = (MapData*) View->get_map();
+        MapData *area = (MapData*) MapMgr::get_map();
         
         // draw
         render (x - area->x(), y - area->y() + area->z(), l, h);
@@ -204,7 +206,7 @@ void GuiMapview::resizeSurface (GtkWidget *widget)
 void GuiMapview::mouseMoved (const GdkPoint * point)
 {
     int ox = 0, oy = 0, oz = 0;
-    MapData *area = (MapData*) View->get_map();
+    MapData *area = (MapData*) MapMgr::get_map();
     
     if (area != NULL)
     {
@@ -298,7 +300,7 @@ void GuiMapview::indicateOverlap ()
 {
     world::placeable *obj = DrawObj->entity()->get_object();
     
-    MapData *area = (MapData*) View->get_map();    
+    MapData *area = (MapData*) MapMgr::get_map();    
     int h = obj->cur_z() + obj->height() - obj->cur_y();
     world::vector3<s_int32> min (DrawObjPos.x() + area->x() + 1, DrawObjPos.y() + area->y() + h + 1, area->z() + 1); 
     world::vector3<s_int32> max (min.x() + obj->max_length() - 2, min.y() + obj->max_width() - 2, min.z() + obj->max_height() - 2);
@@ -320,7 +322,7 @@ void GuiMapview::indicateOverlap ()
 // change height
 void GuiMapview::updateHeight (const s_int16 & oz)
 {
-    MapData *area = (MapData*) View->get_map();
+    MapData *area = (MapData*) MapMgr::get_map();
     
     if (area != NULL)
     {
@@ -363,7 +365,7 @@ void GuiMapview::selectObj (MapEntity *ety)
     }
 
     DrawObj = ety;
-    MapData *area = (MapData*) View->get_map();
+    MapData *area = (MapData*) MapMgr::get_map();
 
     // build a fake location
     world::placeable *obj = ety->entity()->get_object();
@@ -439,7 +441,7 @@ void GuiMapview::placeCurObj()
     
     if (DrawObj != NULL)
     {
-        MapData *area = (MapData*) View->get_map();
+        MapData *area = (MapData*) MapMgr::get_map();
         world::entity *ety = DrawObj->entity();
         
         // check if object can be placed safely
@@ -487,7 +489,7 @@ void GuiMapview::deleteCurObj ()
     if (DrawObj == NULL && CurObj != NULL)
     {
         // remove object from map
-        MapData *area = (MapData*) View->get_map();
+        MapData *area = (MapData*) MapMgr::get_map();
         if (area->remove (*CurObj->getLocation()) != NULL)
         {
             // on success, redraw area containing object
@@ -511,7 +513,7 @@ void GuiMapview::deleteCurObj ()
 bool GuiMapview::scrollingAllowed () const
 {
     // is there a reason to scroll at all?
-    MapData *area = (MapData*) View->get_map();
+    MapData *area = (MapData*) MapMgr::get_map();
     return area != NULL;
 }
 
@@ -519,7 +521,7 @@ bool GuiMapview::scrollingAllowed () const
 void GuiMapview::scroll ()
 {
     // update area coordinates
-    MapData *area = (MapData*) View->get_map();
+    MapData *area = (MapData*) MapMgr::get_map();
     area->setX (area->x() - scroll_offset.x);
     area->setY (area->y() - scroll_offset.y);
 
