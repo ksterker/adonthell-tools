@@ -33,6 +33,7 @@
 #include <gtk/gtk.h>
 #include <base/base.h>
 #include <gfx/gfx.h>
+#include <python/python.h>
 
 #include "map_cmdline.h"
 #include "gui_mapedit.h"
@@ -58,6 +59,16 @@ int main (int argc, char *argv[])
     gfx::setup (cfg);
     if (!gfx::init ("gtk"))
         return 1;
+    
+    // Need python running for NPC schedule support
+    python::init();
+
+    // update the python search path
+    python::add_search_path (base::Paths.game_data_dir());
+    python::add_search_path (base::Paths.user_data_dir());
+    
+    // need to load world module
+    python::import_module ("adonthell.world");
     
     // Create the User Interface
     GuiMapedit mapedit;

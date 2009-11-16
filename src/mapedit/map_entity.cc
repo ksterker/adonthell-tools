@@ -62,8 +62,8 @@ bool MapEntity::update_entity (const world::placeable_type & obj_type, const cha
     // get map associated with the object
     MapData *map = (MapData*) &(Object->map());    
 
-    // do we have a shared entity?
-    if (entity_type != 'S')
+    // do we have a shared entity? Object of different type?
+    if (entity_type != 'S' || obj_type != Object->type())
     {
         world::placeable *obj = NULL;
         
@@ -87,8 +87,11 @@ bool MapEntity::update_entity (const world::placeable_type & obj_type, const cha
             }
         }
         
-        // load object data
+        // load object data ...
         obj->load_model (Object->modelfile());
+
+        // ... and set default state
+        obj->set_state ("");
 
         // cleanup (only if object not yet on the map)
         if (Entity == NULL)
