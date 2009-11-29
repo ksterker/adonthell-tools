@@ -18,7 +18,7 @@ gui_questedit.cc : questedit.glade.h
 
 # generate a string out of the glade XML
 $(srcdir)/questedit.glade.h : questedit.glade
-	sed -e 's/"/\\"/g' -e 's/>$$/>"/' -e 's/^\( *\)</\1"</' $< > $@
+	$(SED) -e 's/"/\\"/g' -e 's/>$$/>"/' -e 's/^\( *\)</\1"</' $< > $@
 
 INCLUDES = -I@top_srcdir@/src/common -I@top_srcdir@/src
 questedit_CXXFLAGS = -D_VERSION_=\"0.1\" $(GTK_CFLAGS) $(PY_CFLAGS) $(ADONTHELL_CFLAGS) ${IGE_MAC_CFLAGS}

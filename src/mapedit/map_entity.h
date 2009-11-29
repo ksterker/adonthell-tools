@@ -28,6 +28,7 @@
 #define MAP_ENTITY_H
 
 #include <gdk-pixbuf/gdk-pixbuf.h>
+#include <base/hash_map.h>
 #include <world/chunk_info.h>
 
 /**
@@ -56,6 +57,12 @@ public:
      * @return the enitity or NULL if object not placed on a map yet.
      */
     world::entity *entity () const { return Entity; }
+        
+    /**
+     * Get the placeable wrapped by this object.
+     * @return the placeable.
+     */
+    world::placeable *object () const { return Object; }
     
     /**
      * Create or update the wrapped entity. (For now, only the
@@ -142,6 +149,12 @@ public:
      * @return the map object type.
      */
     world::placeable_type get_object_type () const;
+
+    /**
+     * Return the states that are possible for this entity.
+     * @return the object states.
+     */
+    std::hash_set<std::string> get_object_states () const;
 
     /**
      * Get thumbnail of the object.

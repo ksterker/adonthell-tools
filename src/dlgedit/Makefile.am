@@ -80,8 +80,8 @@ dlgedit_SOURCES = \
     main.cc
 
 INCLUDES = -I@top_srcdir@/src/common
-dlgedit_CXXFLAGS = -D_VERSION_=\"0.9pre\" $(GTK_CFLAGS) $(ADONTHELL_CFLAGS) ${IGE_MAC_CFLAGS}
-dlgedit_LDADD = ../common/libcommon.a $(GTK_LIBS) $(ADONTHELL_LIBS) ${IGE_MAC_LIBS}
+dlgedit_CXXFLAGS = -D_VERSION_=\"0.9pre\" $(GTK_CFLAGS) $(ADONTHELL_CFLAGS) $(PY_CFLAGS) $(IGE_MAC_CFLAGS)
+dlgedit_LDADD = ../common/libcommon.a $(GTK_LIBS) $(ADONTHELL_LIBS) $(PY_LIBS) $(IGE_MAC_LIBS)
 
 $(srcdir)/lex.loadlg.cc: $(top_srcdir)/src/dlgedit/loadlg.l
 	flex -o$(srcdir)/lex.loadlg.cc $<

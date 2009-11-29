@@ -47,15 +47,12 @@ void DlgModuleEntry::init ()
     dtor_ = "";
     methods_ = "";
     
-    itc = characters.end ();
+    itc = rpg::character::get_first ();
 }
 
 // reset everything to initial state
 void DlgModuleEntry::clear ()
 {
-    // empty character and quest array
-    characters.clear ();
-    
     init ();
 }
 
@@ -67,9 +64,6 @@ bool DlgModuleEntry::setProject (std::string p)
     if (project_ != p)
     {
         project_ = p;
-        
-        // empty character and quest array
-        characters.clear ();
         
         if (p != "none")
         {
@@ -87,42 +81,9 @@ bool DlgModuleEntry::setProject (std::string p)
 // load the character names
 bool DlgModuleEntry::loadCharacters ()
 {
-    /*
-    // look for a character file
-    std::string file = game::find_file (project_ + "/character.data");
-    if (file == "") return false;
-    
-    // open the file
-    igzstream in;
-    in.open (file);
-    
-    // version check
-    if (!fileops::get_version (in, 3, 4, file))
-        return false;
-    
-    // load characters
-    character_base *mychar; 
-    char ctemp;
-
-    do
-    {
-        mychar = new character_base;
-        mychar->get_state (in);
- 
-        // save the name of the NPC's
-        if (mychar->get_id () != "Player") 
-            addCharacter (mychar->get_name ());
-        
-        delete mychar;
-    }
-    while (ctemp << in);
-    
-    // close file
-    in.close ();
-    */
-    itc = characters.begin ();
-    
-    return true; 
+    bool result = rpg::character::load ();    
+    itc = rpg::character::get_first();
+    return result;
 }
 
 // load the quest names
@@ -142,24 +103,10 @@ bool DlgModuleEntry::loadQuests ()
     return true; 
 }
 
-// add a character
-void DlgModuleEntry::addCharacter (std::string character)
-{
-    std::vector<std::string>::iterator i;
-    
-    for (i = characters.begin (); i != characters.end (); i++)
-        if (character < *i) break;
-    
-    characters.insert (i, character);
-}
-
 // check whether a certain character exists
 bool DlgModuleEntry::isCharacter (const std::string &character)
 {
-    if (find (characters.begin (), characters.end (), character) == characters.end ())
-        return false;
-    
-    return true;
+    return rpg::character::get_character (character) != NULL;
 }
 
 // check whether a certain quest exists
@@ -175,13 +122,20 @@ bool DlgModuleEntry::isQuest (const std::string &quest)
 std::string DlgModuleEntry::character ()
 {
     std::string character = "";
-    
-    if (itc != characters.end ())
+
+    if (!rpg::character::is_last (itc))
     {
-        character = *itc;
+        // skip player character
+        if (itc->second->type() == rpg::PLAYER)
+        {
+            itc++;
+            return this->character();
+        }
+
+        character = itc->first;
         itc++;
     }
-    else itc = characters.begin ();
+    else itc = rpg::character::get_first ();
     
     return character;
 }

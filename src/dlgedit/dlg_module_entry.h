@@ -32,6 +32,8 @@
 #include <string>
 #include <vector>
 
+#include <rpg/character.h>
+
 /**
  * The %DlgModuleeEntry keeps the custom Python code of a certain
  * dialogue and a few other settings.
@@ -160,8 +162,6 @@ private:
     bool loadCharacters ();
     bool loadQuests ();
     
-    void addCharacter (std::string c);
-
     std::string project_;           // project the dialogue belongs to
     std::string imports_;           // additional import statements
     std::string ctor_;              // constructor code
@@ -169,8 +169,7 @@ private:
     std::string methods_;           // user defined methods
     std::string description_;       // Description of the dialogue
     
-    std::vector<std::string> characters;
-    std::vector<std::string>::iterator itc;
+    std::hash_map<std::string, rpg::character*>::const_iterator itc;
 };
 
 #endif // DLG_MODULE_ENTRY_H

@@ -293,6 +293,23 @@ GdkPixbuf *MapEntity::get_icon (const u_int32 & size) const
     return icon;
 }
 
+// return states of object
+std::hash_set<std::string> MapEntity::get_object_states () const
+{
+    static std::hash_set<std::string> states;
+    
+    states.clear();
+    for (world::placeable::iterator i = Object->begin(); i != Object->end(); i++)
+    {
+        for (world::placeable_model::iterator j = (*i)->begin(); j != (*i)->end(); j++)
+        {
+            states.insert (j->first);
+        }
+    }
+    
+    return states;
+}
+
 // return type of placeable
 world::placeable_type MapEntity::get_object_type () const
 {

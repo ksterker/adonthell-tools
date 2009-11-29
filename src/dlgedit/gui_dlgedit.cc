@@ -942,7 +942,7 @@ void GuiDlgedit::initMenu ()
 // initialize the list of recently opened files
 void GuiDlgedit::initRecentFiles ()
 {
-    GtkWidget *submenu = GTK_MENU_ITEM(menuItem[OPEN_RECENT])->submenu;
+    GtkWidget *submenu = gtk_menu_item_get_submenu (GTK_MENU_ITEM(menuItem[OPEN_RECENT]));
     GtkWidget *menuitem;
     
     // first, remove everything from the submenu
@@ -961,18 +961,21 @@ void GuiDlgedit::initRecentFiles ()
     std::list<std::string> files = CfgData::data->getFiles ();
     
     // now recreate the recent files list
-    for (std::list<std::string>::iterator i = files.begin (); i != files.end (); i++)
+    if (files.size() > 0)
     {
-        menuitem = gtk_menu_item_new_with_label ((*i).c_str ());
-        gtk_container_add (GTK_CONTAINER (submenu), menuitem);
-        gtk_object_set_user_data (GTK_OBJECT (menuitem), (void *) (*i).c_str ());
-        g_signal_connect (G_OBJECT (menuitem), "activate", G_CALLBACK (on_file_load_recent_activate), (gpointer) this);
-        gtk_widget_show (menuitem);          
+        for (std::list<std::string>::iterator i = files.begin (); i != files.end (); i++)
+        {
+            menuitem = gtk_menu_item_new_with_label ((*i).c_str ());
+            gtk_menu_shell_append (GTK_MENU_SHELL (submenu), menuitem);
+            gtk_object_set_user_data (GTK_OBJECT (menuitem), (void *) (*i).c_str ());
+            g_signal_connect (G_OBJECT (menuitem), "activate", G_CALLBACK (on_file_load_recent_activate), (gpointer) this);
+            gtk_widget_show (menuitem);
+        }
     }
-
-#ifdef MAC_INTEGRATION
-    ige_mac_menu_sync(GTK_MENU_SHELL(mainMenu));
-#endif
+    else
+    {
+        // gtk_menu_item_set_submenu (GTK_MENU_ITEM(menuItem[OPEN_RECENT]), NULL);
+    }
 }
 
 void GuiDlgedit::clear ()

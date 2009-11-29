@@ -40,8 +40,6 @@
 #include "gui_dlgedit.h"
 #include "base/base.h"
 
-#define main main
-
 int main (int argc, char *argv[])
 {
     // dlgedit configuration
@@ -59,6 +57,13 @@ int main (int argc, char *argv[])
   
     // init game directory
     base::init (DlgCmdline::project, DlgCmdline::datadir);
+
+    // init python
+    python::init();
+    
+    // update the python search path
+    python::add_search_path (base::Paths.game_data_dir());
+    python::add_search_path (base::Paths.user_data_dir());
     
     // start in gui mode
     if (!DlgCmdline::compile)

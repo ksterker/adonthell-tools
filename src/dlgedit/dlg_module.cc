@@ -301,7 +301,7 @@ void DlgModule::draw (GdkPixmap *surface, DlgPoint &offset, GtkWidget *widget)
     pango_layout_get_pixel_size (font, NULL, &h);
     
     int x = position.x () + 5;
-    int y = position.y () + (height () + h) / 2;
+    int y = position.y () + (height () - h) / 2;
     gdk_draw_layout (surface, gc, x, y, font);
 
     // Update the drawing area

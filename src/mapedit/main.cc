@@ -34,6 +34,7 @@
 #include <base/base.h>
 #include <gfx/gfx.h>
 #include <python/python.h>
+#include <rpg/character.h>
 
 #include "map_cmdline.h"
 #include "gui_mapedit.h"
@@ -69,6 +70,9 @@ int main (int argc, char *argv[])
     
     // need to load world module
     python::import_module ("adonthell.world");
+    
+    // load character data
+    rpg::character::load ();
     
     // Create the User Interface
     GuiMapedit mapedit;

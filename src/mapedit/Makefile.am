@@ -1,5 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 
+EXTRA_DIST = entity-properties.glade
+
 noinst_PROGRAMS = mapedit
 
 noinst_HEADERS = \
@@ -30,6 +32,13 @@ mapedit_SOURCES = \
     map_entity.cc \
     map_renderer.cc
 
+# just for the dependency
+gui_entity_dialog.cc : entity-properties.glade.h
+
+# generate a string out of the glade XML
+$(srcdir)/entity-properties.glade.h : entity-properties.glade
+	$(SED) -e 's/"/\\"/g' -e 's/>$$/>"/' -e 's/^\( *\)</\1"</' $< > $@
+
 INCLUDES = -I@top_srcdir@/src/common -I@top_srcdir@/src
 mapedit_CXXFLAGS = -D_VERSION_=\"0.1\" $(GTK_CFLAGS) $(PY_CFLAGS) $(ADONTHELL_CFLAGS) ${IGE_MAC_CFLAGS}
-mapedit_LDADD = ../common/libcommon.a $(GTK_LIBS) $(ADONTHELL_LIBS) ${IGE_MAC_LIBS}
+mapedit_LDADD = ../common/libcommon.a $(GTK_LIBS) $(ADONTHELL_LIBS) $(PY_LIBS) ${IGE_MAC_LIBS}
