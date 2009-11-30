@@ -40,7 +40,7 @@ static gint sort_strings (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, g
     GValue val_b = {0};
     
     gtk_tree_model_get_value (model, a, 0, &val_a);
-    gtk_tree_model_get_value (model, a, 0, &val_b);
+    gtk_tree_model_get_value (model, b, 0, &val_b);
     
     return strcmp(g_value_get_string (&val_a), g_value_get_string (&val_b));
 }
@@ -197,8 +197,10 @@ GuiEntityDialog::GuiEntityDialog (MapEntity *entity, const GuiEntityDialog::Mode
     // set placeable states
     GtkTreeIter iter;
     widget = gtk_builder_get_object (Ui, "cb_state");
+    
     GtkTreeModel *state_list = gtk_combo_box_get_model (GTK_COMBO_BOX(widget));
     gtk_list_store_clear (GTK_LIST_STORE (state_list));
+
     std::hash_set<std::string> states = entity->get_object_states();
     for (std::hash_set<std::string>::const_iterator i = states.begin(); i != states.end(); i++)
     {
@@ -211,6 +213,7 @@ GuiEntityDialog::GuiEntityDialog (MapEntity *entity, const GuiEntityDialog::Mode
             gtk_combo_box_set_active_iter (GTK_COMBO_BOX(widget), &iter);
         }
     }
+
     gtk_tree_sortable_set_sort_func (GTK_TREE_SORTABLE(state_list), 0, sort_strings, NULL, NULL);
     gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE(state_list), 0, GTK_SORT_ASCENDING);
     
