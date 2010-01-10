@@ -90,9 +90,9 @@ bool MapEntity::update_entity (const world::placeable_type & obj_type, const cha
         // load object data ...
         obj->load_model (Object->modelfile());
 
-        // ... and set default state
-        obj->set_state ("");
-
+        // ... and set state
+        obj->set_state (Object->state());
+        
         // cleanup (only if object not yet on the map)
         if (Entity == NULL)
         {

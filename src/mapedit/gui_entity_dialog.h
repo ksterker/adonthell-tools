@@ -77,9 +77,29 @@ public:
      * @param type 'A', 'U' or 'S'.
      */
     void set_entity_type (const char & type);
+    
+    /**
+     * Set the entity state, i.e. the animation (but possibly also
+     * the internal state).
+     * @param state name of the state to set/display.
+     */
+    void set_entity_state (const std::string & state);
     //@}
     
 protected:
+    /**
+     * Enable or disable a page of the dialog.
+     * @param page the page number
+     * @param active true to enable page, false to disable
+     */
+    void set_page_active (const int & page, const bool & active);
+    
+    /**
+     * Scan character schedule directory for valid manager schedule
+     * scripts and populate the drop down menu accordingly.
+     */
+    void scanMgrSchedules ();
+    
     /// the object being displayed or edited
     MapEntity *Entity;
     /// the object type
