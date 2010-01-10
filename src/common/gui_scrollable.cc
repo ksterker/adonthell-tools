@@ -30,6 +30,11 @@
 
 #include "gui_scrollable.h"
 
+/// the area around the view sensitive to scrolling
+#define ACTIVE_BORDER 40
+/// amount of pixels the view is moved per iteration
+#define SCROLL_OFFSET 15
+
 /**
  * Callback for autoscrolling the graph view.
  *
@@ -56,8 +61,8 @@ int on_scroll_graph (gpointer data)
         return FALSE;
     }
     
-    // wait approx. 1 second before starting to scroll
-    if (delay++ < 6) return TRUE;
+    // wait approx. 0.8 seconds before starting to scroll
+    if (delay++ < 5) return TRUE;
     
     // move the view
     scroller->scroll ();
@@ -88,10 +93,10 @@ void Scrollable::prepareScrolling (const GdkPoint & point)
     GtkWidget *widget = drawingArea ();
 
     // set scrolling offset and direction    
-    if (point.x < 20) scroll_x = 15;
-    if (point.y < 20) scroll_y = 15;
-    if (point.x + 20 > widget->allocation.width) scroll_x = -15;
-    if (point.y + 20 > widget->allocation.height) scroll_y = -15;
+    if (point.x < ACTIVE_BORDER) scroll_x = SCROLL_OFFSET;
+    if (point.y < ACTIVE_BORDER) scroll_y = SCROLL_OFFSET;
+    if (point.x + ACTIVE_BORDER > widget->allocation.width) scroll_x = -SCROLL_OFFSET;
+    if (point.y + ACTIVE_BORDER > widget->allocation.height) scroll_y = -SCROLL_OFFSET;
     
     // enable scrolling
     if (scroll_x || scroll_y)

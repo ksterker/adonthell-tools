@@ -251,6 +251,7 @@ guint key_press_notify_event (GtkWidget * widget, GdkEventKey * event, gpointer 
         }
         
         // delete node
+        case GDK_BackSpace: // fall through
         case GDK_Delete:
         {
             // ignore delete command if in preview mode
@@ -260,6 +261,13 @@ guint key_press_notify_event (GtkWidget * widget, GdkEventKey * event, gpointer 
             graph->deleteNode ();
             break;
         }
+        
+        // key not consumed
+        default:
+        {
+            return FALSE;
+        }
     }
+    
     return TRUE;
 }

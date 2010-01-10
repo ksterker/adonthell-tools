@@ -191,16 +191,56 @@ guint key_press_notify_event (GtkWidget * widget, GdkEventKey * event, gpointer 
             break;
         }
         */
+	    // scroll up
+	    case GDK_Up:
+	    {
+	    	if (view->scrollingAllowed()) 
+	    	{
+	    		view->setScrollOffset(0, 40);
+	    		view->scroll();
+	    	}
+	        break;
+	    }
+	    // scroll down
+	    case GDK_Down:
+	    {
+	    	if (view->scrollingAllowed()) 
+	    	{
+	    		view->setScrollOffset(0, -40);
+	    		view->scroll();
+	    	}
+	        break;
+	    }
+	    // scroll left
+	    case GDK_Left:
+	    {
+	    	if (view->scrollingAllowed()) 
+	    	{
+	    		view->setScrollOffset(40, 0);
+	    		view->scroll();
+	    	}
+	        break;
+	    }
+	    // scroll right
+	    case GDK_Right:
+	    {
+	    	if (view->scrollingAllowed())
+	    	{
+	    		view->setScrollOffset(-40, 0);
+	    		view->scroll();
+	    	}
+	        break;
+	    }
         // increase object z position
-        case GDK_Up:
+        case GDK_plus:
         {
-            view->updateHeight (event->state & GDK_SHIFT_MASK ? 10 : 1);
+            view->updateHeight (event->state & GDK_CONTROL_MASK ? 10 : 1);
             break;
         }
-            // decrease object z position
-        case GDK_Down:
+        // decrease object z position
+        case GDK_minus:
         {
-            view->updateHeight (event->state & GDK_SHIFT_MASK ? -10 : -1);
+            view->updateHeight (event->state & GDK_CONTROL_MASK ? -10 : -1);
             break;
         }
         // deselect Node

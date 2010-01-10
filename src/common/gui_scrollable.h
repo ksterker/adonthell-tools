@@ -74,7 +74,16 @@ public:
     //@}
 
     /**
-     * Hooks into users of auto-scrolling.
+     * @name Program-Initiated Scrolling
+     */
+    void setScrollOffset (const int & x, const int & y)
+    {
+    	scroll_offset.x = x;
+    	scroll_offset.y = y;
+    }
+    
+    /**
+     * @name Hooks into users of auto-scrolling.
      */
     //@{
     /**
