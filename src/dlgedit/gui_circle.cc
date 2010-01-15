@@ -424,7 +424,7 @@ gchar *GuiCircle::getOption (GtkOptionMenu * o)
 void GuiCircle::setOption (GtkOptionMenu *o, const gchar *label)
 {
     GtkMenu *m = (GtkMenu *) gtk_option_menu_get_menu (o);
-    GList *l = gtk_container_children (GTK_CONTAINER (m));
+    GList *l = gtk_container_get_children (GTK_CONTAINER (m));
     gchar *c;
     int j = 0;
 

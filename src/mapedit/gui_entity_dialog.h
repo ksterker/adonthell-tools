@@ -30,6 +30,11 @@
 #include "gui_modal_dialog.h"
 #include "map_entity.h"
 
+namespace world
+{
+    class character;
+}
+
 /**
  * A dialog to display and edit map entity properties.
  */
@@ -99,6 +104,18 @@ protected:
      * scripts and populate the drop down menu accordingly.
      */
     void scanMgrSchedules ();
+    
+    /**
+     * Initialize character-specific page(s).
+     * @param chr the character instance to pick values from. 
+     */
+    void init_from_character (world::character *chr);
+
+    /**
+     * Store data from character-specific page(s).
+     * @param chr the character instance to update.
+     */
+    void set_character_data (world::character *chr);
     
     /// the object being displayed or edited
     MapEntity *Entity;

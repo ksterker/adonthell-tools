@@ -36,7 +36,7 @@ void on_switch_page (GtkNotebook *notebook, GtkNotebookPage *page, gint page_num
 /*
     if (GTK_IS_CONTAINER (GTK_WIDGET(page)->child))
     {
-        GList *children = gtk_container_children ((GtkContainer *) page->child);
+        GList *children = gtk_container_get_children ((GtkContainer *) page->child);
 
         while (children != NULL)
         {

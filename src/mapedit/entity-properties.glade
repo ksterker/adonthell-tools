@@ -324,7 +324,7 @@
                         <property name="visible">True</property>
                         <property name="left_padding">12</property>
                         <child>
-                          <object class="GtkTable" id="table3">
+                          <object class="GtkTable" id="tbl_schedule">
                             <property name="visible">True</property>
                             <property name="n_rows">2</property>
                             <property name="n_columns">2</property>
@@ -341,7 +341,7 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkLabel" id="label6">
+                              <object class="GtkLabel" id="lbl_args_0">
                                 <property name="visible">True</property>
                                 <property name="label" translatable="yes">Arguments</property>
                               </object>
@@ -352,7 +352,7 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkEntry" id="entry_schedule_args">
+                              <object class="GtkEntry" id="entry_args_0">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="invisible_char">&#x25CF;</property>

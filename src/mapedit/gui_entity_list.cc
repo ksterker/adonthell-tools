@@ -32,6 +32,8 @@
 #include <gtk/gtk.h>
 #include <world/object.h>
 
+#include "common/util.h"
+
 #include "gui_mapedit.h"
 #include "gui_mapview.h"
 #include "gui_entity_list.h"
@@ -417,10 +419,18 @@ void GuiEntityList::scanDir (const std::string & datadir, GtkListStore *model)
                     
                     // not present on map, so add it to the list
                     
+                    // try to create a relative sprite path
+                    std::string model_path = util::get_relative_path (filepath, "models/");
+                    if (g_path_is_absolute (model_path.c_str()))
+                    {
+                        // FIXME: display error in status bar
+                        printf ("*** warning: cannot create model path relative to data directory!\n");
+                    }
+                    
                     // note: we load it as an object, as we do not yet
                     // know which type it will have later.
                     world::object *obj = new world::object(*Map);
-                    if (obj->load_model (filepath))
+                    if (obj->load_model (model_path))
                     {
                         // set default state
                         obj->set_state ("");

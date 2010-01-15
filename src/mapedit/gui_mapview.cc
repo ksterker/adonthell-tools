@@ -472,14 +472,26 @@ void GuiMapview::placeCurObj()
         // get proper coordinates
         world::coordinates pos (DrawObjPos.x() + area->x(), DrawObjPos.y() + area->y() + h, area->z()); 
         
-        // place object on map
-        area->add (ety, pos);
-        
-        // update refcount
-        DrawObj->incRef();
-        
-        // update screen
-        render (DrawObjPos.x(), DrawObjPos.y(), DrawObjSurface->length(), DrawObjSurface->height());
+        // make sure we don't place same object twice at same location
+        if (!((world::area*)area)->exists (ety, pos))
+        {
+            // place object on map
+            area->add (ety, pos);
+            
+            // update refcount
+            DrawObj->incRef();
+            
+            // update moveable position
+            world::moving *mov = dynamic_cast<world::moving*>(ety->get_object());
+            if (mov != NULL)
+            {
+                mov->set_position (pos.x(), pos.y());
+                mov->set_altitude (pos.z());
+            }
+            
+            // update screen
+            render (DrawObjPos.x(), DrawObjPos.y(), DrawObjSurface->length(), DrawObjSurface->height());
+        }
     }
 }
 

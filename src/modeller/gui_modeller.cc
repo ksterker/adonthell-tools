@@ -32,18 +32,11 @@
 #include <ige-mac-integration.h>
 #endif
 
-#include <sys/param.h>
-#include <stdlib.h>
-
-#ifdef WIN32
-#define realpath(N,R) _fullpath((R),(N),_MAX_PATH)
-#undef PATH_MAX
-#define PATH_MAX _MAX_PATH
-#endif WIN32
-
 #include <base/base.h>
 #include <base/diskio.h>
 #include <world/placeable_model.h>
+
+#include "common/util.h"
 
 #include "gui_modeller.h"
 #include "gui_preview.h"
@@ -510,27 +503,9 @@ void GuiModeller::addSprite (const std::string & name)
 
     // create new model
     world::placeable_model *model = new world::placeable_model();
-    std::string base_path = base::Paths.user_data_dir();
-    std::string sprite_path = name;
     
-    // make sure to use path relative to (user defined) data directory
-    if (base_path == "" || !getRelativeSpritePath (sprite_path, base_path))
-    {
-        // fallback to builtin data dir if that doesn't seem to work
-        base_path = base::Paths.game_data_dir();
-        if (!getRelativeSpritePath (sprite_path, base_path))
-        {
-            // if everythin fails, try locating gfx/ in the path and use 
-            // that as relative path
-            size_t pos = sprite_path.rfind ("gfx/");
-            if (pos != std::string::npos)
-            {
-                sprite_path = sprite_path.substr (pos);
-            }
-        }
-    }
-
-    // still couldn't create a relative sprite path
+    // try to create a relative sprite path
+    std::string sprite_path = util::get_relative_path (name, "gfx/");
     if (g_path_is_absolute (sprite_path.c_str()))
     {
         // FIXME: display error in status bar
@@ -871,30 +846,4 @@ void GuiModeller::setActive (const std::string & id, const bool & sensitive)
 {
     GtkWidget *widget = GTK_WIDGET(gtk_builder_get_object (Ui, id.c_str()));
     gtk_widget_set_sensitive (widget, sensitive);
-}
-
-// try to get relative sprite path
-bool GuiModeller::getRelativeSpritePath (std::string & sprite_path, std::string & base_path)
-{
-    // make canonical base path
-    char canonical_path[PATH_MAX];
-    if (realpath(base_path.c_str(), canonical_path))
-    {
-        base_path = canonical_path;
-        if (realpath(sprite_path.c_str(), canonical_path))
-        {
-            sprite_path = canonical_path;
-            if (sprite_path.compare (0, base_path.size(), base_path) == 0)
-            {
-                sprite_path = sprite_path.substr (base_path.length());
-                if (sprite_path[0] == '/' || sprite_path[0] == '\\')
-                {
-                    sprite_path = sprite_path.substr (1);
-                    return true;
-                }
-            }
-        }
-    }
-    
-    return false;
 }
