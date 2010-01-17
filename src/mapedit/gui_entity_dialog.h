@@ -43,7 +43,7 @@ class GuiEntityDialog : public GuiModalDialog
 public:
     typedef enum
     {
-        READ_ONLY,
+        UPDATE_PROPERTIES,
         ADD_ENTITY_TO_MAP,
         DUPLICATE_NAMED_ENTITY
     } Mode;
@@ -117,8 +117,12 @@ protected:
      */
     void set_character_data (world::character *chr);
     
+    /// mode in which the dialog has been opened
+    Mode DlgMode;
     /// the object being displayed or edited
     MapEntity *Entity;
+    /// the entity state
+    std::string EntityState;
     /// the object type
     world::placeable_type ObjType;
     /// the entities type

@@ -75,8 +75,10 @@ public:
     bool update_entity (const world::placeable_type & obj_type, const char & entity_type, const std::string & id);
     
     /**
-     * @name Map related attributes
+     * @name Reference count
      *
+     * Keeps track of how many instances of this object
+     * exist on the map.
      */
     //@{
     /**
@@ -92,6 +94,24 @@ public:
      * @return the reference count.
      */
     u_int32 getRefCount () const                        { return RefCount; }
+    //@}
+        
+    /**
+     * @name Map related methods.
+     */
+    //@{
+    /**
+     * Add this entity to the given location.
+     * @param pos the location to add object to.
+     * @return true on success, false otherwise.
+     */
+    bool addToLocation(const world::coordinates & pos);
+
+    /**
+     * Remove this entity from its current location on the map.
+     * @return true on success, false otherwise.
+     */
+    bool removeAtCurLocation ();
     
     /**
      * Set location of this entity. For anonymous entities
@@ -117,10 +137,23 @@ public:
     //@}
     
     /**
+     * @name Name related methods.
+     */
+    //{
+    /**
      * Create an unused id by adding a number to this entities' id.
      * @return an id that's not yet used on the entities map.
      */
     gchar* createNewId () const;
+    
+    /**
+     * Change name of shared or unique entities. New name has to
+     * be unique on the entities map.
+     * @param id the new name.
+     * @return true on success, false otherwise.
+     */
+    bool rename (const std::string & id);
+    //@}
     
     /**
      * @name Meta-Data to display in GUI.

@@ -472,25 +472,37 @@ void GuiMapview::placeCurObj()
         // get proper coordinates
         world::coordinates pos (DrawObjPos.x() + area->x(), DrawObjPos.y() + area->y() + h, area->z()); 
         
-        // make sure we don't place same object twice at same location
-        if (!((world::area*)area)->exists (ety, pos))
+        // try adding object to map
+        if (DrawObj->addToLocation (pos))
         {
-            // place object on map
-            area->add (ety, pos);
-            
-            // update refcount
-            DrawObj->incRef();
-            
-            // update moveable position
-            world::moving *mov = dynamic_cast<world::moving*>(ety->get_object());
-            if (mov != NULL)
-            {
-                mov->set_position (pos.x(), pos.y());
-                mov->set_altitude (pos.z());
-            }
+            // cannot place same object twice at this position
+            indicateOverlap();
             
             // update screen
             render (DrawObjPos.x(), DrawObjPos.y(), DrawObjSurface->length(), DrawObjSurface->height());
+        }
+    }
+}
+
+// edit highlighted object's properties
+void GuiMapview::editCurObject ()
+{
+    if (DrawObj == NULL && CurObj != NULL)
+    {
+        GuiEntityDialog dlg (CurObj, GuiEntityDialog::UPDATE_PROPERTIES);
+        if (dlg.run())
+        {
+            // object state could have changed --> redraw
+            if (CurObj->getRefCount() > 1)
+            {
+                // object can be anywhere on the map --> redraw everything
+                render ();
+            }
+            else
+            {
+                // object exists only once, so redraw only object
+                renderObject (CurObj->getLocation());
+            }
         }
     }
 }
@@ -501,8 +513,7 @@ void GuiMapview::deleteCurObj ()
     if (DrawObj == NULL && CurObj != NULL)
     {
         // remove object from map
-        MapData *area = (MapData*) MapMgr::get_map();
-        if (area->remove (*CurObj->getLocation()) != NULL)
+        if (CurObj->removeAtCurLocation())
         {
             // on success, redraw area containing object
             Renderer.clearSelection();
@@ -510,9 +521,6 @@ void GuiMapview::deleteCurObj ()
 
             // clear selection, so we can select it again
             GuiMapedit::window->entityList()->setSelected (CurObj, false);
-
-            // update refcount
-            CurObj->decRef();
             CurObj = NULL;
             
             // see if there's another object to select

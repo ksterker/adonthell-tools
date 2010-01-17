@@ -35,6 +35,7 @@
 
 #include "gui_mapedit.h"
 #include "gui_entity_dialog.h"
+#include "gui_entity_list.h"
 
 // Ui definition
 static char edit_entity_ui[] =
@@ -83,6 +84,13 @@ static void on_state_changed (GtkComboBox *cbox, gpointer user_data)
         GuiEntityDialog *dlg = (GuiEntityDialog *) user_data;
         dlg->set_entity_state (state_name);
     }
+}
+
+// destroy schedule arguments
+static void on_clear_args (gpointer data)
+{
+    PyObject *args = (PyObject*) data;
+    Py_DECREF(args);
 }
 
 // create UI for editing schedule arguments
@@ -137,10 +145,13 @@ static void update_arg_table (GtkTable *arg_table, std::string *arg_list, const 
         }
     }
     
+    // store argument tuple
+    PyObject *args = PyTuple_New (len);
+    g_object_set_data_full (G_OBJECT(arg_table), "num-args", (gpointer) args, on_clear_args);
+    
     // make everything visible
     gtk_widget_show_all (GTK_WIDGET(arg_table));
 }
-
 
 // user selects a different schedule
 static void on_schedule_changed (GtkComboBox *cbox, gpointer user_data)
@@ -252,11 +263,13 @@ GuiEntityDialog::GuiEntityDialog (MapEntity *entity, const GuiEntityDialog::Mode
     GError *err = NULL;
     GObject *widget;
     
+    DlgMode = mode;
     Ui = gtk_builder_new();
     Entity = entity;
     
     // set defaults
     EntityType = 'A';
+    EntityState = "";
     ObjType = world::OBJECT;
     
 	if (!gtk_builder_add_from_string(Ui, edit_entity_ui, -1, &err)) 
@@ -270,21 +283,20 @@ GuiEntityDialog::GuiEntityDialog (MapEntity *entity, const GuiEntityDialog::Mode
     window = GTK_WIDGET (gtk_builder_get_object (Ui, "entity_properties"));
     switch (mode)
     {
-        case READ_ONLY:
-            gtk_window_set_title (GTK_WINDOW (window), "View Entity Properties");
+        case UPDATE_PROPERTIES:
+            gtk_window_set_title (GTK_WINDOW (window), "Update Entity Properties");
             break;
         case ADD_ENTITY_TO_MAP:
             gtk_window_set_title (GTK_WINDOW (window), "Add new Entity to Map");
             break;
         case DUPLICATE_NAMED_ENTITY:
-            gtk_window_set_title (GTK_WINDOW (window), "Chose unique id for Entity");
+            gtk_window_set_title (GTK_WINDOW (window), "Copy Entity");
             break;
     }
     
     // setup callbacks
     widget = gtk_builder_get_object (Ui, "btn_okay");
     g_signal_connect (widget, "clicked", G_CALLBACK (on_ok_button_pressed), this);
-    gtk_widget_set_sensitive (GTK_WIDGET (widget), mode != READ_ONLY);
     widget = gtk_builder_get_object (Ui, "btn_cancel");
     g_signal_connect (widget, "clicked", G_CALLBACK (on_cancel_button_pressed), this);
     
@@ -393,6 +405,17 @@ GuiEntityDialog::GuiEntityDialog (MapEntity *entity, const GuiEntityDialog::Mode
         gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), TRUE);
     }
     
+    // in editing mode, change of object type is no longer allowed
+    if (mode == UPDATE_PROPERTIES)
+    {
+        widget = gtk_builder_get_object (Ui, "type_scenery");
+        gtk_widget_set_sensitive (GTK_WIDGET(widget), false);
+        widget = gtk_builder_get_object (Ui, "type_character");
+        gtk_widget_set_sensitive (GTK_WIDGET(widget), false);
+        widget = gtk_builder_get_object (Ui, "type_item");
+        gtk_widget_set_sensitive (GTK_WIDGET(widget), false);
+    }
+    
     // set entity type
     str = entity->get_entity_type ();
     switch (str[0])
@@ -427,7 +450,9 @@ GuiEntityDialog::~GuiEntityDialog()
 // "make it so!"
 void GuiEntityDialog::applyChanges()
 {
+    MapEntity *objToUpdate = Entity;
     const gchar* id = "";
+    
     // get id, if neccessary
     if (EntityType == 'S' || EntityType == 'U')
     {
@@ -435,12 +460,65 @@ void GuiEntityDialog::applyChanges()
         id = gtk_combo_box_get_active_text (GTK_COMBO_BOX (widget));
     }
     
-    bool result = Entity->update_entity (ObjType, EntityType, id);
+    bool result; 
     
-    // set character schedule, if neccessary
-    if (ObjType == world::CHARACTER)
+    if (DlgMode == UPDATE_PROPERTIES)
     {
-        set_character_data ((world::character*) Entity->object());
+        gchar* currentType = Entity->MapEntity::get_entity_type();
+        
+        // changed entity type?
+        if (EntityType != currentType[0])
+        {
+            // type change from Anonymous to Shared/Unique
+            if (currentType[0] == 'A')
+            {
+                objToUpdate = new MapEntity (Entity->entity());
+                result = objToUpdate->update_entity (ObjType, EntityType, id);
+                
+                // try to replace currently highlighted object
+                world::chunk_info *pos = Entity->getLocation();
+                if (result && Entity->removeAtCurLocation())
+                {
+                    objToUpdate->addToLocation(pos->Min);
+                }
+            }
+            
+            // type changed from Shared/Unique to Anonymous
+            if (EntityType == 'A')
+            {
+                // TODO: 1. Find or create anonymous instance
+                // 2. Remove old instance from map and entity list
+            }
+        }
+        else
+        {
+            // entity name has possibly changed
+            objToUpdate->rename (id);
+        }
+        
+        g_free(currentType);
+    }
+    else
+    {
+        result = objToUpdate->update_entity (ObjType, EntityType, id);
+    }
+    
+    if (result)
+    {
+        // set entity state
+        objToUpdate->object()->set_state (EntityState);
+        
+        // set character schedule, if neccessary
+        if (ObjType == world::CHARACTER)
+        {
+            set_character_data ((world::character*) objToUpdate->object());
+        }
+    }
+
+    if (objToUpdate != Entity)
+    {
+        // add new entity to entity list
+        GuiMapedit::window->entityList()->addEntity (objToUpdate);
     }
     
     okButtonPressed (result);
@@ -519,13 +597,18 @@ void GuiEntityDialog::set_entity_type (const char & type)
 // set entity state
 void GuiEntityDialog::set_entity_state (const std::string & state)
 {
-    Entity->object()->set_state (state);
+    EntityState = state;
     
     // update image
+    std::string prevState = Entity->object()->state();
+    Entity->object()->set_state (state);
+    
     GdkPixbuf *img = Entity->get_icon (64);
     GObject *widget = gtk_builder_get_object (Ui, "img_preview");
     gtk_image_set_from_pixbuf (GTK_IMAGE (widget), img);
     g_object_unref (img);
+    
+    Entity->object()->set_state (prevState);
 }
 
 // find all valid manager schedule scripts
@@ -664,17 +747,26 @@ void GuiEntityDialog::init_from_character (world::character *chr)
 // set character specific data
 void GuiEntityDialog::set_character_data (world::character *chr)
 {
-    // get schedule name
-    GtkComboBox *widget = GTK_COMBO_BOX(gtk_builder_get_object (Ui, "cb_schedule"));    
-    std::string name (gtk_combo_box_get_active_text (GTK_COMBO_BOX (widget)));
+    // get schedule name (if any)
+    GtkComboBox *widget = GTK_COMBO_BOX(gtk_builder_get_object (Ui, "cb_schedule"));
+    const gchar *value = gtk_combo_box_get_active_text (GTK_COMBO_BOX (widget));
+    if (value == NULL) return;
+    
+    std::string name (value);
 
     // get schedule arguments
     GtkContainer *arg_table = GTK_CONTAINER (gtk_builder_get_object (Ui, "tbl_schedule"));
-    gint num_args;
-    g_object_get (G_OBJECT(arg_table), "n-rows", &num_args, NULL);   
-    num_args -= 1;
-    PyObject *args = PyTuple_New (num_args);
+    PyObject *args = (PyObject*) g_object_get_data (G_OBJECT(arg_table), "num-args");
+    if (args != NULL)
+    {
+        Py_INCREF (args);
+    }
+    else
+    {
+        args = PyTuple_New (0);
+    }
     
+    long num_args = PyTuple_GET_SIZE(args);
     if (num_args > 0)
     {
         GList *children = gtk_container_get_children (arg_table);

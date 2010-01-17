@@ -159,6 +159,10 @@ public:
      */
     void releaseObject ();
     /**
+     * Edit properties of highlighted object.
+     */
+    void editCurObject ();
+    /**
      * Erase the currently highlighted object from the map.
      */
     void deleteCurObj ();

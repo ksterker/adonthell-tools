@@ -63,7 +63,7 @@ bool MapEntity::update_entity (const world::placeable_type & obj_type, const cha
     MapData *map = (MapData*) &(Object->map());    
 
     // do we have a shared entity? Object of different type?
-    if (entity_type != 'S' || obj_type != Object->type())
+    if (entity_type != 'S' && obj_type != Object->type())
     {
         world::placeable *obj = NULL;
         
@@ -102,7 +102,7 @@ bool MapEntity::update_entity (const world::placeable_type & obj_type, const cha
         Object = obj;
     }    
 
-    // create entity?
+    // create entity
     switch (entity_type)
     {
         case 'A':
@@ -130,15 +130,77 @@ bool MapEntity::update_entity (const world::placeable_type & obj_type, const cha
     return true;
 }
 
+// rename map entity
+bool MapEntity::rename (const std::string & id)
+{
+    // cannot rename in that case
+    if (Entity == NULL || Entity->id () == NULL) return false;
+    
+    // no need to rename
+    if (*Entity->id() == id) return true;
+    
+    // get map associated with the object
+    MapData *map = (MapData*) &(Object->map());
+
+    // rename object on map
+    return map->renameEntity (this, id) != NULL;
+}
+
 // decrease reference count
 void MapEntity::decRef ()
-{ 
+{
     RefCount--; 
     
     // it's no longer present on map
     Location = NULL;
     
     // TODO: if RefCount == 0: fireEntityListChanged
+}
+
+// place this entity on the map
+bool MapEntity::addToLocation(const world::coordinates & pos)
+{
+    // get map associated with the object
+    MapData *map = (MapData*) &(Object->map());
+    
+    // make sure we don't place same object twice at same location
+    if (!((world::area*)map)->exists (Entity, pos))
+    {
+        // place object on map
+        map->add (Entity, pos);
+        
+        // update refcount
+        incRef();
+        
+        // update moveable position
+        world::moving *mov = dynamic_cast<world::moving*>(Object);
+        if (mov != NULL)
+        {
+            mov->set_position (pos.x(), pos.y());
+            mov->set_altitude (pos.z());
+        }
+
+        return true;
+    }
+    
+    return false;
+}
+
+// remove this entity from the map
+bool MapEntity::removeAtCurLocation()          
+{
+    if (Location != NULL)
+    {
+        // get map associated with the object
+        MapData *map = (MapData*) &(Object->map());
+        if (map->remove (*Location) != NULL)
+        {
+            decRef();
+            return true;
+        }
+    }
+    
+    return false;
 }
 
 // update tags

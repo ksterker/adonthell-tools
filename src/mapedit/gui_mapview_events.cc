@@ -76,12 +76,17 @@ gint button_press_event (GtkWidget *widget, GdkEventButton *event, gpointer data
             }
             break;
         }
+        // Middle button pressed
+        case 2:
+        {
+            view->editCurObject ();
+            break;
+        }
         // Right button pressed
         case 3:
         {
             // if object picked -> release
-            view->releaseObject ();
-            
+            view->releaseObject ();            
             break;
         }
 
@@ -107,56 +112,6 @@ gint motion_notify_event (GtkWidget *widget, GdkEventMotion *event, gpointer dat
     return FALSE;
 }
 
-/*
-// Mouse-button released on Drawing Area
-gint button_release_event (GtkWidget *widget, GdkEventButton *event, gpointer data)
-{
-    GuiMapview *view = (GuiMapview *) data;
-    DlgPoint point ((int) event->x, (int) event->y);
-    
-    // Left button released
-    if (event->button == 1)
-    {
-        switch (view->mode ())
-        {
-            // nothing selected
-            case IDLE:
-            {
-                // select the node under the cursor, if any
-                if (!view->selectNode (point))
-                    // otherwise create a new circle at that position
-                    if (GuiDlgedit::window->mode () != L10N_PREVIEW)
-                        view->newCircle (point);
-                
-                break;
-            }
-
-            // node selected
-            case NODE_SELECTED:
-            {
-                // ignore edit command if in preview mode
-                if (GuiDlgedit::window->mode () == L10N_PREVIEW)
-                    break;
-
-                // try to create a new link between two nodes
-                view->newArrow (point);
-                break;
-            }
-                        
-            // node dragged
-            case NODE_DRAGGED:
-            {
-                // stop dragging
-                view->stopDragging (point);
-                break;
-            }
-                    
-            default: break;
-        }
-    }
-    return TRUE;
-}
-*/
 // Key pressed
 guint key_press_notify_event (GtkWidget * widget, GdkEventKey * event, gpointer user_data)
 {
@@ -164,33 +119,6 @@ guint key_press_notify_event (GtkWidget * widget, GdkEventKey * event, gpointer 
 
     switch (event->keyval)
     {
-        /*
-        // edit selected node
-        case GDK_Return:
-        {
-            int x, y;
-
-            // ignore edit command if in preview mode
-            if (GuiDlgedit::window->mode () == L10N_PREVIEW)
-                break;            
-
-            // get cursoer position
-            gtk_widget_get_pointer (view->drawingArea (), &x, &y);
-            DlgPoint point (x, y);                              
-
-            // If nothing selected, see if we're over a node
-            if (view->mode () == IDLE)
-                if (!view->selectNode (point))
-                    // create a submodule, if we aren't
-                    view->newModule (point);
-
-            // Edit node
-            if (view->mode () == NODE_SELECTED)
-                view->editNode ();
-
-            break;
-        }
-        */
 	    // scroll up
 	    case GDK_Up:
 	    {
@@ -243,13 +171,19 @@ guint key_press_notify_event (GtkWidget * widget, GdkEventKey * event, gpointer 
             view->updateHeight (event->state & GDK_CONTROL_MASK ? -10 : -1);
             break;
         }
-        // deselect Node
+        // edit highlighted object
+        case GDK_Return:
+        {
+            view->editCurObject ();
+            break;
+        }
+        // deselect object
         case GDK_Escape:
         {
             view->releaseObject ();
             break;
         }
-        // delete node
+        // delete highlighted node
         case GDK_BackSpace: // fall through
         case GDK_Delete:
         {
