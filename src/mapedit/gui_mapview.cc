@@ -1,6 +1,4 @@
 /*
- $Id: gui_mapview.cc,v 1.8 2009/05/24 13:40:28 ksterker Exp $
- 
  Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
  Part of the Adonthell Project http://adonthell.linuxgames.com
  
@@ -47,14 +45,22 @@ GuiMapview::GuiMapview(GtkWidget *paned)
 {
     // create drawing area for the graph
     Screen = gtk_drawing_area_new ();
+
+    // height control
+    RenderHeight = new GuiRenderHeight (); 
     
 #ifdef __APPLE__
     // no need to use double buffering on OSX, but appears to be required elsewhere
     GTK_WIDGET_UNSET_FLAGS (GTK_WIDGET (Screen), GTK_DOUBLE_BUFFERED);
 #endif
     
+    GtkWidget *hbox = gtk_hbox_new (FALSE, 0);
+    gtk_widget_show (hbox);
+    gtk_box_pack_start (GTK_BOX(hbox), Screen, TRUE, TRUE, 0);
+    gtk_box_pack_start (GTK_BOX(hbox), RenderHeight->widget(), FALSE, TRUE, 0);
+    
     gtk_widget_set_size_request (GTK_WIDGET (Screen), 800, 600);
-    gtk_paned_add2 (GTK_PANED (paned), Screen);
+    gtk_paned_add2 (GTK_PANED (paned), hbox);
     gtk_widget_show (Screen);
     gtk_widget_grab_focus (Screen);
     
@@ -63,10 +69,8 @@ GuiMapview::GuiMapview(GtkWidget *paned)
     g_signal_connect (G_OBJECT (Screen), "configure_event", G_CALLBACK(configure_event), this);
     g_signal_connect (G_OBJECT (Screen), "motion_notify_event", G_CALLBACK(motion_notify_event), this);
     g_signal_connect (G_OBJECT (Screen), "button_press_event", G_CALLBACK(button_press_event), this);
-    /*
-    g_signal_connect (G_OBJECT (Screen), "button_release_event", G_CALLBACK(button_release_event), this);
-    */
     g_signal_connect (G_OBJECT (GuiMapedit::window->getWindow ()), "key_press_event", G_CALLBACK(key_press_notify_event), this);
+    g_signal_connect (G_OBJECT (RenderHeight->widget()), "value-changed", G_CALLBACK(on_renderheight_changed), this);
     
     gtk_widget_set_events (Screen, GDK_EXPOSURE_MASK | GDK_LEAVE_NOTIFY_MASK | GDK_BUTTON_PRESS_MASK |
                            GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK | GDK_KEY_PRESS_MASK);
@@ -110,6 +114,9 @@ void GuiMapview::setMap (MapData *area)
     int x, y;
     gtk_widget_get_pointer (Screen, &x, &y);
     GuiMapedit::window->setLocation (x + area->x(), y + area->y(), area->z());
+    
+    // update valid height range
+    RenderHeight->setMapExtend(area->min().z(), area->max().z());
     
     // draw map
     render();
@@ -338,6 +345,16 @@ void GuiMapview::updateHeight (const s_int16 & oz)
     }
 }
 
+// change render limit
+void GuiMapview::updateRenderHeight (const s_int32 & limit)
+{
+    // update mapview with the limit
+    View->limit_z (limit);
+    
+    // update view
+    render();
+}
+
 // pick currently highlighted object for drawing
 void GuiMapview::selectCurObj ()
 {
@@ -480,6 +497,9 @@ void GuiMapview::placeCurObj()
             
             // update screen
             render (DrawObjPos.x(), DrawObjPos.y(), DrawObjSurface->length(), DrawObjSurface->height());
+            
+            // update valid height range
+            RenderHeight->setMapExtend(area->min().z(), area->max().z());
         }
     }
 }

@@ -56,5 +56,8 @@ gint motion_notify_event (GtkWidget *, GdkEventMotion *, gpointer);
  * Callback indicating that a key has been pushed.
  */
 guint key_press_notify_event (GtkWidget *, GdkEventKey *, gpointer);
-
+/**
+ * Callback indicating that the render height was changed.
+ */
+void on_renderheight_changed (GtkRange *, gpointer);
 #endif // GUI_MAPVIEW_EVENTS_H

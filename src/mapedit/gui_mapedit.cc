@@ -295,7 +295,6 @@ GuiMapedit::GuiMapedit ()
     
     // Display MainWindow
     gtk_widget_show (Wnd);
-    // gtk_window_present (GTK_WINDOW(Wnd));
 
     // init list of previously opened files
     initRecentFiles ();
@@ -446,7 +445,7 @@ std::string GuiMapedit::filename () const
     std::string fname = "";
     if (ActiveMap < (int) LoadedMaps.size()) 
     {
-        LoadedMaps[ActiveMap]->filename();
+        fname = LoadedMaps[ActiveMap]->filename();
     }
     
     if (fname.size() == 0)

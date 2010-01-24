@@ -33,6 +33,7 @@
 
 #include "gui_scrollable.h"
 #include "map_renderer.h"
+#include "gui_renderheight.h"
 
 namespace gfx
 {
@@ -129,6 +130,12 @@ public:
      * @param oz offset for z axis.
      */
     void updateHeight (const s_int16 & oz);
+    
+    /**
+     * Update height limit up to which objects will be rendered.
+     * @param limit the new height limit.
+     */
+    void updateRenderHeight (const s_int32 & limit);
     
     /**
      * @name Editing Functionality
@@ -228,6 +235,8 @@ private:
 
     /// The grid to which mapobjects can be aligned
     GuiGrid *Grid;
+    // The control used to set the height up to which the map is rendered
+    GuiRenderHeight *RenderHeight;
     
     /// The currently highlighted object
     MapEntity *CurObj;

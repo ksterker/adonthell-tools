@@ -12,6 +12,7 @@ noinst_HEADERS = \
     gui_mapedit_events.h \
     gui_mapview.h \
     gui_mapview_events.h \
+    gui_renderheight.h \
     map_cmdline.h \
     map_data.h \
     map_entity.h \
@@ -26,6 +27,7 @@ mapedit_SOURCES = \
     gui_mapedit_events.cc \
     gui_mapview.cc \
     gui_mapview_events.cc \
+    gui_renderheight.cc \
     main.cc \
     map_cmdline.cc \
     map_data.cc \

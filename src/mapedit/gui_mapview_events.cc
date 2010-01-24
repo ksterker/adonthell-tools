@@ -200,3 +200,9 @@ guint key_press_notify_event (GtkWidget * widget, GdkEventKey * event, gpointer 
     return TRUE;
 }
 
+void on_renderheight_changed (GtkRange *range, gpointer user_data)
+{
+    GuiMapview *view = (GuiMapview *) user_data;
+    s_int32 value = (s_int32) gtk_range_get_value (GTK_RANGE(range));
+    view->updateRenderHeight (value);
+}
