@@ -226,7 +226,18 @@ void GuiMapview::mouseMoved (const GdkPoint * point)
             GdkPoint p = { point->x + ox, point->y + oy - oz };
 
             // find object that's being moused over
-            std::list<world::chunk_info*> objects_under_mouse = area->objects_in_view (p.x, p.y, 0, 0, 0);
+            std::list<world::chunk_info*> objects_under_mouse;
+            area->objects_in_view (p.x, p.x, p.y, p.y, objects_under_mouse);
+            std::list<world::chunk_info*>::iterator i = objects_under_mouse.begin();
+            while (i != objects_under_mouse.end())
+            {
+                if ((*i)->Max.z() > RenderHeight->getLimit())
+                {
+                    i = objects_under_mouse.erase(i);
+                    continue;
+                }
+                i++;
+            }
             world::chunk_info *obj = Renderer.findObjectBelowCursor (ox, oy - oz, &p, objects_under_mouse);
             
             // no object below cursor
@@ -532,12 +543,15 @@ void GuiMapview::deleteCurObj ()
 {
     if (DrawObj == NULL && CurObj != NULL)
     {
+        // keep track of location
+        world::chunk_info *location = CurObj->getLocation();
+        
         // remove object from map
         if (CurObj->removeAtCurLocation())
         {
             // on success, redraw area containing object
             Renderer.clearSelection();
-            renderObject (CurObj->getLocation());
+            renderObject (location);
 
             // clear selection, so we can select it again
             GuiMapedit::window->entityList()->setSelected (CurObj, false);

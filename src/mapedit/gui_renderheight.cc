@@ -37,6 +37,10 @@ GuiRenderHeight::GuiRenderHeight()
     gtk_range_set_inverted (GTK_RANGE(Range), TRUE);
     gtk_range_set_value (GTK_RANGE(Range), 100);
     gtk_widget_show (Range);
+    
+    // FIXME: for larger heights, the current value no
+    // longer fits into the space provided by the range widget
+    // better display it in status bar or some other place.
 }
 
 // dtor

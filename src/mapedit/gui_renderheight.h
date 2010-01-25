@@ -62,6 +62,15 @@ public:
      */
     void setMapExtend (const s_int32 & min, const s_int32 & max);
 
+    /**
+     * Return the current value.
+     * @return the current render limit.
+     */
+    s_int32 getLimit () const
+    {
+        return (s_int32) gtk_range_get_value (GTK_RANGE(Range));
+    }
+    
 private:
     /// the range widget controlling the render height
     GtkWidget *Range;
