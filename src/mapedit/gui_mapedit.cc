@@ -46,6 +46,7 @@
 #include "mapedit/gui_mapedit_events.h"
 #include "mapedit/gui_mapview.h"
 #include "mapedit/gui_entity_list.h"
+#include "mapedit/gui_zone_list.h"
 
 /**
  * Icon of the main window
@@ -241,15 +242,24 @@ GuiMapedit::GuiMapedit ()
     // Drawing Area
     View = new GuiMapview (hpaned);
     
+    // object trees
+    GtkWidget *tab = gtk_notebook_new();
+    gtk_paned_add1 (GTK_PANED (hpaned), tab);
+    gtk_widget_show (tab);
+    
     // Entity list
     EntityList = new GuiEntityList ();
     GtkWidget *scrolledWnd = gtk_scrolled_window_new (NULL, NULL);
     gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(scrolledWnd), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
     gtk_container_add (GTK_CONTAINER(scrolledWnd), EntityList->getTreeWidget());
-    gtk_paned_add1 (GTK_PANED (hpaned), scrolledWnd);
     gtk_widget_show (EntityList->getTreeWidget());
     gtk_widget_show (scrolledWnd);
+    gtk_notebook_append_page (GTK_NOTEBOOK(tab), scrolledWnd, gtk_label_new ("Entities"));
 
+    // Zone list
+    ZoneList = new GuiZoneList ();
+    gtk_notebook_append_page (GTK_NOTEBOOK(tab), ZoneList->getWidget(), gtk_label_new ("Zones"));
+    
     // Status bars
     hbox = gtk_hbox_new (FALSE, 0);
     g_object_ref (hbox);
@@ -319,6 +329,7 @@ void GuiMapedit::newMap ()
 
     View->setMap (area);
     EntityList->setMap (area);
+    ZoneList->setMap (area);
     
     std::string datadir = base::Paths.user_data_dir ();
     EntityList->setDataDir (std::string (datadir) + "/models");
@@ -335,6 +346,7 @@ void GuiMapedit::loadMap (const std::string & fname)
         
         View->setMap (area);
         EntityList->setMap (area);
+        ZoneList->setMap (area);
         
         gchar *datadir = g_path_get_dirname (fname.c_str());
         EntityList->setDataDir (std::string (datadir) + "/models");

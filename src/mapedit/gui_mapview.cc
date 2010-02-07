@@ -212,15 +212,17 @@ void GuiMapview::resizeSurface (GtkWidget *widget)
 // notification of mouse movement
 void GuiMapview::mouseMoved (const GdkPoint * point)
 {
-    int ox = 0, oy = 0, oz = 0;
     MapData *area = (MapData*) MapMgr::get_map();
     
     if (area != NULL)
     {
-        ox = area->x();
-        oy = area->y();
-        oz = area->z();
+        int ox = area->x();
+        int oy = area->y();
+        int oz = area->z();
         
+        // display map coordinates of mouse pointer
+        GuiMapedit::window->setLocation (point->x + ox, point->y + oy, oz);
+
         if (DrawObj == NULL)
         {
             GdkPoint p = { point->x + ox, point->y + oy - oz };
@@ -308,9 +310,6 @@ void GuiMapview::mouseMoved (const GdkPoint * point)
             gdk_region_destroy (region);
         }
     }
-    
-    // display map coordinates of mouse pointer
-    GuiMapedit::window->setLocation (point->x + ox, point->y + oy, oz);
 }
 
 // add red tint if object would overlap other objects on the map

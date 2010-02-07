@@ -1,10 +1,11 @@
 ## Process this file with automake to produce Makefile.in
 
-EXTRA_DIST = entity-properties.glade
+EXTRA_DIST = entity-properties.glade zone-properties.glade
 
 noinst_PROGRAMS = mapedit
 
 noinst_HEADERS = \
+    entity-properties.glade.h \
     gui_entity_dialog.h \
     gui_entity_list.h \
     gui_grid.h \
@@ -13,11 +14,14 @@ noinst_HEADERS = \
     gui_mapview.h \
     gui_mapview_events.h \
     gui_renderheight.h \
+    gui_zone_dialog.h \
+    gui_zone_list.h \
     map_cmdline.h \
     map_data.h \
     map_entity.h \
     map_mgr.h \
-    map_renderer.h
+    map_renderer.h \
+    zone-properties.glade.h
     
 mapedit_SOURCES = \
     gui_entity_dialog.cc \
@@ -28,6 +32,8 @@ mapedit_SOURCES = \
     gui_mapview.cc \
     gui_mapview_events.cc \
     gui_renderheight.cc \
+    gui_zone_dialog.cc \
+    gui_zone_list.cc \
     main.cc \
     map_cmdline.cc \
     map_data.cc \
@@ -36,10 +42,11 @@ mapedit_SOURCES = \
 
 # just for the dependency
 gui_entity_dialog.cc : entity-properties.glade.h
+gui_zone_dialog.cc : zone-properties.glade.h
 
 # generate a string out of the glade XML
-$(srcdir)/entity-properties.glade.h : entity-properties.glade
-	$(SED) -e 's/"/\\"/g' -e 's/>$$/>"/' -e 's/^\( *\)</\1"</' $< > $@
+%.glade.h : %.glade
+	$(SED) -e 's/"/\\"/g' -e 's/>$$/>"/' -e 's/^\( *\)</\1"</' $< > $(srcdir)/$@
 
 INCLUDES = -I@top_srcdir@/src/common -I@top_srcdir@/src
 mapedit_CXXFLAGS = -D_VERSION_=\"0.1\" $(GTK_CFLAGS) $(PY_CFLAGS) $(ADONTHELL_CFLAGS) ${IGE_MAC_CFLAGS}

@@ -529,6 +529,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="tooltip_text" translatable="yes">Center map on entity.</property>
+                <property name="image">img_center</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -591,5 +592,9 @@
   <object class="GtkImage" id="img_remove_tag">
     <property name="visible">True</property>
     <property name="stock">gtk-remove</property>
+  </object>
+  <object class="GtkImage" id="img_center">
+    <property name="visible">True</property>
+    <property name="stock">gtk-zoom-fit</property>
   </object>
 </interface>

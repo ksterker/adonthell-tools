@@ -38,6 +38,8 @@ class MapData : public world::area
 public:
     /// iterator over entities on the map
     typedef std::vector<world::entity*>::iterator entity_iter;
+    /// iterator over zones on the map
+    typedef std::list<world::zone*>::iterator zone_iter;
 
     /**
      * Create a new map container.
@@ -97,6 +99,23 @@ public:
      */
     bool exists (const std::string & entity_name);
     //@}    
+    
+    /**
+     * @name Map Zones
+     */
+    //@{
+    /**
+     * Get iterator to first zone on the map.
+     * @return iterator starting at first zone.
+     */
+    zone_iter firstZone() { return Zones.begin(); }
+    
+    /**
+     * Get iterator pointing past last zone of the map.
+     * @return iterator past last zone.
+     */
+    zone_iter lastZone() { return Zones.end(); }    
+    //@}
     
     /**
      * @name Position Data

@@ -34,6 +34,7 @@
 
 class GuiMapview;
 class GuiEntityList;
+class GuiZoneList;
 class MapData;
 
 /**
@@ -138,6 +139,8 @@ private:
 
     /// entity list
     GuiEntityList *EntityList;
+    /// zone list
+    GuiZoneList *ZoneList;
     /// map view
     GuiMapview *View;                 
     /// actual main window
