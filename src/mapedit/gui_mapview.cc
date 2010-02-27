@@ -107,8 +107,7 @@ void GuiMapview::setMap (MapData *area)
 {
     MapMgr::set_map (area);
     
-    View->set_position (area->x(), area->y());
-    View->set_z (area->z());
+    View->set_position (area->x(), area->y(), area->z());
     
     // display map coordinates of mouse pointer
     int x, y;
@@ -156,8 +155,7 @@ void GuiMapview::render (const int & sx, const int & sy, const int & l, const in
     if (area != NULL)
     {
         // update position of map
-        View->set_position (area->x() + sx, area->y() + sy);
-        View->set_z (area->z());
+        View->set_position (area->x() + sx, area->y() + sy, area->z());
         
         // render mapview to screen
         View->resize (l, h);
