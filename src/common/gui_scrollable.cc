@@ -47,6 +47,15 @@ int on_scroll_graph (gpointer data)
     static int delay = 0;
     Scrollable *scroller = (Scrollable *) data;
     GtkWidget *widget = scroller->drawingArea ();
+
+    // check that parent window is active
+    GtkWidget *window = gtk_widget_get_ancestor (widget, GTK_TYPE_WINDOW);
+    if (window != NULL && !gtk_window_is_active (GTK_WINDOW(window)))
+    {
+        scroller->stopScrolling ();
+        delay = 0; 
+        return FALSE;
+    }
     
     // get the present cursor position (relative to the graph)    
     gtk_widget_get_pointer (widget, &x, &y);

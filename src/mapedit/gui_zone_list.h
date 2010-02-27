@@ -80,6 +80,11 @@ public:
     void removeZone();
     
     /**
+     * Edit the selected zone.
+     */
+    void editZone();
+    
+    /**
      * Set the map whose zones to display in the list.
      * @param map the map whose zones to display.
      */

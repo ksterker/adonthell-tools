@@ -170,6 +170,13 @@ static void on_remove_zone (GtkButton * button, gpointer user_data)
     list->removeZone();
 }
 
+// callback for editing zones
+static void on_edit_zone (GtkTreeView *tree, GtkTreePath *path, GtkTreeViewColumn *column, gpointer user_data)
+{
+    GuiZoneList *list = (GuiZoneList*) user_data;
+    list->editZone();
+}
+
 // callback for selection changes
 static void selected_event (GtkTreeSelection *selection, gpointer user_data)
 {
@@ -182,9 +189,7 @@ static void selected_event (GtkTreeSelection *selection, gpointer user_data)
         // get object at selected row
         world::zone *z = (world::zone*) zone_list_get_object (ZONE_LIST (model), &iter);
 
-        // bring up properties dialog
-        // GuiZoneDialog dlg(z);
-        // dlg.run();
+        // TODO: focus on zone in mapview
     }
 }
 
@@ -199,15 +204,18 @@ GuiZoneList::GuiZoneList ()
     GtkWidget *scrollWnd = gtk_scrolled_window_new (NULL, NULL);
     gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(scrollWnd), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
     gtk_container_add (GTK_CONTAINER(scrollWnd), GTK_WIDGET(TreeView));
+    g_signal_connect (G_OBJECT(TreeView), "row-activated", G_CALLBACK(on_edit_zone), this);
     
     // the controls
     GtkWidget *btnAdd = gtk_button_new ();
     gtk_button_set_image (GTK_BUTTON(btnAdd), gtk_image_new_from_stock (GTK_STOCK_ADD, GTK_ICON_SIZE_BUTTON));
+    gtk_widget_set_tooltip_text (GTK_WIDGET(btnAdd), "Add new Zone to map");
     g_signal_connect (G_OBJECT(btnAdd), "clicked", G_CALLBACK(on_add_zone), this);
 
     GtkWidget *btnRemove = gtk_button_new ();
     gtk_button_set_image (GTK_BUTTON(btnRemove), gtk_image_new_from_stock (GTK_STOCK_REMOVE, GTK_ICON_SIZE_BUTTON));
-    g_signal_connect (G_OBJECT(btnAdd), "clicked", G_CALLBACK(on_remove_zone), this);
+    gtk_widget_set_tooltip_text (GTK_WIDGET(btnRemove), "Remove selected Zone from map");
+    g_signal_connect (G_OBJECT(btnRemove), "clicked", G_CALLBACK(on_remove_zone), this);
 
     GtkWidget *btnPnl = gtk_hbutton_box_new();
     gtk_button_box_set_layout (GTK_BUTTON_BOX(btnPnl), GTK_BUTTONBOX_END);
@@ -236,7 +244,7 @@ GuiZoneList::GuiZoneList ()
 void GuiZoneList::addZone()
 {    
     world::vector3<s_int32> pos (Map->x(), Map->y(), Map->z());     
-    world::zone *z = new world::zone(world::zone::TYPE_META, pos, pos); 
+    world::zone *z = new world::zone(world::zone::TYPE_META, "", pos, pos);
 
     GuiZoneDialog dlg (z, Map);
     if (dlg.run())
@@ -284,6 +292,25 @@ void GuiZoneList::removeZone()
         // cleanup
         delete z;
     }        
+}
+
+// edit selected zone
+void GuiZoneList::editZone()
+{
+    GtkTreeIter iter;
+    GtkTreeModel *model;
+    GtkTreeSelection *selection = gtk_tree_view_get_selection (TreeView);
+    
+    // anything selected at all? 
+    if (gtk_tree_selection_get_selected (selection, &model, &iter))
+    {
+        // get object at selected row
+        world::zone *z = (world::zone*) zone_list_get_object (ZONE_LIST (model), &iter);
+        
+        // bring up properties dialog
+        GuiZoneDialog dlg (z, Map);
+        dlg.run ();
+    }    
 }
 
 // set map being displayed

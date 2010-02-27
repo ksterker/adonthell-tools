@@ -37,8 +37,7 @@ static char edit_zone_ui[] =
 // close the dialog and keep all changes
 static void on_ok_button_pressed (GtkButton * button, gpointer user_data)
 {
-    GuiZoneDialog *dialog = (GuiZoneDialog *) user_data;
-    
+    GuiZoneDialog *dialog = (GuiZoneDialog *) user_data;    
     dialog->applyChanges ();
     
     // clean up
@@ -50,6 +49,27 @@ static void on_cancel_button_pressed (GtkButton * button, gpointer user_data)
 {
     // clean up
     gtk_main_quit ();
+}
+
+static void update_size (GtkSpinButton *spinbutton, gpointer user_data)
+{
+    char tmp[16];
+    GObject *widget;
+    GtkBuilder *ui = (GtkBuilder*) user_data;
+    std::string name (gtk_widget_get_name (GTK_WIDGET (spinbutton)));
+    
+    sprintf (tmp, "min_%c", *name.rbegin());
+    widget = gtk_builder_get_object (ui, tmp);
+    int min = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget));
+
+    sprintf (tmp, "max_%c", *name.rbegin());
+    widget = gtk_builder_get_object (ui, tmp);
+    int max = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget));
+
+    sprintf (tmp, "size_%c", *name.rbegin());
+    widget = gtk_builder_get_object (ui, tmp);
+    sprintf (tmp, "%i", max-min);
+    gtk_label_set_text (GTK_LABEL(widget), tmp);
 }
 
 // ctor
@@ -88,17 +108,30 @@ GuiZoneDialog::GuiZoneDialog (world::zone *z, MapData *map)
     gtk_entry_set_text (GTK_ENTRY(widget), Zone->name().c_str());
     
     // set zone type
+    bool is_active = (Zone->type() & world::zone::TYPE_META) == world::zone::TYPE_META;
     widget = gtk_builder_get_object (Ui, "cb_meta");
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(widget), 
-                                  (Zone->type() & world::zone::TYPE_META == world::zone::TYPE_META));
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(widget), is_active);
+    is_active = (Zone->type() & world::zone::TYPE_RENDER) == world::zone::TYPE_RENDER;
     widget = gtk_builder_get_object (Ui, "cb_render");
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(widget), 
-                                  (Zone->type() & world::zone::TYPE_RENDER == world::zone::TYPE_RENDER));
-    
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(widget), is_active);
+
     // set coordinates
     displayValues ('x');
     displayValues ('y');
     displayValues ('z');
+    
+    widget = gtk_builder_get_object (Ui, "min_x");
+    g_signal_connect (widget, "value-changed", G_CALLBACK (update_size), Ui);
+    widget = gtk_builder_get_object (Ui, "min_y");
+    g_signal_connect (widget, "value-changed", G_CALLBACK (update_size), Ui);
+    widget = gtk_builder_get_object (Ui, "min_z");
+    g_signal_connect (widget, "value-changed", G_CALLBACK (update_size), Ui);
+    widget = gtk_builder_get_object (Ui, "max_x");
+    g_signal_connect (widget, "value-changed", G_CALLBACK (update_size), Ui);
+    widget = gtk_builder_get_object (Ui, "max_y");
+    g_signal_connect (widget, "value-changed", G_CALLBACK (update_size), Ui);
+    widget = gtk_builder_get_object (Ui, "max_z");
+    g_signal_connect (widget, "value-changed", G_CALLBACK (update_size), Ui);    
 }
 
 // dtor
@@ -162,5 +195,35 @@ void GuiZoneDialog::displayValues (const char & c)
 // "make it so!"
 void GuiZoneDialog::applyChanges()
 {
+    GObject *widget;
+    
+    // update name
+    widget = gtk_builder_get_object (Ui, "entry_id");
+    Zone->set_name (gtk_entry_get_text (GTK_ENTRY(widget)));
+    
+    // update type
+    u_int32 type = 0;
+    widget = gtk_builder_get_object (Ui, "cb_meta");
+    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(widget))) type |= world::zone::TYPE_META; 
+    widget = gtk_builder_get_object (Ui, "cb_render");
+    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(widget))) type |= world::zone::TYPE_RENDER; 
+    Zone->set_type (type);
+    
+    // update min
+    widget = gtk_builder_get_object (Ui, "min_x");
+    Zone->min().set_x(gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget)));
+    widget = gtk_builder_get_object (Ui, "min_y");
+    Zone->min().set_y(gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget)));
+    widget = gtk_builder_get_object (Ui, "min_z");
+    Zone->min().set_z(gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget)));
+
+    // update max
+    widget = gtk_builder_get_object (Ui, "max_x");
+    Zone->max().set_x(gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget)));
+    widget = gtk_builder_get_object (Ui, "max_y");
+    Zone->max().set_y(gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget)));
+    widget = gtk_builder_get_object (Ui, "max_z");
+    Zone->max().set_z(gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget)));
+    
     okButtonPressed (true);
 }
