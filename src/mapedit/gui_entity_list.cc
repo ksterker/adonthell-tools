@@ -221,12 +221,38 @@ static void selected_event (GtkTreeSelection *selection, gpointer user_data)
     }
 }
 
+// callback for adding new zones
+static void on_refresh_entities (GtkButton * button, gpointer user_data)
+{
+    GuiEntityList *list = (GuiEntityList*) user_data;
+    list->refresh();
+}
+
 // ctor
 GuiEntityList::GuiEntityList ()
 {
+    Panel = gtk_vbox_new (FALSE, 0);
+
     // the view
     TreeView = (GtkTreeView*) gtk_tree_view_new ();
     gtk_tree_view_set_grid_lines (TreeView, GTK_TREE_VIEW_GRID_LINES_HORIZONTAL);
+    GtkWidget *scrollWnd = gtk_scrolled_window_new (NULL, NULL);
+    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(scrollWnd), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
+    gtk_container_add (GTK_CONTAINER(scrollWnd), GTK_WIDGET(TreeView));
+    
+    // the controls
+    GtkWidget *btnRefresh = gtk_button_new ();
+    gtk_button_set_image (GTK_BUTTON(btnRefresh), gtk_image_new_from_stock (GTK_STOCK_REFRESH, GTK_ICON_SIZE_BUTTON));
+    gtk_widget_set_tooltip_text (GTK_WIDGET(btnRefresh), "Reload list of available entities from file system.");
+    g_signal_connect (G_OBJECT(btnRefresh), "clicked", G_CALLBACK(on_refresh_entities), this);
+    
+    GtkWidget *btnPnl = gtk_hbutton_box_new();
+    gtk_button_box_set_layout (GTK_BUTTON_BOX(btnPnl), GTK_BUTTONBOX_END);
+    gtk_box_pack_start (GTK_BOX(btnPnl), btnRefresh, FALSE, FALSE, 4);
+    
+    gtk_box_pack_start (GTK_BOX(Panel), scrollWnd, TRUE, TRUE, 0);
+    gtk_box_pack_start (GTK_BOX(Panel), btnPnl, FALSE, TRUE, 0);
+    gtk_widget_show_all (Panel);
     
     // create the columns
     GtkCellRenderer *renderer = gtk_cell_renderer_text_new ();
@@ -234,7 +260,7 @@ GuiEntityList::GuiEntityList ()
     gtk_tree_view_insert_column_with_attributes (TreeView, -1, "Type", renderer, "text", TYPE_COLUMN, "background", COLOR_COLUMN, NULL);
     renderer = gtk_cell_renderer_pixbuf_new ();
     gtk_tree_view_insert_column_with_attributes (TreeView, -1, "Icon", renderer, "pixbuf", ICON_COLUMN, NULL);
-
+    
     // selection listener
     GtkTreeSelection *selection = gtk_tree_view_get_selection (TreeView);
     g_signal_connect (G_OBJECT(selection), "changed", G_CALLBACK(selected_event), this);
@@ -373,6 +399,8 @@ void GuiEntityList::setMap (MapData * map)
 
 void GuiEntityList::setDataDir (const std::string & datadir)
 {
+    DataDir = datadir;
+    
     // get model
     GtkListStore *model = GTK_LIST_STORE (gtk_tree_view_get_model (TreeView));
     
@@ -444,12 +472,52 @@ void GuiEntityList::scanDir (const std::string & datadir, GtkListStore *model)
                         // set our data
                         gtk_list_store_set (model, &iter, 0, ety, -1);                        
                     }
+                    else
+                    {
+                        printf ("*** warning: cannot load model '%s'!\n", model_path.c_str());
+                    }
                 }
             }
         }
 
         closedir (dir);
     }
+}
+
+// rebuild the entity list
+void GuiEntityList::refresh()
+{
+    if (Map == NULL) return;
+    
+    GtkTreeIter iter;
+
+    // get model
+    GtkListStore *model = GTK_LIST_STORE (gtk_tree_view_get_model (TreeView));
+    
+    // avoid tree updates while adding rows
+    gtk_tree_view_set_model (TreeView, (GtkTreeModel*) NULL);
+    
+    // clear all models not present on map
+    bool valid = gtk_tree_model_get_iter_first (GTK_TREE_MODEL(model), &iter);
+    while (valid)
+    {
+        MapEntity *ety = entity_list_get_object (ENTITY_LIST(model), &iter);
+        
+        if (!isPresentOnMap (ety->object()->modelfile()))
+        {
+            valid = gtk_list_store_remove (model, &iter);
+            delete ety;
+            continue;
+        }
+
+        valid = gtk_tree_model_iter_next (GTK_TREE_MODEL(model), &iter);
+    }
+    
+    // add models contained under directory
+    scanDir (DataDir, model);
+    
+    // set the model again 
+    gtk_tree_view_set_model (TreeView, (GtkTreeModel*) model);    
 }
 
 // check if object with given name is already placed on map

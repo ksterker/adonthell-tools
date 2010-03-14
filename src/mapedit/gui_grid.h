@@ -32,6 +32,28 @@
 #include <gfx/surface.h>
 #include <world/chunk_info.h>
 
+/**
+ * Interface for classes interested in monitoring
+ * changes to the grid.
+ */
+class GridMonitor
+{
+public:
+    /**
+     * Destructor.
+     */
+    virtual ~GridMonitor() {}
+    
+    /**
+     * Notify that the grid has changed.
+     */
+    virtual void gridChanged() = 0;
+};
+
+/**
+ * A grid to which object placed on the map can be
+ * aligned to.
+ */
 class GuiGrid
 {
 public:
@@ -73,6 +95,14 @@ public:
     void grid_from_object (world::chunk_info & ci, const s_int32 & ox, const s_int32 & sy);
 
     /**
+     * Update the grid from the size of the object currently 
+     * used for painting.
+     * @param ox x-offset of map view 
+     * @param oy y-offset of map view
+     */
+    void grid_from_cur_object (const s_int32 & ox, const s_int32 & sy);
+    
+    /**
      * Align the given position to the grid.
      * @param return the position aligned to the grid.
      */
@@ -94,23 +124,37 @@ public:
         SnapToGrid = snap;
     }
     
+    /// can edit the grid
+    friend class GuiGridDialog;
+    
 protected:
-    /// x offset for grid
+    /// x offset for grid (object position)
     s_int16 Ox;
-    /// y offset for grid
+    /// y offset for grid (object position)
     s_int16 Oy;
+    /// x offset for grid (map view)
+    s_int16 Mx;
+    /// y offset for grid (map view)
+    s_int16 My;
     /// x interval of grid
     u_int16 Ix;
     /// y interval of grid
     u_int16 Iy;
-    
+
+    /// notification of grid changes
+    GridMonitor *Monitor;
+
 private:
+    /// last object used for painting the map
+    world::chunk_info *CurObject;
     /// overlay onto which to draw grid
     gfx::surface *Overlay;
     /// whether grid needs to be rendered
     bool Visible;
     /// whether to align objects with grid
     bool SnapToGrid;
+    /// whether grid automatically adjusts to selected object
+    bool AutoAdjust;
     /// whether the grid has changed
     bool Changed;
 };

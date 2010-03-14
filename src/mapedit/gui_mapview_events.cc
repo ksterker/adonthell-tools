@@ -102,6 +102,13 @@ gint motion_notify_event (GtkWidget *widget, GdkEventMotion *event, gpointer dat
     GuiMapview *view = (GuiMapview *) data;
     GdkPoint point = { event->x, event->y };
 
+    // make sure we grab the focus from any floating toolbars
+    GtkWidget *window = gtk_widget_get_ancestor (widget, GTK_TYPE_WINDOW);
+    if (window != NULL && !gtk_window_is_active (GTK_WINDOW(window)))
+    {
+        gtk_window_present (GTK_WINDOW(window));
+    }
+    
     // scroll the view if necessary (this has to happen before 
     // anything else, as the next method(s) change 'point'.
     view->prepareScrolling (point);

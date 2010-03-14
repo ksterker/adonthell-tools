@@ -2,15 +2,18 @@
 <interface>
   <!-- interface-requires gtk+ 2.12 -->
   <!-- interface-naming-policy toplevel-contextual -->
-  <object class="GtkDialog" id="dialog1">
+  <object class="GtkDialog" id="grid-dialog">
     <property name="border_width">5</property>
-    <property name="type">popup</property>
+    <property name="title">Grid</property>
     <property name="resizable">False</property>
-    <property name="default_width">200</property>
-    <property name="default_height">80</property>
-    <property name="type_hint">normal</property>
-    <property name="decorated">False</property>
+    <property name="window_position">mouse</property>
+    <property name="default_width">240</property>
+    <property name="default_height">140</property>
+    <property name="type_hint">utility</property>
+    <property name="skip_taskbar_hint">True</property>
+    <property name="skip_pager_hint">True</property>
     <property name="deletable">False</property>
+    <property name="opacity">0.75</property>
     <property name="has_separator">False</property>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox1">
@@ -107,7 +110,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkSpinButton" id="x_spacing">
+              <object class="GtkSpinButton" id="x_interval">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="invisible_char">&#x25CF;</property>
@@ -123,7 +126,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkSpinButton" id="y_spacing">
+              <object class="GtkSpinButton" id="y_interval">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="invisible_char">&#x25CF;</property>
@@ -152,35 +155,73 @@
           </packing>
         </child>
         <child>
-          <object class="GtkCheckButton" id="cb_autoadjust">
-            <property name="label" translatable="yes">Auto-adjust</property>
+          <object class="GtkHSeparator" id="hseparator1">
+            <property name="visible">True</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="padding">4</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkHBox" id="hbox1">
+            <property name="visible">True</property>
+            <property name="spacing">4</property>
+            <property name="homogeneous">True</property>
+            <child>
+              <object class="GtkCheckButton" id="cb_autoadjust">
+                <property name="label" translatable="yes">Auto-adjust</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="focus_on_click">False</property>
+                <property name="active">True</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="btn_adjust">
+                <property name="label" translatable="yes">Adjust</property>
+                <property name="visible">True</property>
+                <property name="sensitive">False</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="tooltip_text" translatable="yes">Adjust the grid to currently selected object.</property>
+              </object>
+              <packing>
+                <property name="pack_type">end</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="position">3</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkCheckButton" id="cb_enablegrid">
+            <property name="label">Snap to Grid</property>
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">False</property>
-            <property name="has_tooltip">True</property>
-            <property name="tooltip_text">If selected, the grid will automatically adapt to the selected object.</property>
-            <property name="focus_on_click">False</property>
             <property name="active">True</property>
             <property name="draw_indicator">True</property>
           </object>
           <packing>
-            <property name="padding">2</property>
-            <property name="position">2</property>
+            <property name="expand">False</property>
+            <property name="position">4</property>
           </packing>
         </child>
         <child internal-child="action_area">
           <object class="GtkHButtonBox" id="dialog-action_area">
             <property name="width_request">0</property>
             <property name="height_request">0</property>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
           </object>
           <packing>
             <property name="expand">False</property>

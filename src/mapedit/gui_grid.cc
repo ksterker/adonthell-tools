@@ -35,8 +35,15 @@ GuiGrid::GuiGrid (gfx::surface *overlay)
     Changed = false;
     Visible = false;
     SnapToGrid = true;
+    AutoAdjust = true;
+    
+    CurObject = NULL;
+    Monitor = NULL;
+    
     Ox = 0;
     Oy = 0;
+    Mx = 0;
+    My = 0;
     Ix = 64;
     Iy = 48;
 }
@@ -57,13 +64,13 @@ void GuiGrid::draw (const s_int32 & x, const s_int32 & y, const u_int16 & l, con
         int h = Overlay->height();
         
         // draw vertical lines
-        for (int i = Ox; i < l; i += Ix)
+        for (int i = Mx; i < l; i += Ix)
         {
             Overlay->fillrect (i, 0, 1, h, 0x88FFFFFF);
         }
         
         // draw horizontal lines
-        for (int j = Oy; j < h; j += Iy)
+        for (int j = My; j < h; j += Iy)
         {
             Overlay->fillrect (0, j, l, 1, 0x88FFFFFF);
         }
@@ -73,22 +80,44 @@ void GuiGrid::draw (const s_int32 & x, const s_int32 & y, const u_int16 & l, con
 // set the grid from the given object
 void GuiGrid::grid_from_object (world::chunk_info & ci, const s_int32 & ox, const s_int32 & oy)
 {
-    if (ci.get_object()->length() && ci.get_object()->width())
+    delete CurObject;
+    CurObject = new world::chunk_info (ci);
+    
+    if (AutoAdjust)
+    {
+        grid_from_cur_object (ox, oy);
+    }
+}
+
+// set the grid from the given object
+void GuiGrid::grid_from_cur_object (const s_int32 & ox, const s_int32 & oy)
+{
+    if (CurObject->get_object()->length() && CurObject->get_object()->width())
     {
         // get location
-        s_int32 x = ci.Min.x() - ox;
-        s_int32 y = ci.Min.y() - oy;
+        s_int32 x = CurObject->Min.x() - ox;
+        s_int32 y = CurObject->Min.y() - oy;
         
         // get extend --> that will be our interval
-        Ix = ci.get_object()->length();
-        Iy = ci.get_object()->width();
+        Ix = CurObject->get_object()->length();
+        Iy = CurObject->get_object()->width();
         
-        // set offset from object position and map view offset
-        Ox = x < 0 ? x % Ix + Ix : x % Ix;
-        Oy = y < 0 ? y % Iy + Iy : y % Iy - ci.get_object()->cur_y();
+        // set offset from object position
+        Ox = CurObject->Min.x() % Ix;
+        Oy = CurObject->Min.y() % Iy;
 
+        // store map view offset
+        Mx = x < 0 ? x % Ix + Ix : x % Ix;
+        My = y < 0 ? y % Iy + Iy : y % Iy - CurObject->get_object()->cur_y();
+        
         // make sure the changes take effect on next redraw
         Changed = true;
+        
+        // display info about changed grid
+        if (Monitor)
+        {
+            Monitor->gridChanged();
+        }
     }
 }
 
@@ -98,8 +127,8 @@ world::vector3<s_int32> GuiGrid::align_to_grid (const world::vector3<s_int32> & 
     if (SnapToGrid)
     {
         // calculate offset from grid
-        s_int32 x = (pos.x() - Ox) % Ix;
-        s_int32 y = (pos.y() - Oy) % Iy;
+        s_int32 x = (pos.x() - Mx) % Ix;
+        s_int32 y = (pos.y() - My) % Iy;
 
         // move to grid
         world::vector3<s_int32> result (pos.x() - x, pos.y() - y, pos.z());
@@ -112,13 +141,13 @@ world::vector3<s_int32> GuiGrid::align_to_grid (const world::vector3<s_int32> & 
 // move the grid
 void GuiGrid::scroll (const s_int16 & x, const s_int16 & y)
 {
-    Ox += x;
-    while (Ox < 0) Ox += Ix;
-    while (Ox > Ix) Ox -= Ix;
+    Mx += x;
+    while (Mx < 0) Mx += Ix;
+    while (Mx > Ix) Mx -= Ix;
     
-    Oy += y;
-    while (Oy < 0) Oy += Iy;
-    while (Oy > Iy) Oy -= Iy;
+    My += y;
+    while (My < 0) My += Iy;
+    while (My > Iy) My -= Iy;
     
     Changed = true;
     draw (); 

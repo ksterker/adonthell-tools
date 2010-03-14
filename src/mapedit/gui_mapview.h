@@ -83,6 +83,11 @@ public:
      */
     //@{
     /**
+     * Redraw the whole screen.
+     */
+    void draw ();
+    
+    /**
      * Draw the given area to screen.
      * @param sx starting x offset
      * @param sy starting y offset

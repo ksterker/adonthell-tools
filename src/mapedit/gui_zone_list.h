@@ -94,7 +94,7 @@ public:
      * Get the zone view widget.
      * @return pointer to the zone view.
      */
-    GtkWidget *getWidget () const { return (GtkWidget*) Panel; }
+    GtkWidget *getWidget () const { return Panel; }
     
 private:
     /// the map whose entities are displayed

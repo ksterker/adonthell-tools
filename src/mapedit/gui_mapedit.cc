@@ -249,12 +249,7 @@ GuiMapedit::GuiMapedit ()
     
     // Entity list
     EntityList = new GuiEntityList ();
-    GtkWidget *scrolledWnd = gtk_scrolled_window_new (NULL, NULL);
-    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(scrolledWnd), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
-    gtk_container_add (GTK_CONTAINER(scrolledWnd), EntityList->getTreeWidget());
-    gtk_widget_show (EntityList->getTreeWidget());
-    gtk_widget_show (scrolledWnd);
-    gtk_notebook_append_page (GTK_NOTEBOOK(tab), scrolledWnd, gtk_label_new ("Entities"));
+    gtk_notebook_append_page (GTK_NOTEBOOK(tab), EntityList->getWidget(), gtk_label_new ("Entities"));
 
     // Zone list
     ZoneList = new GuiZoneList ();
@@ -277,17 +272,17 @@ GuiMapedit::GuiMapedit ()
 
     // grid controls
     GtkWidget *gridbox = gtk_hbox_new (FALSE, 4);
-    GtkWidget *snapToGrid = gtk_check_button_new_with_label ("Snap to Grid");
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(snapToGrid), TRUE);
-    gtk_box_pack_start (GTK_BOX (gridbox), snapToGrid, FALSE, TRUE, 0);
-    g_signal_connect (G_OBJECT (snapToGrid), "toggled", G_CALLBACK (on_grid_toggled), (gpointer) View);
-    GTK_WIDGET_UNSET_FLAGS(snapToGrid, GTK_CAN_FOCUS);
+    GtkWidget *showGrid = gtk_toggle_button_new_with_label ("Grid Control");
+    gtk_box_pack_start (GTK_BOX (gridbox), showGrid, TRUE, TRUE, 0);
+    g_signal_connect (G_OBJECT (showGrid), "toggled", G_CALLBACK (on_grid_toggled), (gpointer) View);
+    // gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(showGrid), TRUE);
+    GTK_WIDGET_UNSET_FLAGS(showGrid, GTK_CAN_FOCUS);
     
     GtkWidget *status_grid = gtk_frame_new (NULL);
     gtk_frame_set_shadow_type (GTK_FRAME(status_grid), GTK_SHADOW_IN);
     gtk_container_add (GTK_CONTAINER(status_grid), gridbox);
     gtk_widget_show_all (status_grid);
-    gtk_widget_set_usize (status_grid, 150, 20);
+    gtk_widget_set_usize (status_grid, 120, 20);
 
     gtk_box_pack_start (GTK_BOX (hbox), status_grid, FALSE, TRUE, 0);
     

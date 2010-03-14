@@ -32,7 +32,7 @@
 #include <gtk/gtkstyle.h>
 
 /**
- * Encapsulates the most basic functionality a modal dialog window needs.
+ * Encapsulates the most basic functionality a modal/transient dialog window needs.
  */
 class GuiModalDialog
 {
@@ -40,9 +40,10 @@ public:
     /**
      * Initialize the dialog window.
      * @param p parent of the dialog.
+     * @param m whether the dialog is model or just transient.
      */
-    GuiModalDialog (GtkWindow *p);
-    
+    GuiModalDialog (GtkWindow *p, const bool & m = true);
+
     /*
      * Destroy the dialog window.
      */
@@ -68,7 +69,9 @@ public:
 
 protected:
     /// whether the Cancel or OK button has been pushed
-    bool pressedOK;                 
+    bool pressedOK;
+    /// whether the dialog is truly modal or merely transient
+    bool modal;
     /// the dialog window
     GtkWidget *window;              
     /// parent of the dialog.

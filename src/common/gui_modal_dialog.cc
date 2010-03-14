@@ -30,10 +30,11 @@
 #include "gui_modal_dialog.h"
 
 // ctor
-GuiModalDialog::GuiModalDialog (GtkWindow *p)
+GuiModalDialog::GuiModalDialog (GtkWindow *p, const bool & m)
 {
     parent = p;
     pressedOK = false;
+    modal = m;
     window = NULL;
 }
 
@@ -51,8 +52,9 @@ GuiModalDialog::~GuiModalDialog ()
 bool GuiModalDialog::run ()
 {
     gtk_window_set_transient_for (GTK_WINDOW (window), GTK_WINDOW (parent));
+    gtk_window_set_modal (GTK_WINDOW (window), modal);
     gtk_widget_show (GTK_WIDGET (window));
-    gtk_main ();
+    if (modal) gtk_main ();
 
     // return whether the OK button has been pressed
     return pressedOK;

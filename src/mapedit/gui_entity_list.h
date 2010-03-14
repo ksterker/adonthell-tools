@@ -107,6 +107,12 @@ public:
     void setDataDir (const std::string & datadir);
 
     /**
+     * Refresh the list of available map objects if things 
+     * have been changed on the file system.
+     */
+    void refresh();
+    
+    /**
      * Check whether the given entity is already present on the
      * map. To achieve this, filenames are compared.
      * @param filename the name of the entity to check.
@@ -118,7 +124,7 @@ public:
      * Get the tree view widget.
      * @return pointer to the tree view.
      */
-    GtkWidget *getTreeWidget () const { return (GtkWidget*) TreeView; }
+    GtkWidget *getWidget () const { return Panel; }
 
 protected:
     /**
@@ -130,10 +136,14 @@ protected:
     void scanDir (const std::string & datadir, GtkListStore *model);
     
 private:
+    /// the data directory containing entities
+    std::string DataDir; 
     /// the map whose entities are displayed
     MapData* Map;
     /// the list view
     GtkTreeView *TreeView;
+    /// the whole zone panel
+    GtkWidget *Panel;
 };
 
 #endif

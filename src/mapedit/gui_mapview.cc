@@ -100,6 +100,7 @@ GuiMapview::~GuiMapview()
 {
     delete Target;
     delete Overlay;
+    delete Grid;
 }
 
 // set map to render
@@ -119,6 +120,12 @@ void GuiMapview::setMap (MapData *area)
     
     // draw map
     render();
+}
+
+// redraw the whole screen
+void GuiMapview::draw ()
+{
+    draw (0, 0, Screen->allocation.width, Screen->allocation.height);
 }
 
 // redraw the given part of the screen

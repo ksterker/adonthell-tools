@@ -32,6 +32,7 @@
 #include "gui_mapedit.h"
 #include "gui_mapview.h"
 #include "gui_grid.h"
+#include "gui_grid_dialog.h"
 #include "gui_file.h"
 
 // Main Window: on_widget_destroy App
@@ -114,12 +115,24 @@ void on_file_close_activate (GtkMenuItem * menuitem, gpointer user_data)
 }
 */
 
+GuiGridDialog *gridCtrl = NULL;
+
 // turn grid on or off
 void on_grid_toggled (GtkToggleButton *btn, gpointer user_data)
 {
     GuiMapview *view = (GuiMapview*) user_data;
-    GuiGrid *grid = view->getGrid ();
-    grid->set_snap_to_grid (gtk_toggle_button_get_active (btn));
+    
+    if (gtk_toggle_button_get_active (btn))
+    {
+        GuiGrid *grid = view->getGrid ();
+        gridCtrl = new GuiGridDialog (grid, GTK_WIDGET(btn));
+        gridCtrl->run ();
+    }
+    else
+    {
+        delete gridCtrl;
+        gridCtrl = NULL;
+    }
 }
 
 /*
