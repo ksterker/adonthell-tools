@@ -384,21 +384,25 @@ GuiEntityDialog::GuiEntityDialog (MapEntity *entity, const GuiEntityDialog::Mode
     world::placeable_type obj_type = entity->get_object_type();
     switch (obj_type)
     {
-        case world::OBJECT:
+        case world::OBJECT: {
             widget = gtk_builder_get_object (Ui, "type_scenery");
             set_page_active (1, false);
             break;
-        case world::CHARACTER:
+        }
+        case world::CHARACTER: {
             widget = gtk_builder_get_object (Ui, "type_character");
             world::character *chr = dynamic_cast<world::character*>(entity->object());
             if (chr != NULL) init_from_character (chr);
             break;
-        case world::ITEM:
+        }
+        case world::ITEM: {
             widget = gtk_builder_get_object (Ui, "type_item");
             break;
-        default:
+        }
+        default: {
             widget = NULL;
             break;
+        }
     }
     if (widget != NULL)
     {
