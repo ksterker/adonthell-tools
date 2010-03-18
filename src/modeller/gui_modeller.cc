@@ -91,18 +91,6 @@ static void on_file_save_as_activate (GtkMenuItem * menuitem, gpointer user_data
     std::string saveDir;
     std::string filename = modeller->filename ();
     
-    /*
-    // filename might end in .png if we loaded a 'default' sprite
-     
-     * Actually, for now the filename will always be 'untitled.xml' if
-     * we are working on a new model or end in '.xml' if we loaded an
-     * existing model.
-    if (filename.find (".png", filename.size() - 4) != std::string::npos)
-    {
-        filename = filename.replace (filename.size() - 3, 3, "xml");
-    }
-    */
-    
     // generate save directory from sprite directory for new models
     if (filename.find ("untitled") != filename.npos)
     {        
@@ -111,6 +99,15 @@ static void on_file_save_as_activate (GtkMenuItem * menuitem, gpointer user_data
         if (index != std::string::npos)
         {
             saveDir.replace (index, 4, "/models");
+        }
+        
+        // use sprite name as a likely name for the new model
+        filename = modeller->spritename();
+        
+        // filename might end in .png if we loaded a 'default' sprite
+        if (filename.find (".png", filename.size() - 4) != std::string::npos)
+        {
+            filename = filename.replace (filename.size() - 3, 3, "xml");
         }
     }
     // otherwise save to directory the model came from
@@ -123,7 +120,7 @@ static void on_file_save_as_activate (GtkMenuItem * menuitem, gpointer user_data
     // TODO: make a program setting for that instead of doing it by default 
     // g_mkdir_with_parents (spriteDir.c_str(), 0755);
         
-    GuiFile fs (parent, GTK_FILE_CHOOSER_ACTION_SAVE, "Save Model", saveDir + "/" + modeller->filename ());
+    GuiFile fs (parent, GTK_FILE_CHOOSER_ACTION_SAVE, "Save Model", saveDir + "/" + filename);
     fs.add_filter ("*.xml", "Adonthell Model");
     
     // File selection closed with OK
@@ -304,6 +301,7 @@ GuiModeller::GuiModeller ()
     
     Ui = gtk_builder_new();
     Filename = "untitled.xml";
+    Spritename = "";
     
 	if (!gtk_builder_add_from_string(Ui, modeller_ui, -1, &err)) 
     {
@@ -404,6 +402,7 @@ void GuiModeller::newModel ()
     
     // reset state
     Filename = "untitled.xml";
+    Spritename = "";
     
     // set initial button state
     setActive("is_solid", false);
@@ -501,6 +500,14 @@ void GuiModeller::addSprite (const std::string & name)
     SpriteDir = sprite_dir;
     g_free (sprite_dir);
 
+    // remember name of first sprite as potential model name
+    if (Spritename.length() == 0)
+    {
+        gchar* sprite_file = g_path_get_basename (name.c_str());
+        Spritename = sprite_file;
+        g_free (sprite_file);
+    }
+    
     // create new model
     world::placeable_model *model = new world::placeable_model();
     

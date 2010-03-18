@@ -80,6 +80,12 @@ public:
     std::string filename () const { return Filename; }
     
     /**
+     * Return the filename of the first sprite added to a new model.
+     * @return filename of the first sprite added to the model.
+     */
+    std::string spritename () const { return Spritename; }
+    
+    /**
      * Start working on a new model. Clears all current data.
      */
     void newModel ();
@@ -176,6 +182,8 @@ private:
     std::string ModelDir;
     /// name of model
     std::string Filename;
+    /// name of first sprite added
+    std::string Spritename;
 };
 
 #endif
