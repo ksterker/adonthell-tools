@@ -446,9 +446,11 @@ void GuiModeller::loadModel (const std::string & name)
         // found model data
         if (strcmp ("model", id) == 0)
         {            
+            base::flat mdl ((const char*) value, size);
+            
             // load model
             world::placeable_model * model = new world::placeable_model ();
-            model->get_state (placeable);
+            model->get_state (mdl);
             
             // and add it to the UI
             addModel (model);
