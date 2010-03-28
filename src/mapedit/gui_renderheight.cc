@@ -53,17 +53,19 @@ GuiRenderHeight::~GuiRenderHeight()
 // update height of map
 void GuiRenderHeight::setMapExtend (const s_int32 & min, const s_int32 & max)
 {
+    s_int32 new_max = min >= max ? min + 1 : max;
+    
     // any change at all?
     GtkAdjustment *bounds = gtk_range_get_adjustment (GTK_RANGE(Range));
     s_int32 cur_min = (s_int32) gtk_adjustment_get_lower (bounds);
     s_int32 cur_max = (s_int32) gtk_adjustment_get_upper (bounds);
-    if (cur_min == min && cur_max == max) return;
+    if (cur_min == min && cur_max == new_max) return;
     
     s_int32 cur_val = (s_int32) gtk_range_get_value (GTK_RANGE(Range));
-    gtk_range_set_range (GTK_RANGE(Range), min, (min == max ? max + 100 : max));
+    gtk_range_set_range (GTK_RANGE(Range), min, new_max);
     if (cur_val == cur_max)
     {
         // keep value at maximum if already there
-        gtk_range_set_value (GTK_RANGE(Range), max);
+        gtk_range_set_value (GTK_RANGE(Range), new_max);
     }
 }

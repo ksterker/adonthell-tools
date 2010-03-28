@@ -57,6 +57,15 @@ public:
 class GuiGrid
 {
 public:
+    /** Directions for aligning the grid. */
+    enum
+    {
+        ALIGN_LEFT = 1,
+        ALIGN_RIGHT = 2,
+        ALIGN_TOP = 4,
+        ALIGN_BOTTOM = 8
+    };
+    
     /**
      * Create the grid.
      */
@@ -101,7 +110,7 @@ public:
      * @param oy y-offset of map view
      */
     void grid_from_cur_object (const s_int32 & ox, const s_int32 & sy);
-    
+
     /**
      * Align the given position to the grid.
      * @param return the position aligned to the grid.
@@ -140,6 +149,9 @@ protected:
     u_int16 Ix;
     /// y interval of grid
     u_int16 Iy;
+
+    /// how objects get aligned to the grid
+    s_int32 Alignment;
 
     /// notification of grid changes
     GridMonitor *Monitor;

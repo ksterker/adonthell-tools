@@ -40,6 +40,8 @@ GuiGrid::GuiGrid (gfx::surface *overlay)
     CurObject = NULL;
     Monitor = NULL;
     
+    Alignment = ALIGN_TOP | ALIGN_LEFT;
+    
     Ox = 0;
     Oy = 0;
     Mx = 0;
@@ -129,6 +131,41 @@ world::vector3<s_int32> GuiGrid::align_to_grid (const world::vector3<s_int32> & 
         // calculate offset from grid
         s_int32 x = (pos.x() - Mx) % Ix;
         s_int32 y = (pos.y() - My) % Iy;
+        
+        // TODO: the following produces good results if the grid is larger
+        //       than the object being placed. If it's the other way round,
+        //       the object aligns correctly with the grid, but no longer
+        //       in the cell at the position of the mouse pointer.
+        
+        if ((Alignment & ALIGN_LEFT) == ALIGN_LEFT)
+        {
+            // align left
+        }
+        else if ((Alignment & ALIGN_RIGHT) == ALIGN_RIGHT)
+        {
+            // align right
+            x -= Ix - CurObject->get_object()->length();
+        }
+        else
+        {
+            // center
+            x += (CurObject->get_object()->length() - Ix) / 2;
+        }
+        
+        if ((Alignment & ALIGN_TOP) == ALIGN_TOP)
+        {
+             // align top
+        }
+        else if ((Alignment & ALIGN_BOTTOM) == ALIGN_BOTTOM)
+        {
+            // align bottom
+            y -= Iy - CurObject->get_object()->width();
+        }
+        else
+        {
+            // center
+            y += (CurObject->get_object()->width() - Iy) / 2;
+        }        
 
         // move to grid
         world::vector3<s_int32> result (pos.x() - x, pos.y() - y, pos.z());

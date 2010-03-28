@@ -67,6 +67,13 @@ static void on_adjust_grid (GtkButton * button, gpointer user_data)
     GuiMapedit::window->view()->draw();
 }
 
+static void on_align_object (GtkToggleButton *button, gpointer user_data)
+{
+    GuiGridDialog* dlg = (GuiGridDialog*) user_data;
+    gchar *counterpart = (gchar*) g_object_get_data(G_OBJECT(button), "counterpart");
+    dlg->updateAlignment(gtk_toggle_button_get_active (button), counterpart);
+}
+    
 static void on_close (GtkDialog *widget, gpointer user_data)
 {
     GuiGridDialog* dlg = (GuiGridDialog*) user_data;
@@ -131,6 +138,45 @@ GuiGridDialog::GuiGridDialog (GuiGrid *grid, GtkWidget* ctrl)
     widget = gtk_builder_get_object (Ui, "btn_adjust");
     gtk_widget_set_sensitive (GTK_WIDGET(widget), !Grid->AutoAdjust);
     g_signal_connect (widget, "clicked", G_CALLBACK (on_adjust_grid), Grid);
+
+    // initialize alignments
+    if ((Grid->Alignment & GuiGrid::ALIGN_LEFT) == GuiGrid::ALIGN_LEFT)
+    {
+        widget = gtk_builder_get_object (Ui, "btn_align_left");
+        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(widget), true);
+    }
+    if ((Grid->Alignment & GuiGrid::ALIGN_RIGHT) == GuiGrid::ALIGN_RIGHT)
+    {
+        widget = gtk_builder_get_object (Ui, "btn_align_right");
+        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(widget), true);
+    }
+    if ((Grid->Alignment & GuiGrid::ALIGN_TOP) == GuiGrid::ALIGN_TOP)
+    {
+        widget = gtk_builder_get_object (Ui, "btn_align_top");
+        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(widget), true);
+    }
+    if ((Grid->Alignment & GuiGrid::ALIGN_BOTTOM) == GuiGrid::ALIGN_BOTTOM)
+    {
+        widget = gtk_builder_get_object (Ui, "btn_align_bottom");
+        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(widget), true);
+    }    
+    
+    // connect signals to alignment buttons
+    widget = gtk_builder_get_object (Ui, "btn_align_left");
+    g_object_set_data (widget, "counterpart", g_strdup ("btn_align_right"));
+    g_signal_connect (widget, "toggled", G_CALLBACK (on_align_object), this);
+
+    widget = gtk_builder_get_object (Ui, "btn_align_right");
+    g_object_set_data (widget, "counterpart", g_strdup ("btn_align_left"));
+    g_signal_connect (widget, "toggled", G_CALLBACK (on_align_object), this);
+
+    widget = gtk_builder_get_object (Ui, "btn_align_top");
+    g_object_set_data (widget, "counterpart", g_strdup ("btn_align_bottom"));
+    g_signal_connect (widget, "toggled", G_CALLBACK (on_align_object), this);
+
+    widget = gtk_builder_get_object (Ui, "btn_align_bottom");
+    g_object_set_data (widget, "counterpart", g_strdup ("btn_align_top"));
+    g_signal_connect (widget, "toggled", G_CALLBACK (on_align_object), this);
     
     // listen to grid changes
     Grid->Monitor = this;
@@ -209,6 +255,30 @@ void GuiGridDialog::updateGrid ()
     GuiMapedit::window->view()->draw();
 }
 
+// update alignment
+void GuiGridDialog::updateAlignment (const bool & activated, const gchar *counterpart)
+{
+    GObject *widget;
+    int alignment = 0;
+    
+    if (activated)
+    {
+        widget = gtk_builder_get_object (Ui, counterpart);
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), false);
+    }
+    
+    widget = gtk_builder_get_object (Ui, "btn_align_left");
+    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(widget))) alignment |= GuiGrid::ALIGN_LEFT;
+    widget = gtk_builder_get_object (Ui, "btn_align_right");
+    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(widget))) alignment |= GuiGrid::ALIGN_RIGHT;
+    widget = gtk_builder_get_object (Ui, "btn_align_top");
+    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(widget))) alignment |= GuiGrid::ALIGN_TOP;
+    widget = gtk_builder_get_object (Ui, "btn_align_bottom");
+    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(widget))) alignment |= GuiGrid::ALIGN_BOTTOM;
+    
+    Grid->Alignment = alignment;
+}
+
 // toggle auto adjust
 void GuiGridDialog::setAutoAdjust (const bool & auto_adjust)
 {
@@ -216,6 +286,15 @@ void GuiGridDialog::setAutoAdjust (const bool & auto_adjust)
     
     GObject *widget = gtk_builder_get_object (Ui, "btn_adjust");
     gtk_widget_set_sensitive (GTK_WIDGET(widget), !auto_adjust);
+    
+    if (auto_adjust)
+    {
+        // in autoadjust mode, we always want to align tile top left
+        widget = gtk_builder_get_object (Ui, "btn_align_left");
+        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(widget), true);
+        widget = gtk_builder_get_object (Ui, "btn_align_top");
+        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(widget), true);
+    }
 }
 
 // toggle snap to grid

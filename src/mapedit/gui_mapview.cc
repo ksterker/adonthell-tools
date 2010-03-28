@@ -126,6 +126,9 @@ void GuiMapview::setMap (MapData *area)
 void GuiMapview::draw ()
 {
     draw (0, 0, Screen->allocation.width, Screen->allocation.height);
+    
+    GdkRectangle rect = { 0, 0, Screen->allocation.width, Screen->allocation.height };
+    gdk_window_invalidate_rect (Screen->window, &rect, FALSE);
 }
 
 // redraw the given part of the screen

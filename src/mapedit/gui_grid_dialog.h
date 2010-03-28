@@ -63,6 +63,13 @@ public:
     void updateGrid ();
     
     /**
+     * Update object alignment.
+     * @param activated whether button was toggled on or off.
+     * @param counterpart opposite of the button just toggled.
+     */
+    void updateAlignment (const bool & activated, const gchar *counterpart);
+
+    /**
      * Toggle whether the grid will automatically
      * adjust to the selected object.
      * @param auto_adjust true to adjust grid to object.
