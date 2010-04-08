@@ -98,7 +98,7 @@ void MapRenderer::draw (const s_int16 & x, const s_int16 & y, const world::rende
             highlight->set_brightness (150);
             
             // draw frame around selected object
-            u_int32 col = highlight->map_color (255, 255, 255);
+            u_int32 col = highlight->map_color (255, 255, 64);
             
             highlight->draw_line (0, 0, highlight->length() - 1, 0, col);
             highlight->draw_line (0, 0, 0, highlight->height() - 1, col);
@@ -123,7 +123,7 @@ bool MapRenderer::belongsToObject (const world::chunk_info *ci, const world::ren
     
     for (world::placeable::iterator obj = object->begin(); obj != object->end(); obj++)
     {
-        if ((*obj)->get_sprite() == ri->Sprite && ci->Min == ri->Pos)
+        if ((*obj)->get_sprite() == ri->Sprite && ci->center_min() == ri->Pos)
         {
             return true;
         }

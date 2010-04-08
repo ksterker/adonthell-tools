@@ -323,15 +323,18 @@ void GuiMapview::mouseMoved (const GdkPoint * point)
 // add red tint if object would overlap other objects on the map
 void GuiMapview::indicateOverlap ()
 {
-    world::placeable *obj = DrawObj->entity()->get_object();
+    static world::vector3<s_int32> V1(1,1,1);
     
-    MapData *area = (MapData*) MapMgr::get_map();    
-    int h = obj->cur_z() + obj->height() - obj->cur_y();
-    world::vector3<s_int32> min (DrawObjPos.x() + area->x() + 1, DrawObjPos.y() + area->y() + h + 1, area->z() + 1); 
-    world::vector3<s_int32> max (min.x() + obj->max_length() - 2, min.y() + obj->max_width() - 2, min.z() + obj->max_height() - 2);
+    const world::placeable *obj = DrawObj->entity()->get_object();
+    int h = obj->cur_z() + obj->height();
     
-    world::chunk_info ci (DrawObj->entity(), min, max);
+    world::vector3<s_int32> min = DrawObjPos + obj->entire_min();
+    min.set_y (min.y() + h); // this is the offset subtracted when creating DrawObjPos
+    world::vector3<s_int32> max = min + obj->entire_max();
+
+    world::chunk_info ci (DrawObj->entity(), min + V1, max - V1);
     
+    MapData *area = (MapData*) MapMgr::get_map();        
     std::list<world::chunk_info*> objs_on_map = area->objects_in_bbox (ci.real_min(), ci.real_max());
     if (!objs_on_map.empty())
     {
@@ -352,6 +355,8 @@ void GuiMapview::updateHeight (const s_int16 & oz)
     if (area != NULL)
     {
         area->setZ (area->z() + oz);
+        
+        // TODO: update overlap indicator
         
         // redraw
         render();
