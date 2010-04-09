@@ -324,17 +324,19 @@ void GuiMapview::mouseMoved (const GdkPoint * point)
 void GuiMapview::indicateOverlap ()
 {
     static world::vector3<s_int32> V1(1,1,1);
+
+    MapData *area = (MapData*) MapMgr::get_map();        
+    world::vector3<s_int32> area_pos (area->x(), area->y(), area->z());
     
     const world::placeable *obj = DrawObj->entity()->get_object();
     int h = obj->cur_z() + obj->height();
     
-    world::vector3<s_int32> min = DrawObjPos + obj->entire_min();
+    world::vector3<s_int32> min = DrawObjPos + area_pos + obj->entire_min();
     min.set_y (min.y() + h); // this is the offset subtracted when creating DrawObjPos
     world::vector3<s_int32> max = min + obj->entire_max();
 
     world::chunk_info ci (DrawObj->entity(), min + V1, max - V1);
     
-    MapData *area = (MapData*) MapMgr::get_map();        
     std::list<world::chunk_info*> objs_on_map = area->objects_in_bbox (ci.real_min(), ci.real_max());
     if (!objs_on_map.empty())
     {
@@ -356,7 +358,11 @@ void GuiMapview::updateHeight (const s_int16 & oz)
     {
         area->setZ (area->z() + oz);
         
-        // TODO: update overlap indicator
+        // update overlap indicator
+        if (DrawObj != NULL)
+        {
+            highlightObject ();
+        }
         
         // redraw
         render();
@@ -517,6 +523,8 @@ void GuiMapview::placeCurObj()
         {
             // cannot place same object twice at this position
             indicateOverlap();
+            
+            // TODO: update grid, so that pressing adjust will deliver the correct offset
             
             // update screen
             render (DrawObjPos.x(), DrawObjPos.y(), DrawObjSurface->length(), DrawObjSurface->height());
