@@ -337,7 +337,7 @@ void GuiMapview::indicateOverlap ()
 
     world::chunk_info ci (DrawObj->entity(), min + V1, max - V1);
     
-    std::list<world::chunk_info*> objs_on_map = area->objects_in_bbox (ci.real_min(), ci.real_max());
+    std::list<world::chunk_info*> objs_on_map = area->objects_in_bbox (ci.Min, ci.Max);
     if (!objs_on_map.empty())
     {
         gfx::surface *tint = gfx::create_surface ();
@@ -628,10 +628,10 @@ void GuiMapview::highlightObject ()
 void GuiMapview::getObjectExtend (world::chunk_info *obj, int & x, int & y, int & l, int & h)
 {
     // get location
-    x = obj->real_min().x();
-    y = obj->real_min().y() - obj->real_max().z();
+    x = obj->Min.x();
+    y = obj->Min.y() - obj->Max.z();
     
     // get extend
-    l = obj->real_max().x() - x;
-    h = obj->real_max().y() - obj->real_min().z() - y;
+    l = obj->Max.x() - x;
+    h = obj->Max.y() - obj->Min.z() - y;
 }
