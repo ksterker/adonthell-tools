@@ -59,6 +59,14 @@ gint button_press_event (GtkWidget *widget, GdkEventButton *event, gpointer data
 {
     GuiMapview *view = (GuiMapview *) data;
 
+#ifdef __APPLE__
+    // simulate right click on OSX
+    if (event->state & GDK_CONTROL_MASK)
+    {
+        event->button = 3;
+    }
+#endif
+    
     switch (event->button)
     {
         // Left button pressed
@@ -85,8 +93,16 @@ gint button_press_event (GtkWidget *widget, GdkEventButton *event, gpointer data
         // Right button pressed
         case 3:
         {
-            // if object picked -> release
-            view->releaseObject ();            
+            if (view->getSelectedObject() != NULL)
+            {
+                // if object picked -> release
+                view->releaseObject ();            
+            }
+            else
+            {
+                // move highlighted object
+                view->moveCurObject ();
+            }
             break;
         }
 

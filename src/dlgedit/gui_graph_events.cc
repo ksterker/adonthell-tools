@@ -65,6 +65,14 @@ gint button_press_event (GtkWidget *widget, GdkEventButton *event, gpointer data
     GuiGraph *graph = (GuiGraph *) data;
     DlgPoint point ((int) event->x, (int) event->y);
 
+#ifdef __APPLE__
+    // simulate right click on OSX
+    if (event->state & GDK_CONTROL_MASK)
+    {
+        event->button = 3;
+    }
+#endif
+    
     switch (event->button)
     {
         // Middle button pressed

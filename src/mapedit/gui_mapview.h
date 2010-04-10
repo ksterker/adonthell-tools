@@ -151,6 +151,12 @@ public:
      */
     void selectCurObj ();
     /**
+     * Pick the currently highlighted object for map editing
+     * and delete it from the map. This allows to move the
+     * object to a new position on the map.
+     */
+    void moveCurObject ();
+    /**
      * Pick the given object for map editing, discarding
      * any previously picked object.
      * @param ety the new object to use for map editing.

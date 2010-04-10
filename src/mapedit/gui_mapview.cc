@@ -241,7 +241,7 @@ void GuiMapview::mouseMoved (const GdkPoint * point)
             std::list<world::chunk_info*>::iterator i = objects_under_mouse.begin();
             while (i != objects_under_mouse.end())
             {
-                if ((*i)->Max.z() > RenderHeight->getLimit())
+                if ((*i)->Min.z() > RenderHeight->getLimit())
                 {
                     i = objects_under_mouse.erase(i);
                     continue;
@@ -470,6 +470,30 @@ void GuiMapview::releaseObject ()
         DrawObj = NULL;
         
         // highlight new object
+        highlightObject();
+    }
+}
+
+// move an object already present on map
+void GuiMapview::moveCurObject()
+{
+    if (DrawObj == NULL && CurObj != NULL)
+    {
+        // keep track of location
+        world::chunk_info *location = CurObj->getLocation();
+     
+        // select object for drawing ...
+        selectCurObj();
+
+        // ... and remove it from map
+        if (CurObj->removeAtCurLocation())
+        {
+            // on success, redraw area containing object
+            Renderer.clearSelection();
+            renderObject(location);
+        }
+        
+        // show drawing object
         highlightObject();
     }
 }
