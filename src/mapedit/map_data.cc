@@ -86,3 +86,23 @@ world::entity* MapData::renameEntity (MapEntity *entity, const std::string & id)
     
     return ety;
 }
+
+// delete (unused) entity from map
+void MapData::remove_entity (MapEntity *entity)
+{
+    if (entity->getRefCount() == 0)
+    {
+        world::entity *ety = entity->entity();
+        std::string *name = (std::string*) ety->id();
+        if (name != NULL)
+        {
+            NamedEntities.erase (*name);
+        }
+        
+        entity_iter i = std::find (Entities.begin(), Entities.end(), ety);
+        if (i != Entities.end())
+        {
+            Entities.erase (i);
+        }
+    }
+}

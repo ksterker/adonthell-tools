@@ -154,7 +154,27 @@ void MapEntity::decRef ()
     // it's no longer present on map
     Location = NULL;
     
-    // TODO: if RefCount == 0: fireEntityListChanged
+    // remove entity from map structure
+    if (RefCount == 0)
+    {
+        MapData *map = (MapData*) &(Object->map());
+        map->remove_entity (this);
+    
+        // TODO: fireEntityListChanged
+    }
+}
+
+// increase reference count
+void MapEntity::incRef ()
+{
+    RefCount++;
+    
+    if (RefCount == 1)
+    {
+        // add new entity to map
+        MapData *map = (MapData*) &(Object->map());
+        map->add_entity (Entity);
+    }
 }
 
 // place this entity on the map

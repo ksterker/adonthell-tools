@@ -84,7 +84,7 @@ public:
     /**
      * Call when object is added to the map.
      */
-    void incRef ()                                      { RefCount++; }
+    void incRef ();
     /**
      * Call when object is removed from the map.
      */
@@ -133,7 +133,7 @@ public:
      * Determines the background color of the row in the entity list.
      * @return true if object is part of the map, false otherwise.
      */
-    bool is_on_map () const { return Entity != NULL; };    
+    bool is_on_map () const { return RefCount != 0; };    
     //@}
     
     /**

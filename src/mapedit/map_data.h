@@ -77,6 +77,13 @@ public:
     entity_iter lastEntity() { return Entities.end(); }
     
     /**
+     * Remove entity from the maps list of entities. It
+     * must already have been removed from the map structure
+     * itself prior to that.
+     */
+    void remove_entity (MapEntity *entity);
+    
+    /**
      * Try to rename the given entity. This will fail if an entity with the 
      * new name already exists on the map.
      * @param the entity to rename.

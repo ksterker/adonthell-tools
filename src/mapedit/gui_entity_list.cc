@@ -503,7 +503,7 @@ void GuiEntityList::refresh()
     {
         MapEntity *ety = entity_list_get_object (ENTITY_LIST(model), &iter);
         
-        if (!isPresentOnMap (ety->object()->modelfile()))
+        if (ety->getRefCount() == 0)
         {
             valid = gtk_list_store_remove (model, &iter);
             delete ety;
@@ -532,6 +532,8 @@ bool GuiEntityList::isPresentOnMap (const std::string & filename) const
 
         if (objname.size() <= filename.size())
         {
+            // FIXME: Win32 '\' --> '/'
+            
             // files should be equal if they are equal except for a prefix
             if (filename.compare (filename.size() - objname.size(), objname.size(), objname) == 0)
             {
