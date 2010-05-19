@@ -29,6 +29,12 @@
 
 #include <string>
 
+#ifdef WIN32
+#define MK_UNIX_PATH(path) util::to_unix_path(path)
+#else
+#define MK_UNIX_PATH(path) path
+#endif
+
 /** 
  * Some helper methods used across the different tools.
  */
@@ -45,6 +51,14 @@ public:
      * @return a relative path on success, or a canonical absolute path on error.
      */
     static std::string get_relative_path (const std::string & path, const std::string & target_dir);
+
+    /**
+     * Convert windows directory names to unix directory names. All paths in
+     * data files are supposed to be in unix-style notation.
+     * @param path the pathname to convert.
+     * @return path where '\\' is replaced with '/'.
+     */
+    static std::string to_unix_path (const std::string & path);
 
 private:
     /**

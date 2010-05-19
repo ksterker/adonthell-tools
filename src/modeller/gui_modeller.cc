@@ -77,6 +77,7 @@ static void on_file_load (GtkMenuItem * menuitem, gpointer user_data)
     // open file chooser
     GuiFile fs (parent, GTK_FILE_CHOOSER_ACTION_OPEN, "Open Model", directory + "/");
     fs.add_filter ("*.xml", "Adonthell Model");
+    fs.add_shortcut (base::Paths.user_data_dir() + "/models/");
     
     // File selection closed with OK
     if (fs.run ()) modeller->loadModel (fs.getSelection ());
@@ -122,7 +123,8 @@ static void on_file_save_as_activate (GtkMenuItem * menuitem, gpointer user_data
         
     GuiFile fs (parent, GTK_FILE_CHOOSER_ACTION_SAVE, "Save Model", saveDir + "/" + filename);
     fs.add_filter ("*.xml", "Adonthell Model");
-    
+    fs.add_shortcut (base::Paths.user_data_dir() + "/models/");
+
     // File selection closed with OK
     if (fs.run ()) modeller->saveModel (fs.getSelection ());
 }
@@ -246,7 +248,8 @@ static void on_add_sprite_pressed (GtkButton * button, gpointer user_data)
     
     GuiFile fs (parent, GTK_FILE_CHOOSER_ACTION_OPEN, "Load Sprite", modeller->spriteDirectory () + "/");
     fs.add_filter ("*.xml|*.png", "Adonthell Sprite");
-    
+    fs.add_shortcut (base::Paths.user_data_dir() + "/gfx/");
+
     // File selection closed with OK
     if (fs.run ()) modeller->addSprite (fs.getSelection ());
 }
