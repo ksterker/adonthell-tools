@@ -31,7 +31,7 @@
 #define realpath(N,R) _fullpath((R),(N),_MAX_PATH)
 #undef PATH_MAX
 #define PATH_MAX _MAX_PATH
-#endif WIN32
+#endif
 
 #include <base/base.h>
 
@@ -40,14 +40,14 @@
 // get path relative to data directory
 std::string util::get_relative_path (const std::string & path, const std::string & target_dir)
 {
-    std::string base_path = base::Paths.user_data_dir();
+    std::string base_path = MK_UNIX_PATH (base::Paths.user_data_dir());
     std::string rel_path = path;
     
     // make sure to use path relative to (user defined) data directory
     if (base_path == "" || !remove_common_path (rel_path, base_path))
     {
         // fallback to builtin data dir if that doesn't seem to work
-        base_path = base::Paths.game_data_dir();
+        base_path = MK_UNIX_PATH (base::Paths.game_data_dir());
         if (!remove_common_path (rel_path, base_path))
         {
             // if everythin fails, try locating target_dir in the path and use 
@@ -73,11 +73,11 @@ bool util::remove_common_path (std::string & path, const std::string & base_path
         std::string c_base_path = canonical_path;
         if (realpath(path.c_str(), canonical_path))
         {
-            path = canonical_path;
+            path = MK_UNIX_PATH (canonical_path);
             if (path.compare (0, c_base_path.size(), c_base_path) == 0)
             {
                 path = path.substr (c_base_path.length());
-                if (path[0] == '/' || path[0] == '\\')
+                if (path[0] == '/')
                 {
                     path = path.substr (1);
                 }
@@ -87,4 +87,15 @@ bool util::remove_common_path (std::string & path, const std::string & base_path
     }
     
     return false;
+}
+
+// convert windows directory separators to unix style
+std::string util::to_unix_path (const std::string & path)
+{
+	std::string result = path;
+	for (std::string::iterator i = result.begin(); i != result.end(); i++)
+	{
+		if (*i == '\\') *i = '/';
+	}
+	return result;
 }

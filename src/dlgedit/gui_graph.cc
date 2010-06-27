@@ -233,8 +233,16 @@ bool GuiGraph::newModule (DlgPoint &point)
     
     // allow the user to select a module
     GtkWindow *parent = GTK_WINDOW (GuiDlgedit::window->getWindow());
-    GuiFile fs = GuiFile (parent, GTK_FILE_CHOOSER_ACTION_OPEN, "Select sub-dialogue to add", dir + "/");
+    GuiFile fs (parent, GTK_FILE_CHOOSER_ACTION_OPEN, "Select sub-dialogue to add", dir + "/");
     fs.add_filter ("*"FILE_EXT, "Adonthell Dialogue Source");
+
+    // set shortcuts
+    const std::vector<std::string> & projects = CfgData::data->projectsFromDatadir ();
+    for (std::vector<std::string>::const_iterator i = projects.begin (); i != projects.end (); i++)
+    {
+        const std::string &dir = CfgData::data->getBasedir (*i);
+        fs.add_shortcut (dir);
+    }
 
     if (fs.run ())
     {

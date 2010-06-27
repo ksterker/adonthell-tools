@@ -27,6 +27,7 @@
  */
 
 #include <gtk/gtk.h>
+#include "cfg_data.h"
 #include "gui_dlgedit.h"
 #include "gui_file.h"
 
@@ -53,6 +54,14 @@ void on_file_load_activate (GtkMenuItem * menuitem, gpointer user_data)
     GuiFile fs (parent, GTK_FILE_CHOOSER_ACTION_OPEN, "Load dialogue source", dlgedit->directory ());
     fs.add_filter ("*"FILE_EXT, "Adonthell Dialogue Source");
 
+    // set shortcuts
+    const std::vector<std::string> & projects = CfgData::data->projectsFromDatadir ();
+    for (std::vector<std::string>::const_iterator i = projects.begin (); i != projects.end (); i++)
+    {
+        const std::string &dir = CfgData::data->getBasedir (*i);
+        fs.add_shortcut (dir);
+    }
+
     // File selection closed with OK
     if (fs.run ()) dlgedit->loadDialogue (fs.getSelection ());
 }
@@ -76,6 +85,14 @@ void on_file_save_as_activate (GtkMenuItem * menuitem, gpointer user_data)
 
     GuiFile fs (parent, GTK_FILE_CHOOSER_ACTION_SAVE, "Save dialogue source", dlgedit->filename ());
     fs.add_filter ("*"FILE_EXT, "Adonthell Dialogue Source");
+
+    // set shortcuts
+    const std::vector<std::string> & projects = CfgData::data->projectsFromDatadir ();
+    for (std::vector<std::string>::const_iterator i = projects.begin (); i != projects.end (); i++)
+    {
+        const std::string &dir = CfgData::data->getBasedir (*i);
+        fs.add_shortcut (dir);
+    }
 
     // File selection closed with OK
     if (fs.run ()) dlgedit->saveDialogue (fs.getSelection ());

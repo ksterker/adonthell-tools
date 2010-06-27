@@ -443,7 +443,7 @@ void GuiEntityList::scanDir (const std::string & datadir, GtkListStore *model)
                 if (S_ISREG (statbuf.st_mode) && filepath.compare (filepath.length() - 4, 4, ".xml") == 0)
                 {
                     // check if this file is already part of the map
-                    if (isPresentOnMap (filepath)) continue;
+                    if (isPresentOnMap (MK_UNIX_PATH(filepath))) continue;
                     
                     // not present on map, so add it to the list
                     

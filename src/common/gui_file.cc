@@ -28,6 +28,7 @@
 
 #include <gtk/gtk.h>
 #include "gui_file.h"
+#include "util.h"
 
 // create a new file selection window
 GuiFile::GuiFile (GtkWindow *parent, GtkFileChooserAction action, const std::string &title, const std::string &file) 
@@ -72,19 +73,6 @@ GuiFile::GuiFile (GtkWindow *parent, GtkFileChooserAction action, const std::str
         gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER(window), name);
         g_free (name);
     }
-    
-    /*
-    FIXME: that uses code from dlgedit. Needs to be more generic.
-     
-    // set shortcuts
-    const std::vector<std::string> & projects = CfgData::data->projectsFromDatadir ();
-    for (std::vector<std::string>::const_iterator i = projects.begin (); i != projects.end (); i++)
-    {
-        const std::string &dir = CfgData::data->getBasedir (*i);
-        if (dir.length () > 0) 
-            gtk_file_chooser_add_shortcut_folder (GTK_FILE_CHOOSER(window), dir.c_str (), NULL);
-    }
-    */
 }
 
 // clean up
@@ -98,13 +86,21 @@ bool GuiFile::run ()
     if (gtk_dialog_run (GTK_DIALOG (window)) == GTK_RESPONSE_ACCEPT)
     {
         gchar *filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (window));
-        File = filename;
+        File = MK_UNIX_PATH (filename);
         g_free (filename);
         
         return true;
     }
     
     return false;
+}
+
+void GuiFile::add_shortcut (const std::string & shortcut)
+{
+    if (shortcut.length () > 0) 
+    {
+    	gtk_file_chooser_add_shortcut_folder (GTK_FILE_CHOOSER(window), shortcut.c_str (), NULL);
+    }
 }
 
 void GuiFile::add_filter (const std::string & pattern, const std::string & name)
