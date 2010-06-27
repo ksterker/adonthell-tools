@@ -244,6 +244,7 @@ GuiMapedit::GuiMapedit ()
     
     // object trees
     GtkWidget *tab = gtk_notebook_new();
+    g_signal_connect (G_OBJECT (tab), "switch-page", G_CALLBACK (on_tree_switched), (gpointer) View);
     gtk_paned_add1 (GTK_PANED (hpaned), tab);
     gtk_widget_show (tab);
     

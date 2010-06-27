@@ -31,6 +31,7 @@
 #include "backend/gtk/screen_gtk.h"
 
 #include "gui_grid.h"
+#include "gui_zone.h"
 #include "gui_mapedit.h"
 #include "gui_mapview.h"
 #include "gui_mapview_events.h"
@@ -89,6 +90,7 @@ GuiMapview::GuiMapview(GtkWidget *paned)
     
     // create the grid
     Grid = new GuiGrid (Overlay);
+    Zones = new GuiZone (Overlay);
     
     // Memeber intialization
     CurObj = NULL;
@@ -605,6 +607,15 @@ void GuiMapview::deleteCurObj ()
             highlightObject();
         }
     }
+}
+
+void GuiMapview::showZones (const bool & show)
+{
+    Zones->set_visible (show);
+    Zones->draw(0, 0, Overlay->length(), Overlay->height());
+    
+    // redraw
+    draw();
 }
 
 // prepare everything for 'auto-scrolling' (TM) ;-)

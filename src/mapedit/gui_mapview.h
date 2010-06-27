@@ -43,6 +43,7 @@ namespace gfx
 class MapEntity;
 class MapData;
 class GuiGrid;
+class GuiZone;
 
 /**
  * The widget handling the graphical representation of the map.
@@ -141,6 +142,12 @@ public:
      * @param limit the new height limit.
      */
     void updateRenderHeight (const s_int32 & limit);
+    
+    /**
+     * Toggle zone display on or off.
+     * @param show true to show zones, false otherwise.
+     */
+    void showZones (const bool & show);
     
     /**
      * @name Editing Functionality
@@ -248,6 +255,8 @@ private:
     GuiGrid *Grid;
     // The control used to set the height up to which the map is rendered
     GuiRenderHeight *RenderHeight;
+    /// Surface for visualizing zones
+    GuiZone *Zones;
     
     /// The currently highlighted object
     MapEntity *CurObj;

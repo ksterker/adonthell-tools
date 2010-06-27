@@ -121,7 +121,18 @@ public:
      * Get iterator pointing past last zone of the map.
      * @return iterator past last zone.
      */
-    zone_iter lastZone() { return Zones.end(); }    
+    zone_iter lastZone() { return Zones.end(); }
+    
+    /**
+     * Get list of zones that overlap with the given view.
+     * @param x x-coordinate of the view.
+     * @param y y-coordinate of the view.
+     * @param z z-coordinate of the view.
+     * @param length size of the view on the x-axis.
+     * @param width size of the view on the y-axis.
+     * @return list of zones.
+     */
+    std::list<world::zone*> zones_in_view (const s_int32 & x, const s_int32 & y, const s_int32 & z, const s_int32 & length, const s_int32 & width) const;
     //@}
     
     /**

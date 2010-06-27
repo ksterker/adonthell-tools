@@ -106,3 +106,26 @@ void MapData::remove_entity (MapEntity *entity)
         }
     }
 }
+
+// find all zones in the given view
+std::list<world::zone*> MapData::zones_in_view (const s_int32 & x, const s_int32 & y, const s_int32 & z, const s_int32 & length, const s_int32 & width) const
+{
+    std::list<world::zone*> result;
+    
+    s_int32 max_x = x + length;
+    s_int32 min_yz = y - z;
+    s_int32 max_yz = min_yz + width;
+    
+    std::list<world::zone *>::const_iterator i;
+    for (i = Zones.begin(); i != Zones.end(); i++)
+    {
+        // no overlap on x-axis
+        if (max_x < (*i)->min().x() || x > (*i)->max().x()) continue;
+        // no overlap on y/z-axis
+        if (max_yz < ((*i)->min().y() - (*i)->max().z()) || min_yz > ((*i)->max().y() - (*i)->min().z())) continue;
+        
+        result.push_back (*i);        
+    }
+
+    return result;
+}

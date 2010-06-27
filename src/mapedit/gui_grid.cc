@@ -1,6 +1,4 @@
 /*
- $Id: gui_grid.cc,v 1.1 2009/05/24 13:40:06 ksterker Exp $
- 
  Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
  Part of the Adonthell Project http://adonthell.linuxgames.com
  

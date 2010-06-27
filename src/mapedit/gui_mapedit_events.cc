@@ -135,6 +135,13 @@ void on_grid_toggled (GtkToggleButton *btn, gpointer user_data)
     }
 }
 
+// enable or disable zone display
+void on_tree_switched (GtkNotebook *nb, GtkNotebookPage *page, guint page_num, gpointer user_data)
+{
+    GuiMapview *view = (GuiMapview*) user_data;
+    view->showZones (page_num == 1);
+}
+
 /*
 // Display help text associated with a menuitem to the statusbar 
 gboolean on_display_help (GtkWidget *widget, GdkEventCrossing *event, gpointer user_data)
