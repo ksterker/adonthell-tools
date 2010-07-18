@@ -57,19 +57,14 @@ void GuiZone::draw (const s_int32 & x, const s_int32 & y, const u_int16 & l, con
             s_int16 sy = (*i)->min().y() - (*i)->min().z() - map->y() + map->z() - y;
             
             // get zone extend
-            s_int16 ex = (*i)->max().x() - map->x() - x;
-            s_int16 ey = (*i)->max().y() - (*i)->min().z() - map->y() + map->z()- y;
+            s_int16 ex = (*i)->max().x() - (*i)->min().x();
+            s_int16 ey = (*i)->max().y() - (*i)->min().y();
             
-            gfx::drawing_area da (x, y, l, h);
-            
-            // draw
-            for (int b = 0; b < 4; b++)
+            // draw zone with 5px border
+            for (int b = 0; b < 6; b++)
             {
-                u_int32 col = Overlay->map_color (0x88, 0xFF, 0x00, 0xFF - 64 * b);
-                Overlay->draw_line (sx + b, sy + b, ex - b, sy + b, col, &da);
-                Overlay->draw_line (sx + b, ey - b, ex - b, ey - b, col, &da);
-                Overlay->draw_line (sx + b, sy + b, sx + b, ey - b, col, &da);
-                Overlay->draw_line (ex - b, sy + b, ex - b, ey - b, col, &da);
+                u_int32 col = Overlay->map_color (0x88, 0xFF, 0x00, 0xFF - 40 * b);
+                Overlay->fillrect (sx + b, sy + b, ex - 2*b, ey - 2*b, col);
             }
         }
     }

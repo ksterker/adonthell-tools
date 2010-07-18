@@ -81,7 +81,7 @@ void GuiGrid::draw (const s_int32 & x, const s_int32 & y, const u_int16 & l, con
 void GuiGrid::grid_from_object (world::chunk_info & ci, const s_int32 & ox, const s_int32 & oy)
 {
     delete CurObject;
-    CurObject = new world::chunk_info (ci);
+    CurObject = new world::chunk_info (ci.get_entity(), ci.Min, ci.Max);
     
     if (AutoAdjust)
     {

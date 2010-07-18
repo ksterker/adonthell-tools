@@ -1,6 +1,4 @@
 /*
-    $Id: surface_gtk.cc,v 1.5 2009/05/21 14:28:18 ksterker Exp $
-
     Copyright (C) 2009 Kai Sterker <kai.sterker@gmail.com>
     Part of the Adonthell Project http://adonthell.linuxgames.com
 
@@ -226,6 +224,10 @@ void surface_gtk::put_pix (u_int16 x, u_int16 y, u_int32 col)
     u_int32 stride = cairo_image_surface_get_stride (vis);
     u_int32 offset = y * stride + x * 4;
     u_int8 *pixels = cairo_image_surface_get_data (vis);
+    
+    // FIXME: this seems to be buggy for colors
+    // with alpha != 0xff, either on all systems 
+    // or at least on big endian machines.
     
     switch (cairo_image_surface_get_format (vis))
     {

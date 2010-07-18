@@ -1,7 +1,5 @@
 /*
- $Id: mdl_cmdline.h,v 1.1 2009/03/29 12:27:27 ksterker Exp $
- 
- Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
+ Copyright (C) 2009/2010 Kai Sterker <kaisterker@linuxgames.com>
  Part of the Adonthell Project http://adonthell.linuxgames.com
  
  Adonthell is free software; you can redistribute it and/or modify
@@ -406,6 +404,10 @@ void GuiModeller::newModel ()
     // reset state
     Filename = "untitled.xml";
     Spritename = "";
+    
+    // purge gfx cache, in case images changed on disk
+    // TODO: make sure all sprites are properly deleted first
+    gfx::surfaces->purge();
     
     // set initial button state
     setActive("is_solid", false);
