@@ -106,6 +106,11 @@ protected:
     void scanMgrSchedules ();
     
     /**
+     * Populate the list of locations at which the entity exists.
+     */
+    void setLocations ();
+
+    /**
      * Initialize character-specific page(s).
      * @param chr the character instance to pick values from. 
      */

@@ -1,7 +1,5 @@
 /*
- $Id: map_data.h,v 1.2 2009/04/03 22:00:48 ksterker Exp $
- 
- Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
+ Copyright (C) 2009/2010 Kai Sterker <kaisterker@linuxgames.com>
  Part of the Adonthell Project http://adonthell.linuxgames.com
  
  Mapedit is free software; you can redistribute it and/or modify
@@ -99,6 +97,13 @@ public:
      */
     u_int32 getEntityCount (world::entity *ety) const;
     
+    /**
+     * Get all locations of an entity on the map.
+     * @param ety the entity whose locations to get.
+     * @return list of entity locations.
+     */
+    std::list<world::chunk_info*> MapData::getEntityLocations (world::entity *ety) const;
+
     /**
      * Checks if an entity with this name exists on the map.
      * @param entity_name the entity to check for.

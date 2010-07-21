@@ -1,7 +1,5 @@
 /*
- $Id: map_data.cc,v 1.2 2009/04/03 22:00:48 ksterker Exp $
- 
- Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
+ Copyright (C) 2009/2010 Kai Sterker <kaisterker@linuxgames.com>
  Part of the Adonthell Project http://adonthell.linuxgames.com
  
  Mapedit is free software; you can redistribute it and/or modify
@@ -45,17 +43,29 @@ MapData::~MapData()
 // count how often the given object is present on the map
 u_int32 MapData::getEntityCount (world::entity *ety) const
 {
-    u_int32 count = 0;
+    const std::list<world::chunk_info*> & result = getEntityLocations (ety);
+    return result.size();
+}
+
+// get locations of entity on the map
+std::list<world::chunk_info*> MapData::getEntityLocations (world::entity *ety) const
+{
     std::list<world::chunk_info*> result;
-    std::list<world::chunk_info*>::const_iterator i;
-    
     objects_in_bbox (min(), max(), result, ety->get_object()->type());
-    for (i = result.begin(); i != result.end(); i++)
+
+    std::list<world::chunk_info*>::iterator i = result.begin();
+    while (i != result.end())
     {
-        if ((*i)->get_entity() == ety) count++;
+        if ((*i)->get_entity() != ety) 
+        {
+            i = result.erase(i);
+            continue;
+        }
+        
+        i++;
     }
     
-    return count;
+    return result;
 }
 
 // check for named entity presence

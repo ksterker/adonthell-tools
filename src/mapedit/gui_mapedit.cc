@@ -335,24 +335,21 @@ void GuiMapedit::newMap ()
 void GuiMapedit::loadMap (const std::string & fname)
 {
     MapData *area = new MapData();
-    if (area->load (fname))
+    if (!area->load (fname))
     {
-        ActiveMap = LoadedMaps.size();
-        LoadedMaps.push_back (area);
-        
-        View->setMap (area);
-        EntityList->setMap (area);
-        ZoneList->setMap (area);
-        
-        gchar *datadir = g_path_get_dirname (fname.c_str());
-        EntityList->setDataDir (std::string (datadir) + "/models");
-        g_free (datadir);
+        // TODO: display warning
     }
-    else
-    {
-        // error
-        delete area;
-    }
+    
+    ActiveMap = LoadedMaps.size();
+    LoadedMaps.push_back (area);
+    
+    View->setMap (area);
+    EntityList->setMap (area);
+    ZoneList->setMap (area);
+    
+    gchar *datadir = g_path_get_dirname (fname.c_str());
+    EntityList->setDataDir (std::string (datadir) + "/models");
+    g_free (datadir);
 }
 
 // save map to disk

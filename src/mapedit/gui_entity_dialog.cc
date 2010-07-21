@@ -42,6 +42,10 @@ static char edit_entity_ui[] =
 #include "entity-properties.glade.h"
 ;
 
+#define SCENERY_PAGE    1
+#define CHARACTER_PAGE  2
+#define ITEM_PAGE       3
+
 static gint sort_strings (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer unused)
 {
     GValue val_a = {0};
@@ -279,19 +283,27 @@ GuiEntityDialog::GuiEntityDialog (MapEntity *entity, const GuiEntityDialog::Mode
         return;
     }
     
+    setLocations();
+    
     // get reference to dialog window
     window = GTK_WIDGET (gtk_builder_get_object (Ui, "entity_properties"));
     switch (mode)
     {
         case UPDATE_PROPERTIES:
+        {
             gtk_window_set_title (GTK_WINDOW (window), "Update Entity Properties");
             break;
+        }
         case ADD_ENTITY_TO_MAP:
+        {
             gtk_window_set_title (GTK_WINDOW (window), "Add new Entity to Map");
             break;
+        }
         case DUPLICATE_NAMED_ENTITY:
+        {
             gtk_window_set_title (GTK_WINDOW (window), "Copy Entity");
             break;
+        }
     }
     
     // setup callbacks
@@ -384,22 +396,28 @@ GuiEntityDialog::GuiEntityDialog (MapEntity *entity, const GuiEntityDialog::Mode
     world::placeable_type obj_type = entity->get_object_type();
     switch (obj_type)
     {
-        case world::OBJECT: {
+        case world::OBJECT: 
+        {
             widget = gtk_builder_get_object (Ui, "type_scenery");
-            set_page_active (1, false);
+            set_page_active (SCENERY_PAGE, Entity->getLocation() != NULL);
+            set_page_active (CHARACTER_PAGE, false);
             break;
         }
-        case world::CHARACTER: {
+        case world::CHARACTER: 
+        {
             widget = gtk_builder_get_object (Ui, "type_character");
             world::character *chr = dynamic_cast<world::character*>(entity->object());
             if (chr != NULL) init_from_character (chr);
+            set_page_active (SCENERY_PAGE, false);
             break;
         }
-        case world::ITEM: {
+        case world::ITEM: 
+        {
             widget = gtk_builder_get_object (Ui, "type_item");
             break;
         }
-        default: {
+        default: 
+        {
             widget = NULL;
             break;
         }
@@ -425,17 +443,25 @@ GuiEntityDialog::GuiEntityDialog (MapEntity *entity, const GuiEntityDialog::Mode
     switch (str[0])
     {
         case 'A':
+        {
             widget = gtk_builder_get_object (Ui, "entity_anonymous");
             break;
+        }
         case 'S':
+        {
             widget = gtk_builder_get_object (Ui, "entity_shared");
             break;
+        }
         case 'U':
+        {
             widget = gtk_builder_get_object (Ui, "entity_unique");
             break;
+        }
         default:
+        {
             widget = NULL;
             break;
+        }
     }
     if (widget != NULL)
     {
@@ -541,20 +567,30 @@ void GuiEntityDialog::set_object_type (const world::placeable_type & type)
     switch (type)
     {
         case world::OBJECT:
+        {
             gtk_widget_set_sensitive (GTK_WIDGET (cb_anonymous), TRUE);
             gtk_widget_set_sensitive (GTK_WIDGET (cb_shared), TRUE);
             gtk_widget_set_sensitive (GTK_WIDGET (cb_unique), TRUE);
-            set_page_active (1, false);
+            
+            // actions are tied to a location
+            set_page_active (SCENERY_PAGE, Entity->getLocation() != NULL);
+            set_page_active (CHARACTER_PAGE, false);
             break;
+        }
         case world::CHARACTER:
+        {
             gtk_widget_set_sensitive (GTK_WIDGET (cb_anonymous), FALSE);
             gtk_widget_set_sensitive (GTK_WIDGET (cb_shared), FALSE);
             gtk_widget_set_sensitive (GTK_WIDGET (cb_unique), TRUE);
             // since this is the only possibly choice --> chose it
             gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb_unique), TRUE);            
-            set_page_active (1, true);
+            
+            set_page_active (SCENERY_PAGE, false);
+            set_page_active (CHARACTER_PAGE, true);
             break;
+        }
         case world::ITEM:
+        {
             gtk_widget_set_sensitive (GTK_WIDGET (cb_anonymous), FALSE);
             gtk_widget_set_sensitive (GTK_WIDGET (cb_shared), TRUE);
             gtk_widget_set_sensitive (GTK_WIDGET (cb_unique), TRUE);
@@ -563,10 +599,15 @@ void GuiEntityDialog::set_object_type (const world::placeable_type & type)
             {
                 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb_shared), TRUE);            
             }
-            set_page_active (1, false);
+            
+            set_page_active (SCENERY_PAGE, false);
+            set_page_active (CHARACTER_PAGE, false);
             break;
+        }
         default:
+        {
             break;
+        }
     }    
 }
 
@@ -804,4 +845,46 @@ void GuiEntityDialog::set_character_data (world::character *chr)
     // set selected schedule
     world::schedule *sdl = chr->get_schedule();
     sdl->set_manager (name, args);
+}
+
+// set locations of the selected object
+void GuiEntityDialog::setLocations ()
+{
+    GtkTreeIter iter;
+    GObject *widget = gtk_builder_get_object (Ui, "location_list");
+    
+    GtkTreeModel *location_list = GTK_TREE_MODEL(gtk_tree_view_get_model (GTK_TREE_VIEW(widget)));
+    gtk_list_store_clear (GTK_LIST_STORE(location_list));
+    
+    world::entity *ety = Entity->entity();
+    if (ety != NULL)
+    {
+        MapData *map = (MapData*) &(Entity->object()->map());    
+
+        const std::list<world::chunk_info*> locations = map->getEntityLocations (ety);
+        for (std::list<world::chunk_info*>::const_iterator i = locations.begin(); i != locations.end(); i++)
+        {
+            std::stringstream out (std::ios::out);
+            out << (*i)->Min;
+            gchar *val = g_strdup (out.str().c_str());
+            
+            gtk_list_store_append (GTK_LIST_STORE (location_list), &iter);
+            gtk_list_store_set (GTK_LIST_STORE (location_list), &iter, 0, val, 1, *i, -1);
+            
+            if (*i == Entity->getLocation())
+            {
+                // select it
+                GtkTreeSelection *selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(widget));
+                gtk_tree_selection_select_iter (selection, &iter);
+                
+                // and scroll it into view
+                GtkTreePath *path = gtk_tree_model_get_path (location_list, &iter);
+                gtk_tree_view_scroll_to_cell (GTK_TREE_VIEW(widget), path, NULL, TRUE, 0.5f, 0.0f);
+                gtk_tree_path_free (path);
+            }
+        }
+        
+        gtk_tree_sortable_set_sort_func (GTK_TREE_SORTABLE(location_list), 0, sort_strings, NULL, NULL);
+        gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE(location_list), 0, GTK_SORT_ASCENDING);
+    }
 }
