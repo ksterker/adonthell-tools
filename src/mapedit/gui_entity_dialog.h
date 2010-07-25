@@ -35,6 +35,8 @@ namespace world
     class character;
 }
 
+class GuiScriptSelector;
+
 /**
  * A dialog to display and edit map entity properties.
  */
@@ -89,6 +91,8 @@ public:
      * @param state name of the state to set/display.
      */
     void set_entity_state (const std::string & state);
+    
+    void setLocation (world::chunk_info *location);
     //@}
     
 protected:
@@ -100,21 +104,27 @@ protected:
     void set_page_active (const int & page, const bool & active);
     
     /**
-     * Scan character schedule directory for valid manager schedule
-     * scripts and populate the drop down menu accordingly.
-     */
-    void scanMgrSchedules ();
-    
-    /**
      * Populate the list of locations at which the entity exists.
      */
     void setLocations ();
+
+    /**
+     * Initialize scenery-specific page(s).
+     * @param location the object's location.
+     */
+    void init_from_scenery (world::chunk_info *location);
 
     /**
      * Initialize character-specific page(s).
      * @param chr the character instance to pick values from. 
      */
     void init_from_character (world::character *chr);
+
+    /**
+     * Store data from scenery-specific page(s).
+     * @param location the scenery instance to update.
+     */
+    void set_scenery_data (world::chunk_info *location);
 
     /**
      * Store data from character-specific page(s).
@@ -134,6 +144,8 @@ protected:
     char EntityType;
     /// the user interface
     GtkBuilder *Ui;
+    /// Python script helper
+    GuiScriptSelector *Selector;
 };
 
 #endif

@@ -1,5 +1,5 @@
 /* 
- Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
+ Copyright (C) 2009/2010 Kai Sterker <kaisterker@linuxgames.com>
  Part of the Adonthell Project http://adonthell.linuxgames.com
  
  Mapedit is free software; you can redistribute it and/or modify
@@ -24,18 +24,14 @@
  * @brief View and edit entity properties.
  */
 
-#include <dirent.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-
 #include <gtk/gtk.h>
 
-#include <base/base.h>
 #include <world/character.h>
 
 #include "gui_mapedit.h"
 #include "gui_entity_dialog.h"
 #include "gui_entity_list.h"
+#include "gui_script_selector.h"
 
 // Ui definition
 static char edit_entity_ui[] =
@@ -90,142 +86,6 @@ static void on_state_changed (GtkComboBox *cbox, gpointer user_data)
     }
 }
 
-// destroy schedule arguments
-static void on_clear_args (gpointer data)
-{
-    PyObject *args = (PyObject*) data;
-    Py_DECREF(args);
-}
-
-// create UI for editing schedule arguments
-static void update_arg_table (GtkTable *arg_table, std::string *arg_list, const long & len)
-{
-    // remove previous widgets
-    GList *children = gtk_container_get_children (GTK_CONTAINER(arg_table));
-    while (children != NULL)
-    {
-        GtkWidget *widget = GTK_WIDGET(children->data);
-        const gchar* name = gtk_widget_get_name (widget);
-        if (strncmp ("entry_args", name, 10) == 0 ||
-            strncmp ("lbl_args", name, 8) == 0)
-        {
-            gtk_container_remove (GTK_CONTAINER(arg_table), widget);
-        }
-        children = g_list_next (children);
-    }
-    
-    // resize table
-    gtk_table_resize (arg_table, len == 0 ? 2: len + 1, 2);
-    
-    // add new widgets
-    if (len == 0)
-    {
-        GtkWidget* label = gtk_label_new ("No arguments required");
-        gtk_widget_set_name (label, "lbl_args");
-        gtk_misc_set_alignment (GTK_MISC(label), 0.5f, 0.5f);
-        gtk_widget_set_sensitive (label, false);
-        gtk_table_attach_defaults (arg_table, label, 0, 2, 1, 2);
-    }
-    else
-    {
-        char tmp[64];
-        GtkAttachOptions fill = GTK_FILL;
-        GtkAttachOptions fill_expand = (GtkAttachOptions) (GTK_FILL | GTK_EXPAND);
-        
-        for (int i = 0; i < len; i++)
-        {
-            // add argument name
-            GtkWidget* label = gtk_label_new (arg_list[i].c_str());
-            sprintf (tmp, "lbl_args_%i", i);
-            gtk_widget_set_name (label, tmp);
-            gtk_misc_set_alignment (GTK_MISC(label), 1.0f, 0.5f);
-            gtk_table_attach (arg_table, label, 0, 1, i+1, i+2, fill, fill_expand, 0, 0);
-            
-            // add argument value entry
-            GtkWidget *entry = gtk_entry_new ();
-            sprintf (tmp, "entry_args_%i", i);
-            gtk_widget_set_name (entry, tmp);
-            gtk_table_attach (arg_table, entry, 1, 2, i+1, i+2, fill_expand, fill_expand, 0, 0);
-        }
-    }
-    
-    // store argument tuple
-    PyObject *args = PyTuple_New (len);
-    g_object_set_data_full (G_OBJECT(arg_table), "num-args", (gpointer) args, on_clear_args);
-    
-    // make everything visible
-    gtk_widget_show_all (GTK_WIDGET(arg_table));
-}
-
-// user selects a different schedule
-static void on_schedule_changed (GtkComboBox *cbox, gpointer user_data)
-{
-    GtkTreeIter iter;
-    if (gtk_combo_box_get_active_iter (cbox, &iter))
-    {
-        gchar *schedule_name;
-        GtkTreeModel *model = gtk_combo_box_get_model (cbox);
-        gtk_tree_model_get (model, &iter, 0, &schedule_name, -1);
-
-        // When a user selects the script, we need to figure out
-        // if there are additional arguments required for the 
-        // constructor and create the neccessary input fields on the fly. 
-        
-        // import module
-        PyObject *module = PyImport_ImportModule ((char*)(SCHEDULE_DIR + std::string (schedule_name)).c_str());
-        if (!module) return;
-        
-        // try to get schedule class
-        PyObject *classobj = PyObject_GetAttrString (module, schedule_name);
-        Py_DECREF (module);
-        if (!classobj) return;
-        
-        PyObject *globals = PyDict_New ();
-        if (globals != NULL)
-        {
-            // need access to the inspect module ...
-            PyObject *inspect = PyImport_ImportModule ("inspect");
-            PyDict_SetItemString (globals, "inspect", inspect);
-            // ... and the object whose constructor args we want to retrieve
-            PyDict_SetItemString (globals, "x", classobj);
-            
-            // evaluating "x.__init__.im_func.func_code.co_varnames" raises
-            // a "RuntimeError: restricted attribute", but using the builtin
-            // inspect module will work.
-            PyObject *result = python::run_string ("args = inspect.getargspec(x.__init__)[0];", Py_file_input, globals);
-            if (result != NULL)
-            {
-                // get result from globals
-                PyObject *args = PyDict_GetItemString (globals, "args");
-                if (PyList_Check(args))
-                {
-                    // iterate over the list of constructor arguments
-                    // we can skip the first (self) and second (schedule) 
-                    long len = PyList_GET_SIZE(args);
-                    std::string arg_list[len-2];
-                    for (long i = 2; i < len; i++)
-                    {
-                        PyObject *arg = PyList_GET_ITEM(args, i);
-                        const char* arg_name = PyString_AsString (arg);
-                        arg_list[i-2] = std::string(arg_name);
-                    }
-                    
-                    GtkTable *arg_table = GTK_TABLE(user_data);
-                    update_arg_table (arg_table, arg_list, len-2);
-                }
-                
-                Py_DECREF(result);
-                Py_XDECREF(args);
-            }
-            
-            Py_DECREF(globals);
-            Py_XDECREF(inspect);
-        }
-        
-        Py_DECREF(classobj);
-    }
-}
-
 // the entity object type has changed
 static void on_type_changed (GtkToggleButton * button, gpointer user_data)
 {
@@ -260,6 +120,24 @@ static void on_type_changed (GtkToggleButton * button, gpointer user_data)
     }
 }
 
+// callback for location changed
+static void selected_event (GtkTreeSelection *selection, gpointer user_data)
+{
+    GtkTreeModel *model;
+    GtkTreeIter iter;
+    
+    // anything selected at all? 
+    if (gtk_tree_selection_get_selected (selection, &model, &iter))
+    {
+        // get location at selected row
+        world::chunk_info *loc;
+        gtk_tree_model_get (model, &iter, 1, &loc, -1);
+
+        GuiEntityDialog *dlg = (GuiEntityDialog *) user_data;
+        dlg->setLocation (loc);
+    }
+}
+
 // ctor
 GuiEntityDialog::GuiEntityDialog (MapEntity *entity, const GuiEntityDialog::Mode & mode) 
     : GuiModalDialog (GTK_WINDOW(GuiMapedit::window->getWindow()))
@@ -275,7 +153,8 @@ GuiEntityDialog::GuiEntityDialog (MapEntity *entity, const GuiEntityDialog::Mode
     EntityType = 'A';
     EntityState = "";
     ObjType = world::OBJECT;
-    
+    Selector = NULL;
+        
 	if (!gtk_builder_add_from_string(Ui, edit_entity_ui, -1, &err)) 
     {
         g_message ("building entity dialog failed: %s", err->message);
@@ -328,10 +207,11 @@ GuiEntityDialog::GuiEntityDialog (MapEntity *entity, const GuiEntityDialog::Mode
 
     widget = gtk_builder_get_object (Ui, "cb_state");
     g_signal_connect (widget, "changed", G_CALLBACK (on_state_changed), this);
-    widget = gtk_builder_get_object (Ui, "cb_schedule");
-    g_signal_connect (widget, "changed", G_CALLBACK (on_schedule_changed), 
-                      gtk_builder_get_object (Ui, "tbl_schedule"));
-    
+
+    widget = gtk_builder_get_object (Ui, "location_list");
+    GtkTreeSelection *selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(widget));
+    g_signal_connect (G_OBJECT(selection), "changed", G_CALLBACK(selected_event), this);
+
     // disable goto button (until we actually have a use for it)
     widget = gtk_builder_get_object (Ui, "btn_goto");
     gtk_widget_set_sensitive (GTK_WIDGET (widget), FALSE);
@@ -388,43 +268,32 @@ GuiEntityDialog::GuiEntityDialog (MapEntity *entity, const GuiEntityDialog::Mode
 
     gtk_tree_sortable_set_sort_func (GTK_TREE_SORTABLE(state_list), 0, sort_strings, NULL, NULL);
     gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE(state_list), 0, GTK_SORT_ASCENDING);
-    
-    // set valid manager schedules
-    scanMgrSchedules();
-    
+
     // set placeable type
     world::placeable_type obj_type = entity->get_object_type();
+    set_object_type (obj_type);
     switch (obj_type)
     {
         case world::OBJECT: 
         {
-            widget = gtk_builder_get_object (Ui, "type_scenery");
-            set_page_active (SCENERY_PAGE, Entity->getLocation() != NULL);
-            set_page_active (CHARACTER_PAGE, false);
+            world::chunk_info *loc = Entity->getLocation();
+            if (loc != NULL) init_from_scenery (loc);
             break;
         }
         case world::CHARACTER: 
         {
-            widget = gtk_builder_get_object (Ui, "type_character");
             world::character *chr = dynamic_cast<world::character*>(entity->object());
             if (chr != NULL) init_from_character (chr);
-            set_page_active (SCENERY_PAGE, false);
             break;
         }
         case world::ITEM: 
         {
-            widget = gtk_builder_get_object (Ui, "type_item");
             break;
         }
         default: 
         {
-            widget = NULL;
             break;
         }
-    }
-    if (widget != NULL)
-    {
-        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), TRUE);
     }
     
     // in editing mode, change of object type is no longer allowed
@@ -538,6 +407,10 @@ void GuiEntityDialog::applyChanges()
         // set entity state
         objToUpdate->object()->set_state (EntityState);
         
+        if (ObjType == world::OBJECT)
+        {
+            set_scenery_data (Entity->getLocation());
+        }
         // set character schedule, if neccessary
         if (ObjType == world::CHARACTER)
         {
@@ -562,12 +435,22 @@ void GuiEntityDialog::set_object_type (const world::placeable_type & type)
     GObject *cb_anonymous = gtk_builder_get_object (Ui, "entity_anonymous");
     GObject *cb_shared = gtk_builder_get_object (Ui, "entity_shared");
     GObject *cb_unique = gtk_builder_get_object (Ui, "entity_unique");
-        
+    
+    delete Selector;
+    
     // depending on the placeable type, only a number of entity types make sense
     switch (type)
     {
         case world::OBJECT:
         {
+            Selector = new GuiScriptSelector (
+                GTK_COMBO_BOX(gtk_builder_get_object (Ui, "cb_scripts")), 
+                GTK_COMBO_BOX(gtk_builder_get_object (Ui, "cb_methods")),
+                GTK_CONTAINER(gtk_builder_get_object (Ui, "tbl_scripts")));
+            Selector->set_argument_offset (2);
+            Selector->set_script_filter ("");
+            Selector->set_script_package (ACTION_DIR);
+                        
             gtk_widget_set_sensitive (GTK_WIDGET (cb_anonymous), TRUE);
             gtk_widget_set_sensitive (GTK_WIDGET (cb_shared), TRUE);
             gtk_widget_set_sensitive (GTK_WIDGET (cb_unique), TRUE);
@@ -579,6 +462,13 @@ void GuiEntityDialog::set_object_type (const world::placeable_type & type)
         }
         case world::CHARACTER:
         {
+            Selector = new GuiScriptSelector (
+                GTK_COMBO_BOX(gtk_builder_get_object (Ui, "cb_schedule")), NULL,
+                GTK_CONTAINER(gtk_builder_get_object (Ui, "tbl_schedule")));
+            Selector->set_argument_offset (1);
+            Selector->set_script_filter ("run");
+            Selector->set_script_package (SCHEDULE_DIR);
+            
             gtk_widget_set_sensitive (GTK_WIDGET (cb_anonymous), FALSE);
             gtk_widget_set_sensitive (GTK_WIDGET (cb_shared), FALSE);
             gtk_widget_set_sensitive (GTK_WIDGET (cb_unique), TRUE);
@@ -591,6 +481,8 @@ void GuiEntityDialog::set_object_type (const world::placeable_type & type)
         }
         case world::ITEM:
         {
+            Selector = NULL;
+            
             gtk_widget_set_sensitive (GTK_WIDGET (cb_anonymous), FALSE);
             gtk_widget_set_sensitive (GTK_WIDGET (cb_shared), TRUE);
             gtk_widget_set_sensitive (GTK_WIDGET (cb_unique), TRUE);
@@ -606,6 +498,7 @@ void GuiEntityDialog::set_object_type (const world::placeable_type & type)
         }
         default:
         {
+            Selector = NULL;
             break;
         }
     }    
@@ -656,68 +549,14 @@ void GuiEntityDialog::set_entity_state (const std::string & state)
     Entity->object()->set_state (prevState);
 }
 
-// find all valid manager schedule scripts
-void GuiEntityDialog::scanMgrSchedules ()
+// init values on scenery page
+void GuiEntityDialog::init_from_scenery (world::chunk_info *location)
 {
-    std::string scheduledir = base::Paths.user_data_dir () + "/schedules/char";
-
-    DIR *dir;
-    GtkTreeIter iter;
-    struct dirent *dirent;
-    struct stat statbuf;
-    
-    GObject *widget = gtk_builder_get_object (Ui, "cb_schedule");    
-    GtkListStore *schedule_list = GTK_LIST_STORE (gtk_combo_box_get_model (GTK_COMBO_BOX(widget)));
-    gtk_list_store_clear (schedule_list);
-    
-    // open directory
-    if ((dir = opendir (scheduledir.c_str ())) != NULL)
+    if (location->has_action())
     {
-        // read directory contents
-        while ((dirent = readdir (dir)) != NULL)
-        {
-            // skip anything starting with .
-            if (dirent->d_name[0] == '.') continue;
-            
-            string filepath = scheduledir + "/";
-            filepath += dirent->d_name; 
-            
-            if (stat (filepath.c_str (), &statbuf) != -1)
-            {
-                // schedules are .py files
-                if (S_ISREG (statbuf.st_mode) && filepath.compare (filepath.length() - 3, 3, ".py") == 0)
-                {
-                    // check if this is a valid manager schedule
-                    std::string name (dirent->d_name, strlen(dirent->d_name) - 3);
-                    
-                    // import module
-                    PyObject *module = PyImport_ImportModule ((char *) (SCHEDULE_DIR + name).c_str ());
-                    if (!module) continue;
-                    
-                    // try to get schedule class
-                    PyObject *classobj = PyObject_GetAttrString (module, (char *) name.c_str ());
-                    Py_DECREF (module);
-                    if (!classobj) continue;
-                    
-                    // check class object for run method
-                    bool hasRunMet = PyObject_HasAttrString (classobj, "run");
-                    Py_DECREF (classobj);
-                    if (!hasRunMet) continue;
-                    
-                    // passed, so add it to list
-                    gchar *mgr_schedule = g_strdup (name.c_str());
-                    
-                    // get new row
-                    gtk_list_store_append (schedule_list, &iter);
-                    
-                    // set our data
-                    gtk_list_store_set (schedule_list, &iter, 0, mgr_schedule, -1);                        
-                }
-            }
-        }
-        
-        closedir (dir);
-    }
+        world::action *act = location->get_action();
+        Selector->init (act->get_method(), act->get_args());
+    }    
 }
 
 // init values on character page
@@ -725,122 +564,40 @@ void GuiEntityDialog::init_from_character (world::character *chr)
 {
     world::schedule *sdl = chr->get_schedule();
     const python::script *scr = sdl->get_manager();
-    if (scr != NULL)
-    {
-        GtkTreeIter iter;
-        GtkComboBox *widget = GTK_COMBO_BOX(gtk_builder_get_object (Ui, "cb_schedule"));    
-        GtkTreeModel *model = gtk_combo_box_get_model (widget);
+    Selector->init (scr);
+}
 
-        // select script in drop down list
-        std::string name = scr->class_name();
-        if (gtk_tree_model_get_iter_first (model, &iter))
-        {
-            gchar *val;
-            do
-            {
-                gtk_tree_model_get (model, &iter, 0, &val, -1);
-                if (strcmp (name.c_str(), val) == 0)
-                {
-                    gtk_combo_box_set_active_iter (widget, &iter);
-                    break;
-                }
-            }
-            while (gtk_tree_model_iter_next (model, &iter));
-        }
-
-        // not found? 
-        if (gtk_combo_box_get_active (widget) < 0)
-        {
-            // smells fishy, but lets keep existing data
-            gchar *val = g_strdup (name.c_str());
-            gtk_list_store_append (GTK_LIST_STORE (model), &iter);
-            gtk_list_store_set (GTK_LIST_STORE (model), &iter, 0, val, -1);
-            gtk_combo_box_set_active_iter (widget, &iter);
-        }
-        
-        // set argument value(s)
-        PyObject *args = scr->get_args();
-        if (args != NULL)
-        {
-            GtkContainer *arg_table = GTK_CONTAINER (gtk_builder_get_object (Ui, "tbl_schedule"));
-            GList *children = gtk_container_get_children (arg_table);
-            while (children != NULL)
-            {
-                GtkWidget *widget = GTK_WIDGET(children->data);
-                const gchar* name = gtk_widget_get_name (widget);
-                if (strncmp ("entry_args", name, 10) == 0)
-                {
-                    int index;
-                    if (sscanf(name, "entry_args_%d", &index) == 1)
-                    {
-                        PyObject *arg = PyTuple_GetItem (args, index+1); // first arg is the schedule itself
-                        if (arg != NULL)
-                        {
-                            PyObject *val = PyObject_Str (arg);
-                            gtk_entry_set_text (GTK_ENTRY(widget), g_strdup(PyString_AsString(val)));
-                            Py_DECREF(val);
-                        }
-                    }
-                }
-                
-                children = g_list_next (children);
-            }   
-        }
-    }
+// set scenery specific data
+void GuiEntityDialog::set_scenery_data (world::chunk_info *location)
+{
+    if (location == NULL) return;
+    
+    // get script name (if any)
+    std::string script = Selector->get_script_name();
+    if ("" == script) return;
+    
+    // get method name (if any)
+    std::string method = Selector->get_method_name();
+    if ("" == method) return;
+    
+    // get method arguments
+    PyObject *args = Selector->get_arguments();
+    
+    // set selected action
+    world::action *act = location->set_action();
+    act->init (script, method, args);
+    Py_DECREF(args);
 }
 
 // set character specific data
 void GuiEntityDialog::set_character_data (world::character *chr)
 {
     // get schedule name (if any)
-    GtkComboBox *widget = GTK_COMBO_BOX(gtk_builder_get_object (Ui, "cb_schedule"));
-    const gchar *value = gtk_combo_box_get_active_text (GTK_COMBO_BOX (widget));
-    if (value == NULL) return;
+    std::string name = Selector->get_script_name();
+    if ("" == name) return;
     
-    std::string name (value);
-
     // get schedule arguments
-    GtkContainer *arg_table = GTK_CONTAINER (gtk_builder_get_object (Ui, "tbl_schedule"));
-    PyObject *args = (PyObject*) g_object_get_data (G_OBJECT(arg_table), "num-args");
-    if (args != NULL)
-    {
-        Py_INCREF (args);
-    }
-    else
-    {
-        args = PyTuple_New (0);
-    }
-    
-    long num_args = PyTuple_GET_SIZE(args);
-    if (num_args > 0)
-    {
-        GList *children = gtk_container_get_children (arg_table);
-        while (children != NULL)
-        {
-            GtkWidget *widget = GTK_WIDGET(children->data);
-            const gchar* name = gtk_widget_get_name (widget);
-            if (strncmp ("entry_args", name, 10) == 0)
-            {
-                int index;
-                if (sscanf(name, "entry_args_%d", &index) == 1)
-                {
-                    char *pend = NULL;
-                    PyObject *py_val = NULL;
-                    const gchar *val = gtk_entry_get_text (GTK_ENTRY(widget));
-                    // try cast to int first
-                    py_val = PyInt_FromString((char*) val, &pend, 0);
-                    if (py_val == NULL || *pend != NULL)
-                    {
-                        // fallback to string on error
-                        py_val = PyString_FromString(val);
-                    }
-                    PyTuple_SetItem (args, index, py_val);
-                }
-            }
-            
-            children = g_list_next (children);
-        }
-    }
+    PyObject *args = Selector->get_arguments();
     
     // set selected schedule
     world::schedule *sdl = chr->get_schedule();
@@ -887,4 +644,11 @@ void GuiEntityDialog::setLocations ()
         gtk_tree_sortable_set_sort_func (GTK_TREE_SORTABLE(location_list), 0, sort_strings, NULL, NULL);
         gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE(location_list), 0, GTK_SORT_ASCENDING);
     }
+}
+
+// update location of the entity being edited
+void GuiEntityDialog::setLocation (world::chunk_info *location)
+{
+    Entity->setLocation (location);
+    init_from_scenery (location);
 }
