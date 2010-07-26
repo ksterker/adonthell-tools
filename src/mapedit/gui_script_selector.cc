@@ -44,31 +44,33 @@ static void on_clear_args (gpointer data)
 // user selects a different schedule
 static void on_script_changed (GtkComboBox *cbox, gpointer user_data)
 {
+    gchar *scrpt_name = NULL;
+    
     GtkTreeIter iter;
     if (gtk_combo_box_get_active_iter (cbox, &iter))
     {
-        gchar *scrpt_name;
         GtkTreeModel *model = gtk_combo_box_get_model (cbox);
         gtk_tree_model_get (model, &iter, 0, &scrpt_name, -1);
-        
-        GuiScriptSelector *selector = (GuiScriptSelector*) user_data;
-        selector->script_selected (scrpt_name);
     }
+    
+    GuiScriptSelector *selector = (GuiScriptSelector*) user_data;
+    selector->script_selected (scrpt_name ? scrpt_name : "");
 }
 
 // user selects a different method
 static void on_method_changed (GtkComboBox *cbox, gpointer user_data)
 {
+    gchar *met_name = NULL;
+    
     GtkTreeIter iter;
     if (gtk_combo_box_get_active_iter (cbox, &iter))
     {
-        gchar *met_name;
         GtkTreeModel *model = gtk_combo_box_get_model (cbox);
         gtk_tree_model_get (model, &iter, 0, &met_name, -1);
-        
-        GuiScriptSelector *selector = (GuiScriptSelector*) user_data;
-        selector->method_selected (met_name);
     }
+    
+    GuiScriptSelector *selector = (GuiScriptSelector*) user_data;
+    selector->method_selected (met_name ? met_name : "");
 }
 
 // ctor
@@ -200,7 +202,13 @@ void GuiScriptSelector::init (const python::script *scrpt)
         
         // set argument value(s)
         set_arguments (scrpt->get_args());
-    }    
+    }
+    else
+    {
+        // clear selection
+        gtk_combo_box_set_active (Script, -1);
+        update_arg_table (NULL, 0);
+    }
 }
 
 // init from method and arguments
@@ -216,6 +224,13 @@ void GuiScriptSelector::init (const python::method *met, PyObject *args)
         
         // set argument value(s)
         set_arguments (args);
+    }
+    else
+    {
+        // clear selection
+        gtk_combo_box_set_active (Script, -1);
+        gtk_combo_box_set_active (Method, -1);
+        update_arg_table (NULL, 0);
     }
 }
 
@@ -235,7 +250,7 @@ PyObject *GuiScriptSelector::get_arguments () const
     long num_args = PyTuple_GET_SIZE(args);
     if (num_args > 0)
     {
-        printf ("*** info: collecting %i argument(s)\n", num_args);
+        printf ("*** info: collecting %li argument(s)\n", num_args);
         
         GList *children = gtk_container_get_children (Arguments);
         while (children != NULL)
@@ -259,7 +274,7 @@ PyObject *GuiScriptSelector::get_arguments () const
                         py_val = PyString_FromString(val);
                     }
 
-                    PyTuple_SetItem (args, index, py_val);
+                    PyTuple_SET_ITEM (args, index, py_val);
                 }
             }
             
@@ -274,6 +289,10 @@ PyObject *GuiScriptSelector::get_arguments () const
 void GuiScriptSelector::script_selected (const std::string & name)
 {
     CurScript = name;
+    if (CurScript == "")
+    {
+        return;
+    }
     
     if (Method == NULL)
     {
@@ -306,6 +325,10 @@ void GuiScriptSelector::script_selected (const std::string & name)
 void GuiScriptSelector::method_selected (const std::string & name)
 {
     CurMethod = name;
+    if (CurMethod == "")
+    {
+        return;
+    }
     
     // When a user selects the method, we need to figure out
     // if there are additional arguments required to call it 

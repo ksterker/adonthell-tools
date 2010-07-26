@@ -75,7 +75,7 @@
                         <property name="title">Location</property>
                         <child>
                           <object class="GtkCellRendererText" id="cellrenderertext1">
-                            <property name="editable">True</property>
+                            <property name="editable">False</property>
                           </object>
                           <attributes>
                             <attribute name="text">0</attribute>

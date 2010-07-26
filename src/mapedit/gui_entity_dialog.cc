@@ -556,7 +556,11 @@ void GuiEntityDialog::init_from_scenery (world::chunk_info *location)
     {
         world::action *act = location->get_action();
         Selector->init (act->get_method(), act->get_args());
-    }    
+    }
+    else
+    {
+        Selector->init (NULL, NULL);
+    }
 }
 
 // init values on character page
@@ -649,6 +653,14 @@ void GuiEntityDialog::setLocations ()
 // update location of the entity being edited
 void GuiEntityDialog::setLocation (world::chunk_info *location)
 {
+    // update current location with selected values
+    world::chunk_info *cur_loc = Entity->getLocation();
+    if (cur_loc != NULL)
+    {
+        set_scenery_data (cur_loc);
+    }
+    
+    // set new location
     Entity->setLocation (location);
     init_from_scenery (location);
 }
