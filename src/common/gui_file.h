@@ -67,7 +67,7 @@ public:
      * Add shortcut to the given directory to the file chooser.
      * @param shortcut the shortcut to add.
      */
-    void GuiFile::add_shortcut (const std::string & shortcut);
+    void add_shortcut (const std::string & shortcut);
     
     /**
      * Return the users selection.
