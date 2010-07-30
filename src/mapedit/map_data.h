@@ -102,7 +102,7 @@ public:
      * @param ety the entity whose locations to get.
      * @return list of entity locations.
      */
-    std::list<world::chunk_info*> MapData::getEntityLocations (world::entity *ety) const;
+    std::list<world::chunk_info*> getEntityLocations (world::entity *ety) const;
 
     /**
      * Checks if an entity with this name exists on the map.

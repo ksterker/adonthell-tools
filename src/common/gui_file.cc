@@ -34,7 +34,7 @@
 GuiFile::GuiFile (GtkWindow *parent, GtkFileChooserAction action, const std::string &title, const std::string &file) 
 : GuiModalDialog (parent)
 {
-    gchar *label;
+    const gchar *label;
     
     switch (action)
     {
