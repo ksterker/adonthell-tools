@@ -36,7 +36,7 @@
         icon[idx], mask[idx], icon[idx], mask[idx], is_leaf, true)
 
 /* Icon for unselected dialogue */
-static char * dlg_xpm[] = {
+static const char * dlg_xpm[] = {
 "16 16 5 1",
 " 	c None",
 ".	c #646464",
@@ -61,7 +61,7 @@ static char * dlg_xpm[] = {
 "                "};
 
 /* Icon for selected dialogue */
-static char * sel_xpm[] = {
+static const char * sel_xpm[] = {
 "16 16 5 1",
 " 	c None",
 ".	c #446484",
@@ -86,7 +86,7 @@ static char * sel_xpm[] = {
 "                "};
 
 /* Not selected and modified */
-static char * dlg_mod_xpm[] = {
+static const char * dlg_mod_xpm[] = {
 "16 16 5 1",
 " 	c None",
 ".	c #646464",
@@ -111,7 +111,7 @@ static char * dlg_mod_xpm[] = {
 "                "};
 
 /* Selected and modified */
-static char * sel_mod_xpm[] = {
+static const char * sel_mod_xpm[] = {
 "16 16 5 1",
 " 	c None",
 ".	c #446484",
@@ -136,7 +136,7 @@ static char * sel_mod_xpm[] = {
 "                "};
 
 /* Project icon */
-static char * project_xpm[] = {
+static const char * project_xpm[] = {
 "16 16 9 1",
 " 	c None",
 ".	c #004F8C",
@@ -218,11 +218,11 @@ GuiTree::GuiTree (GtkWidget *paned)
     
     // create pixmaps and masks
     GdkWindow *wnd = GuiDlgedit::window->getWindow ()->window;
-	icon[BUBBLE] = gdk_pixmap_create_from_xpm_d (wnd, &mask[BUBBLE], NULL, dlg_xpm);
-	icon[BUBBLE_SEL] = gdk_pixmap_create_from_xpm_d (wnd, &mask[BUBBLE_SEL], NULL, sel_xpm);
-	icon[BUBBLE_MOD] = gdk_pixmap_create_from_xpm_d (wnd, &mask[BUBBLE_MOD], NULL, dlg_mod_xpm);
-	icon[BUBBLE_SEL_MOD] = gdk_pixmap_create_from_xpm_d (wnd, &mask[BUBBLE_SEL_MOD], NULL, sel_mod_xpm);
-	icon[PROJECT] = gdk_pixmap_create_from_xpm_d (wnd, &mask[PROJECT], NULL, project_xpm);
+	icon[BUBBLE] = gdk_pixmap_create_from_xpm_d (wnd, &mask[BUBBLE], NULL, (char**) dlg_xpm);
+	icon[BUBBLE_SEL] = gdk_pixmap_create_from_xpm_d (wnd, &mask[BUBBLE_SEL], NULL, (char**) sel_xpm);
+	icon[BUBBLE_MOD] = gdk_pixmap_create_from_xpm_d (wnd, &mask[BUBBLE_MOD], NULL, (char**) dlg_mod_xpm);
+	icon[BUBBLE_SEL_MOD] = gdk_pixmap_create_from_xpm_d (wnd, &mask[BUBBLE_SEL_MOD], NULL, (char**) sel_mod_xpm);
+	icon[PROJECT] = gdk_pixmap_create_from_xpm_d (wnd, &mask[PROJECT], NULL, (char**) project_xpm);
     
     selected = NULL;
     

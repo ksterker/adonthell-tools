@@ -88,6 +88,14 @@ public:
         y_ = p.y (); 
         return *this;
     }
+
+    /**
+     * Equal operator
+     */
+    bool operator== (const DlgPoint &p)
+    {
+        return x_ == p.x() && y_ == p.y();
+    }
     
     /**
      * Less Than operator

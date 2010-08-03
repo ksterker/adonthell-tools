@@ -107,6 +107,11 @@ void DlgArrow::initShape ()
 // calculate intersection of arrow and node shape
 DlgPoint DlgArrow::getIntersection (DlgPoint &start, DlgPoint &end, DlgRect &shape)
 {
+    if (start == end)
+    {
+        end.move (0, 40);
+    }
+
     DlgPoint tl = shape.topLeft ();
     DlgPoint br = shape.bottomRight ();
     
