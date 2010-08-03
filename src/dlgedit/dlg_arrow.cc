@@ -107,11 +107,6 @@ void DlgArrow::initShape ()
 // calculate intersection of arrow and node shape
 DlgPoint DlgArrow::getIntersection (DlgPoint &start, DlgPoint &end, DlgRect &shape)
 {
-    if (start == end)
-    {
-        end.move (0, 40);
-    }
-
     DlgPoint tl = shape.topLeft ();
     DlgPoint br = shape.bottomRight ();
     
@@ -125,6 +120,7 @@ DlgPoint DlgArrow::getIntersection (DlgPoint &start, DlgPoint &end, DlgRect &sha
 
     // tangens of angle between line(start, end) and x-axis
     double m = x == 0 ? 1.0 : double (y) / x;
+    double n = y == 0 ? 1.0 : double (x) / y;
     
     // direction where line(start, end) intersects with border of start
     enum { NORTH, EAST, SOUTH, WEST };
@@ -179,22 +175,22 @@ DlgPoint DlgArrow::getIntersection (DlgPoint &start, DlgPoint &end, DlgRect &sha
     {
         case NORTH:
         {
-            p = DlgPoint ((tl.y () - start.y ()) * x / y + start.x (), tl.y ());
+            p = DlgPoint ((tl.y () - start.y ()) * n + start.x (), tl.y ());
             break;
         }
         case EAST:
         {
-            p = DlgPoint (br.x (), start.y () + y / x * (br.x () - start.x ()));
+            p = DlgPoint (br.x (), start.y () + m * (br.x () - start.x ()));
             break;
         }
         case SOUTH: 
         {
-            p = DlgPoint ((br.y () - start.y ()) * x / y + start.x (), br.y ());
+            p = DlgPoint ((br.y () - start.y ()) * n + start.x (), br.y ());
             break;
         }
         case WEST:
         {
-            p = DlgPoint (tl.x (), start.y () + y / x * (tl.x () - start.x ()));
+            p = DlgPoint (tl.x (), start.y () + m * (tl.x () - start.x ()));
             break;
         }
     }

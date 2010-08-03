@@ -177,7 +177,6 @@ bool GuiGraph::newArrow (DlgPoint &point)
     // sanity checks
     if (!start || start->type () == LINK) return false;
     if (end && end->type () == LINK) return false;
-    if (start == end || ((DlgCircle *) start)->hasChild (end)) return false; 
     
     // if no end selected, create a new circle first
     if (end == NULL)
@@ -202,6 +201,9 @@ bool GuiGraph::newArrow (DlgPoint &point)
         if (end == NULL) return false;
     }
 
+    // no loops and no bidirectional connections
+    if (start == end || ((DlgCircle *) start)->hasChild (end)) return false; 
+    
     // no connection between start and end if both are PLAYER nodes   
     if (start->type () == PLAYER && end->type () == PLAYER) return false;
 
@@ -686,10 +688,17 @@ void GuiGraph::stopDragging (DlgPoint &point)
     // if circle moved, realign it to the grid
     else 
     {
-        mover->setPos ( 
-            DlgPoint (point.x () - (point.x () % CIRCLE_DIAMETER), 
-                      point.y () - (point.y () % CIRCLE_DIAMETER)));
-    
+        // make sure we drop on an empty location
+        DlgNode *node = module->getNode (point);
+        while (node != NULL)
+        {
+            point.move (0, 2*CIRCLE_DIAMETER);
+            node = module->getNode (point);
+        }
+
+        mover->setPos (DlgPoint (point.x () - (point.x () % CIRCLE_DIAMETER), 
+                                 point.y () - (point.y () % CIRCLE_DIAMETER)));
+        
         // also need to update arrows and reorder children and parents 
         for (DlgNode *a = mover->prev (FIRST); a != NULL; a = mover->prev (NEXT))
         {
@@ -704,8 +713,7 @@ void GuiGraph::stopDragging (DlgPoint &point)
             a->next (FIRST)->addPrev (a);
             ((DlgArrow *) a)->initShape ();
         }
-    }
-    
+    }    
     // update everything
     if (mover->type() == MODULE)
         deselectNode ();
