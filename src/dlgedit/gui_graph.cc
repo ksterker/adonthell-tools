@@ -201,7 +201,7 @@ bool GuiGraph::newArrow (DlgPoint &point)
         if (end == NULL) return false;
     }
 
-    // no loops and no bidirectional connections
+    // no loops and no duplicate connections
     if (start == end || ((DlgCircle *) start)->hasChild (end)) return false; 
     
     // no connection between start and end if both are PLAYER nodes   

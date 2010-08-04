@@ -224,6 +224,9 @@ void DlgModule::deleteNode (DlgNode *node)
     // if the node is a circle, also delete the attached arrows
     if (node->type () != LINK)
     {
+        // reset traversal info if current node gets deleted
+        traverse_.clear();
+
         // delete all preceding arrows
         for (DlgNode *i = node->prev (FIRST); i != NULL; i = node->prev (FIRST))
         {

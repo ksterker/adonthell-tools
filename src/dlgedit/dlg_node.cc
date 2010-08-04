@@ -83,7 +83,7 @@ DlgNode* DlgNode::getNode (std::list<DlgNode*>::iterator &it,
     }
     
     // forward iteration
-    if (offset > 0)
+    if (offset >= 0)
     {
         for (int i = 0; i < offset && it != lst.end (); i++, it++);
         if (it != lst.end ()) return *it;
