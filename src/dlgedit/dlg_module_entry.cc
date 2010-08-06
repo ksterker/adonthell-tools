@@ -119,23 +119,37 @@ bool DlgModuleEntry::isQuest (const std::string &quest)
 }
 
 // iterate over the existing characters
-std::string DlgModuleEntry::character ()
+std::string DlgModuleEntry::character (const query_type & pos)
 {
     std::string character = "";
-
+    switch (pos)
+    {
+        case FIRST:
+        {
+            itc = rpg::character::get_first ();
+            break;
+        }
+        case NEXT:
+        {
+            itc++;
+            break;
+        }
+        default:
+        {
+            return character;
+        }
+    }
+    
     if (!rpg::character::is_last (itc))
     {
         // skip player character
         if (itc->second->type() == rpg::PLAYER)
         {
-            itc++;
-            return this->character();
+            return this->character(NEXT);
         }
 
         character = itc->first;
-        itc++;
     }
-    else itc = rpg::character::get_first ();
     
     return character;
 }

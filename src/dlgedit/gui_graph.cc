@@ -188,14 +188,15 @@ bool GuiGraph::newArrow (DlgPoint &point)
         module->deselectNode ();
         
         // try to create a new circle
-        newCircle (point, type);
-        
-        // chose the newly created circle as end of the arrow
-        end = module->getNode (point);
-        
-        // restore selection
-        deselectNode ();
-        selectNode (start);
+        if (newCircle (point, type))
+        {
+            // chose the newly created circle as end of the arrow
+            end = module->getNode (point);
+            
+            // restore selection
+            deselectNode ();
+            selectNode (start);
+        }
         
         // do we have a valid end now?
         if (end == NULL) return false;
@@ -690,7 +691,7 @@ void GuiGraph::stopDragging (DlgPoint &point)
     {
         // make sure we drop on an empty location
         DlgNode *node = module->getNode (point);
-        while (node != NULL)
+        while (node != NULL && node->type() != LINK)
         {
             point.move (0, 2*CIRCLE_DIAMETER);
             node = module->getNode (point);

@@ -33,6 +33,7 @@
 #include <vector>
 
 #include <rpg/character.h>
+#include "dlg_types.h"
 
 /**
  * The %DlgModuleeEntry keeps the custom Python code of a certain
@@ -146,10 +147,11 @@ public:
     
     /**
      * Iterate over the available characters.
+     * @param pos FIRST to start iteration, NEXT to return subsequent characters.
      * @return the character name or the empty string ("") when the 
      *      end of the list is reached.
      */
-    std::string character ();
+    std::string character (const query_type & pos);
     /**
      * Iterate over the available quests.
      * @return the quest name or the empty string ("") when the 

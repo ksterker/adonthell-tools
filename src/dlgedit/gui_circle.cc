@@ -222,7 +222,7 @@ GuiCircle::GuiCircle (GtkWindow *parent, node_type *t, DlgCircleEntry *e, DlgMod
     gtk_menu_append (GTK_MENU (npc_selection_menu), glade_menuitem);
     gtk_option_menu_set_menu (GTK_OPTION_MENU (npc_selection), npc_selection_menu);
  
-    for (std::string name = dme->character (); name != ""; name = dme->character ()) 
+    for (std::string name = dme->character (FIRST); name != ""; name = dme->character (NEXT)) 
     {
         glade_menuitem = gtk_menu_item_new_with_label (name.c_str ());
         gtk_object_set_user_data (GTK_OBJECT (glade_menuitem), (void *) name.c_str ());

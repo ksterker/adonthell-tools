@@ -59,15 +59,12 @@ DlgCircle *DlgCircle::parent (query_type pos, int offset)
     else return NULL;
 }
 
-// get a certain child-circle of this circle and remember the parent circle
+// get a certain child-circle of this circle
 DlgCircle *DlgCircle::child (query_type pos, int offset)
 {
     DlgNode *arrow = next (pos, offset);
-    if (arrow == NULL) return NULL;
-        
-    DlgCircle *child = (DlgCircle *) arrow->next (FIRST);
-
-    return child;
+    if (arrow != NULL) (DlgCircle *) arrow->next (FIRST);
+    else return NULL;
 }
 
 // check whether the given node is a child of this circle
