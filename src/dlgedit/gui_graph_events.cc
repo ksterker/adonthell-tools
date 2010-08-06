@@ -122,7 +122,7 @@ gint motion_notify_event (GtkWidget *widget, GdkEventMotion *event, gpointer dat
     graph->prepareScrolling (point);
 
     // Dragging dialogue nodes
-    if (event->state == GDK_BUTTON_PRESS_MASK)
+    if (event->state & GDK_BUTTON1_MASK)
     {
         // don't allow dragging if in preview mode
         if (GuiDlgedit::window->mode () == L10N_PREVIEW)
