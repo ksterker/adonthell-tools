@@ -63,7 +63,7 @@ DlgCircle *DlgCircle::parent (query_type pos, int offset)
 DlgCircle *DlgCircle::child (query_type pos, int offset)
 {
     DlgNode *arrow = next (pos, offset);
-    if (arrow != NULL) (DlgCircle *) arrow->next (FIRST);
+    if (arrow != NULL) return (DlgCircle *) arrow->next (FIRST);
     else return NULL;
 }
 

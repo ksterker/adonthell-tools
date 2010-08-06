@@ -147,6 +147,14 @@ gint button_release_event (GtkWidget *widget, GdkEventButton *event, gpointer da
     GuiGraph *graph = (GuiGraph *) data;
     DlgPoint point ((int) event->x, (int) event->y);
     
+#ifdef __APPLE__
+    // simulate right click on OSX
+    if (event->state & GDK_CONTROL_MASK)
+    {
+        event->button = 3;
+    }
+#endif    
+    
     // Left button released
     if (event->button == 1)
     {

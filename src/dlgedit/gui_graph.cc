@@ -155,6 +155,9 @@ bool GuiGraph::newCircle (DlgPoint &point, node_type type)
         return false;
     }
     
+    // update the program state
+    GuiDlgedit::window->setMode (NODE_SELECTED);
+
     // node created -> increase serial number for next node
     serial++;
     
