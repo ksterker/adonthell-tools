@@ -61,7 +61,7 @@ public:
     void applyChanges ();
 
 private:
-    gchar *getOption (GtkOptionMenu * o);
+    gchar *getOption (GtkComboBox * cbox);
     void setOption (GtkOptionMenu *o, const gchar *label);
 
     GuiEdit *cond_edit;             // Text entry for conditions
@@ -69,7 +69,7 @@ private:
     GtkWidget *loop;                // Checkbox for looping text
     GtkTextBuffer *text_entry;      // Entry for dialogue text
     GtkTextBuffer *annotation_entry;// Entry for annotations
-    GtkWidget *npc_selection;       // The dropdown list with the various NPC's
+    GtkComboBox *npc_selection;     // The dropdown list with the various NPC's
     DlgCircleEntry *entry;          // The data to display
     node_type *type;                // The type of the node
 };

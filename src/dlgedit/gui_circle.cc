@@ -31,6 +31,21 @@
  * @brief The Edit Circle window
  */
 
+static gint sort_strings (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer unused)
+{
+    GValue val_a = {0};
+    GValue val_b = {0};
+    
+    gtk_tree_model_get_value (model, a, 0, &val_a);
+    gtk_tree_model_get_value (model, b, 0, &val_b);
+
+    // sort "Default" entry to the top of the list
+    if (strcmp ("Default", g_value_get_string (&val_a)) == 0) return -1;
+    if (strcmp ("Default", g_value_get_string (&val_b)) == 0) return 1;
+
+    return strcmp(g_value_get_string (&val_a), g_value_get_string (&val_b));
+}
+
 GuiCircle::GuiCircle (GtkWindow *parent, node_type *t, DlgCircleEntry *e, DlgModuleEntry *dme) : GuiModalDialog (parent)
 {
     entry = e;
@@ -46,7 +61,6 @@ GuiCircle::GuiCircle (GtkWindow *parent, node_type *t, DlgCircleEntry *e, DlgMod
     GtkWidget *narrator_button;
     GtkWidget *hbox1;
     GtkWidget *npc_button;
-    GtkWidget *npc_selection_menu;
     GtkWidget *glade_menuitem;
     GtkWidget *npc_mood;
     GtkWidget *npc_mood_menu;
@@ -209,30 +223,39 @@ GuiCircle::GuiCircle (GtkWindow *parent, node_type *t, DlgCircleEntry *e, DlgMod
     }
 
     // the option menu with the available NPC's
-    npc_selection = gtk_option_menu_new ();
-    gtk_widget_ref (npc_selection);
+    GtkTreeIter iter;
+    GtkListStore *npc_list = gtk_list_store_new (1, G_TYPE_STRING);
+
+    npc_selection = GTK_COMBO_BOX (gtk_combo_box_new_with_model (GTK_TREE_MODEL (npc_list)));
+    gtk_widget_ref (GTK_WIDGET (npc_selection));
     gtk_object_set_data_full (GTK_OBJECT (window), "npc_selection", npc_selection, (GtkDestroyNotify) gtk_widget_unref);
-    gtk_widget_show (npc_selection);
-    gtk_box_pack_start (GTK_BOX (hbox1), npc_selection, TRUE, TRUE, 0);
-    gtk_tooltips_set_tip (tooltips, npc_selection, "Select the speaker", NULL);
-    npc_selection_menu = gtk_menu_new ();
-    glade_menuitem = gtk_menu_item_new_with_label ("Default");
-    gtk_object_set_user_data (GTK_OBJECT (glade_menuitem), NULL);
-    gtk_widget_show (glade_menuitem);
-    gtk_menu_append (GTK_MENU (npc_selection_menu), glade_menuitem);
-    gtk_option_menu_set_menu (GTK_OPTION_MENU (npc_selection), npc_selection_menu);
- 
+    gtk_widget_show (GTK_WIDGET (npc_selection));
+    gtk_box_pack_start (GTK_BOX (hbox1), GTK_WIDGET (npc_selection), TRUE, TRUE, 0);
+    gtk_tooltips_set_tip (GTK_TOOLTIPS (tooltips), GTK_WIDGET (npc_selection), "Select the speaker", NULL);
+
+    GtkCellRenderer *renderer = gtk_cell_renderer_text_new ();
+    gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (npc_selection), renderer, TRUE);
+    gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (npc_selection), renderer, "text", 0, NULL);
+    
+    // add "default" entry
+    gtk_list_store_append (GTK_LIST_STORE (npc_list), &iter);
+    gtk_list_store_set (GTK_LIST_STORE (npc_list), &iter, 0, "Default", -1);
+    gtk_combo_box_set_active_iter (npc_selection, &iter);
+    
     for (std::string name = dme->character (FIRST); name != ""; name = dme->character (NEXT)) 
     {
-        glade_menuitem = gtk_menu_item_new_with_label (name.c_str ());
-        gtk_object_set_user_data (GTK_OBJECT (glade_menuitem), (void *) name.c_str ());
-        gtk_widget_show (glade_menuitem);
-        gtk_menu_append (GTK_MENU (npc_selection_menu), glade_menuitem);
-        gtk_option_menu_set_menu (GTK_OPTION_MENU (npc_selection), npc_selection_menu);
+        gtk_list_store_append (GTK_LIST_STORE (npc_list), &iter);
+        gtk_list_store_set (GTK_LIST_STORE (npc_list), &iter, 0, name.c_str(), -1);
+        
+        if (name == e->npc ())
+        {
+            gtk_combo_box_set_active_iter (npc_selection, &iter);
+        }
     }
 
-    // set the NPC this circle is assigned to    
-    setOption (GTK_OPTION_MENU (npc_selection), e->npc ().c_str ());
+    // set sorting
+    gtk_tree_sortable_set_sort_func (GTK_TREE_SORTABLE(npc_list), 0, sort_strings, NULL, NULL);
+    gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE(npc_list), 0, GTK_SORT_ASCENDING);
     
     // the option menu with the available moods
     label = gtk_label_new ("Mood: ");
@@ -285,6 +308,7 @@ GuiCircle::GuiCircle (GtkWindow *parent, node_type *t, DlgCircleEntry *e, DlgMod
     gtk_container_add (GTK_CONTAINER (scrolledwindow), annotation_view);
     gtk_tooltips_set_tip (tooltips, annotation_view, "Here is room for comments and other reminders", NULL);
     gtk_text_view_set_editable (GTK_TEXT_VIEW (annotation_view), TRUE);
+    gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (annotation_view), GTK_WRAP_WORD);
     
     // insert text
     gtk_text_buffer_set_text (GTK_TEXT_BUFFER (annotation_entry), e->annotation ().c_str (), -1);
@@ -369,14 +393,14 @@ GuiCircle::GuiCircle (GtkWindow *parent, node_type *t, DlgCircleEntry *e, DlgMod
     GTK_WIDGET_SET_FLAGS (cancel_button, GTK_CAN_DEFAULT);
 
     // the various input handlers
-    gtk_signal_connect (GTK_OBJECT (notebook1), "switch_page", GTK_SIGNAL_FUNC (on_switch_page), window);
-    gtk_signal_connect (GTK_OBJECT (player_button), "clicked", GTK_SIGNAL_FUNC (on_radio_button_pressed), text_view);
-    gtk_signal_connect (GTK_OBJECT (npc_button), "clicked", GTK_SIGNAL_FUNC (on_radio_button_pressed), text_view);
-    gtk_signal_connect (GTK_OBJECT (narrator_button), "clicked", GTK_SIGNAL_FUNC (on_radio_button_pressed), text_view);
-    gtk_signal_connect (GTK_OBJECT (ok_button), "clicked", GTK_SIGNAL_FUNC (on_circle_ok_button_pressed), this);
-    gtk_signal_connect (GTK_OBJECT (cancel_button), "clicked", GTK_SIGNAL_FUNC (gtk_main_quit), NULL);
-    gtk_signal_connect (GTK_OBJECT (window), "delete_event", GTK_SIGNAL_FUNC (gtk_main_quit), NULL);
-    gtk_signal_connect (GTK_OBJECT (window), "destroy", GTK_SIGNAL_FUNC (gtk_widget_destroyed), &window);
+    g_signal_connect (G_OBJECT (notebook1), "switch_page", G_CALLBACK (on_switch_page), window);
+    g_signal_connect (G_OBJECT (player_button), "clicked", G_CALLBACK (on_radio_button_pressed), text_view);
+    g_signal_connect (G_OBJECT (npc_button), "clicked", G_CALLBACK (on_radio_button_pressed), text_view);
+    g_signal_connect (G_OBJECT (narrator_button), "clicked", G_CALLBACK (on_radio_button_pressed), text_view);
+    g_signal_connect (G_OBJECT (ok_button), "clicked", G_CALLBACK (on_circle_ok_button_pressed), this);
+    g_signal_connect (G_OBJECT (cancel_button), "clicked", G_CALLBACK (gtk_main_quit), NULL);
+    g_signal_connect (G_OBJECT (window), "delete_event", G_CALLBACK (gtk_main_quit), NULL);
+    g_signal_connect (G_OBJECT (window), "destroy", G_CALLBACK (gtk_widget_destroyed), &window);
     
     // give focus to the text entry
     gtk_widget_grab_focus (text_view);
@@ -406,18 +430,22 @@ void GuiCircle::applyChanges ()
 
     entry->setCode (code_edit->getText ());
     entry->setCondition (cond_edit->getText ());
-    entry->setNpc (getOption (GTK_OPTION_MENU (npc_selection)));
+    entry->setNpc (getOption (npc_selection));
     entry->setLoop (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (loop)));
 }
 
 // returns selected option
-gchar *GuiCircle::getOption (GtkOptionMenu * o)
+gchar *GuiCircle::getOption (GtkComboBox * cbox)
 {
-    GtkMenu *m = (GtkMenu *) gtk_option_menu_get_menu (o);
-    GtkMenuItem *i = (GtkMenuItem *) gtk_menu_get_active (m);
-    gchar *s = (gchar *) gtk_object_get_user_data (GTK_OBJECT (i));
-
-    return s ? s : s = "Default";
+    GtkTreeIter iter;
+    gchar *option = NULL;
+    if (gtk_combo_box_get_active_iter (cbox, &iter))
+    {
+        GtkTreeModel *model = gtk_combo_box_get_model (cbox);
+        gtk_tree_model_get (model, &iter, 0, &option, -1);
+    }
+    
+    return option ? option : option = "Default";
 }
 
 // sets a default option

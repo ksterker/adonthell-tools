@@ -29,6 +29,7 @@
 #include <gtk/gtk.h>
 #include "dlg_circle.h"
 #include "dlg_module.h"
+#include "gui_dlgedit.h"
 #include "gui_tooltip.h"
 
 // constructor
@@ -39,6 +40,9 @@ GuiTooltip::GuiTooltip (DlgNode *n)
 
     // the actual tooltip
     tooltip = gtk_window_new (GTK_WINDOW_POPUP);
+    gtk_window_set_keep_above (GTK_WINDOW (tooltip), FALSE);
+    gtk_window_set_transient_for (GTK_WINDOW (tooltip), GTK_WINDOW (GuiDlgedit::window->getWindow ()));
+        
     gtk_object_set_data (GTK_OBJECT (tooltip), "tip_window", tooltip);
     gtk_window_set_resizable (GTK_WINDOW (tooltip), FALSE);
 
