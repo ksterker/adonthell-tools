@@ -205,34 +205,85 @@ guint key_press_notify_event (GtkWidget * widget, GdkEventKey * event, gpointer 
 
     switch (event->keyval)
     {
+	    // scroll up
+	    case GDK_Up:
+	    {
+	    	if (graph->scrollingAllowed()) 
+	    	{
+	    		graph->setScrollOffset(0, 40);
+	    		graph->scroll();
+	    	}
+	        break;
+	    }
+            
+        // scroll down
+	    case GDK_Down:
+	    {
+	    	if (graph->scrollingAllowed()) 
+	    	{
+	    		graph->setScrollOffset(0, -40);
+	    		graph->scroll();
+	    	}
+	        break;
+	    }
+            
+        // scroll left
+	    case GDK_Left:
+	    {
+	    	if (graph->scrollingAllowed()) 
+	    	{
+	    		graph->setScrollOffset(40, 0);
+	    		graph->scroll();
+	    	}
+	        break;
+	    }
+            
+        // scroll right
+	    case GDK_Right:
+	    {
+	    	if (graph->scrollingAllowed())
+	    	{
+	    		graph->setScrollOffset(-40, 0);
+	    		graph->scroll();
+	    	}
+	        break;
+	    }
+
+        // center current node
+        case 'c':
+        {
+            graph->centerNode ();
+            break;
+        }
+            
         // select parent node
-        case GDK_Up:
+        case 'w':
         {
             if (graph->selectParent ()) graph->centerNode ();
             break;
         }
-        
+            
         // select child node
-        case GDK_Down:
+        case 's':
         {
             if (graph->selectChild ()) graph->centerNode ();
             break;
         }
-        
+            
         // select sibling to the left
-        case GDK_Left:
+        case 'a':
         {
             if (graph->selectSibling (PREV)) graph->centerNode ();
             break;
         }
-        
+            
         // select sibling to the right
-        case GDK_Right:
+        case 'd':
         {
             if (graph->selectSibling (NEXT)) graph->centerNode ();
             break;
         }
-        
+            
         // edit selected node
         case GDK_Return:
         {
