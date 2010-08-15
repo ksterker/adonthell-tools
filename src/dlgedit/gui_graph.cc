@@ -637,7 +637,8 @@ void GuiGraph::drag (DlgPoint &point)
     point.move (-offset->x (), -offset->y ());
     
     // move node
-    mover->setPos (point);
+    mover->setPos (DlgPoint (point.x () - (point.x () % CIRCLE_DIAMETER), 
+                             point.y () - (point.y () % CIRCLE_DIAMETER)));
         
     // update arrows
     for (DlgNode *a = mover->prev (FIRST); a != NULL; a = mover->prev (NEXT))
@@ -694,7 +695,7 @@ void GuiGraph::stopDragging (DlgPoint &point)
     {
         // make sure we drop on an empty location
         DlgNode *node = module->getNode (point);
-        while (node != NULL && node->type() != LINK)
+        while (node != NULL && node != mover && node->type() != LINK)
         {
             point.move (0, 2*CIRCLE_DIAMETER);
             node = module->getNode (point);

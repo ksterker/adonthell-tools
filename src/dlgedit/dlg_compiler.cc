@@ -29,6 +29,7 @@
 #include <iterator>
 #include <iostream>
 #include <cstring>
+#include <algorithm>
 #include "dlg_cmdline.h"
 #include "dlg_compiler.h"
 #include "dlg_types.h"
@@ -93,10 +94,13 @@ void DlgCompiler::run ()
     // try to open the file
     std::string fname = dialogue->fullName ();
 
+    // replace '-' by '_' as python doesn't like it
+    std::replace (fname.begin(), fname.end(), '-', '_');
+    
     // remove the file extension
     unsigned long pos = fname.rfind (FILE_EXT);
     if (pos != fname.npos) fname.erase (pos);
-
+    
     // try to open the file
     file.open ((fname + ".py").c_str ());
     if (file.eof ()) return;
@@ -533,7 +537,7 @@ void DlgCompiler::writeDialogue ()
 {
     std::vector<DlgNode*> nodes = dialogue->getNodes ();
     std::vector<DlgNode*>::iterator i;
-    DlgCircle *circle, *child;
+    DlgCircle *circle = NULL, *child;
     DlgCircleEntry *entry;
         
     for (i = nodes.begin (); i != nodes.end (); i++)
@@ -541,6 +545,11 @@ void DlgCompiler::writeDialogue ()
         // nothing to be done for Arrows
         if ((*i)->type () == LINK) continue;
     
+        // write circle coordinate for easier conversion to .adlg file
+        file << ")),";
+        if (circle != NULL) file << "\t# " << circle->x() << "," << circle->y();
+        file << "\n\t\t(";
+
         circle = (DlgCircle *) (*i);
         
         // check the conditions of the circle's children
@@ -548,8 +557,6 @@ void DlgCompiler::writeDialogue ()
         
         // get the entry of the current circle
         entry = circle->entry ();
-        
-        file << ")),\\\n\t\t(";
         
         // write Speaker
         switch (circle->type ())
@@ -578,8 +585,10 @@ void DlgCompiler::writeDialogue ()
     }
     
     // end of array
-    file << "))]\n\n";
-} 
+    file << "))]";
+    if (circle != NULL) file << "\t# " << circle->x() << "," << circle->y();
+    file << "\n\n";
+}
 
 // write a single follower
 void DlgCompiler::writeFollower (DlgNode *node)

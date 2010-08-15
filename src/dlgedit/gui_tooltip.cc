@@ -42,7 +42,8 @@ GuiTooltip::GuiTooltip (DlgNode *n)
     tooltip = gtk_window_new (GTK_WINDOW_POPUP);
     gtk_window_set_keep_above (GTK_WINDOW (tooltip), FALSE);
     gtk_window_set_transient_for (GTK_WINDOW (tooltip), GTK_WINDOW (GuiDlgedit::window->getWindow ()));
-        
+    gtk_window_set_type_hint (GTK_WINDOW (tooltip), GDK_WINDOW_TYPE_HINT_TOOLTIP);
+    
     gtk_object_set_data (GTK_OBJECT (tooltip), "tip_window", tooltip);
     gtk_window_set_resizable (GTK_WINDOW (tooltip), FALSE);
 
