@@ -24,6 +24,8 @@
  * @brief Container for a map and associated data.
  */
 
+#include <algorithm>
+
 #include "map_data.h"
 #include "map_entity.h"
 

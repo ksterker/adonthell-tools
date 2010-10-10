@@ -24,8 +24,10 @@
  * @brief Meta data for entities used on the map.
  */
 
+#include <algorithm>
 #include <cctype>
 #include <gtk/gtk.h>
+
 #include <world/renderer.h>
 #include <world/object.h>
 #include <world/character.h>

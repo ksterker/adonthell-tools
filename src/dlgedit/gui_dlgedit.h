@@ -218,7 +218,7 @@ private:
     GtkWidget *status_mode;         // statusbar displaying the program state
     std::vector<DlgModule*> dialogues_;// dialogues currently loaded
     std::string directory_;            // directory used in last file-selection
-    static char *progState[NUM_MODES]; // Textual program states
+    static const char *progState[NUM_MODES]; // Textual program states
 };
 
 #endif // GUI_DLGEDIT_H

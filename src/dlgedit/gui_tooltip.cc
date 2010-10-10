@@ -39,10 +39,11 @@ GuiTooltip::GuiTooltip (DlgNode *n)
     std::string text;
 
     // the actual tooltip
-    tooltip = gtk_window_new (GTK_WINDOW_POPUP);
+    tooltip = gtk_window_new (GTK_WINDOW_TOPLEVEL);
     gtk_window_set_keep_above (GTK_WINDOW (tooltip), FALSE);
     gtk_window_set_transient_for (GTK_WINDOW (tooltip), GTK_WINDOW (GuiDlgedit::window->getWindow ()));
-    gtk_window_set_type_hint (GTK_WINDOW (tooltip), GDK_WINDOW_TYPE_HINT_TOOLTIP);
+    gtk_window_set_type_hint (GTK_WINDOW (tooltip), GDK_WINDOW_TYPE_HINT_NOTIFICATION);
+    gtk_window_set_opacity (GTK_WINDOW (tooltip), 0.9f);
     
     gtk_object_set_data (GTK_OBJECT (tooltip), "tip_window", tooltip);
     gtk_window_set_resizable (GTK_WINDOW (tooltip), FALSE);

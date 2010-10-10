@@ -74,7 +74,7 @@ extern void parser_restore_input ();
 /**
  * Icon of the main window
  */
-static char * icon_xpm[] = {
+static const char *icon_xpm[] = {
 "16 16 13 1",
 " 	c None",
 ".	c #888888",
@@ -114,7 +114,7 @@ GuiDlgedit *GuiDlgedit::window = NULL;
 /**
  * Strings describing the various program states
  */
-char *GuiDlgedit::progState[NUM_MODES] = 
+const char *GuiDlgedit::progState[NUM_MODES] =
     { " IDLE", " SELECTED", " HIGHLIGHTED", " DRAGGED", " PREVIEW" };
 
 // Create the main window
@@ -889,7 +889,7 @@ DlgModule *GuiDlgedit::initDialogue (std::string name)
 // sets the window title
 void GuiDlgedit::initTitle ()
 {
-    gchar *title = "Adonthell Dialogue Editor v"_VERSION_;
+    gchar *title = (char*) "Adonthell Dialogue Editor v"_VERSION_;
     DlgModule *module = graph_->dialogue ();
   
     if (module != NULL)
@@ -1003,7 +1003,7 @@ void GuiDlgedit::clear ()
 
 void GuiDlgedit::setMode (mode_type mode)
 {
-    char *text;
+    const char *text;
     
     // get the string representing the current program state   
     if (mode < IDLE || mode >= NUM_MODES)
