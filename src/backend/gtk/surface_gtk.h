@@ -49,6 +49,8 @@ namespace gfx
         virtual void fillrect (s_int16 x, s_int16 y, u_int16 l, u_int16 h,
                                u_int32 col, drawing_area * da_opt = NULL);
 
+        virtual void scale(surface *target, const u_int32 & factor) const;
+
         virtual void mirror(bool x, bool y);
 
         virtual u_int32 map_color(const u_int8 & r, const u_int8 & g, const u_int8 & b, const u_int8 & a = 255) const;

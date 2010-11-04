@@ -189,6 +189,19 @@ void surface_gtk::fillrect (s_int16 x, s_int16 y, u_int16 l, u_int16 h, u_int32 
     cairo_destroy (cr);
 }
 
+// scaled blit onto target
+void surface_gtk::scale (surface *target, const u_int32 & factor) const
+{
+    cairo_t* cr = ((const surface_gtk *) target)->create_drawing_context ();
+
+    cairo_set_source_surface (cr, vis, 0, 0);
+    cairo_scale (cr, factor, factor);
+    cairo_paint (cr);
+
+    // cleanup
+    cairo_destroy (cr);
+}
+
 // convert RGBA color to surface format
 u_int32 surface_gtk::map_color (const u_int8 & r, const u_int8 & g, const u_int8 & b, const u_int8 & a) const
 {

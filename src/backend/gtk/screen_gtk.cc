@@ -21,6 +21,7 @@
 
 #ifdef USE_LIBTOOL
 /* exported names for libltdl */
+#define gfx_screen_get_video_mode _gtk_LTX_gfx_screen_get_video_mode
 #define gfx_screen_set_video_mode _gtk_LTX_gfx_screen_set_video_mode
 #define gfx_screen_update _gtk_LTX_gfx_screen_update
 #define gfx_screen_trans_color _gtk_LTX_gfx_screen_trans_color
@@ -35,12 +36,21 @@ u_int32 trans_color = 0xFFFF00FF;
 
 extern "C"
 {
+	void gfx_screen_get_video_mode(u_int16 *l, u_int16 *h, u_int8 *depth);
     bool gfx_screen_set_video_mode(u_int16 nl, u_int16 nh, u_int8 depth);
     void gfx_screen_update();
     u_int32 gfx_screen_trans_color();
     void gfx_screen_clear();
     gfx::surface *gfx_screen_get_surface();
     std::string gfx_screen_info();
+}
+
+void gfx_screen_get_video_mode(u_int16 *l, u_int16 *h, u_int8 *depth)
+{
+    // this is a noop
+	*l = 0;
+	*h = 0;
+	*depth = 0;
 }
 
 bool gfx_screen_set_video_mode(u_int16 nl, u_int16 nh, u_int8 depth)
