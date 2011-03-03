@@ -329,7 +329,9 @@ GdkPixbuf *MapEntity::get_icon (const u_int32 & size) const
     int h = Object->width() + Object->height();
     
     // create pixmap
-    GdkPixmap* pixmap = gdk_pixmap_new (NULL, l, h, gdk_visual_get_best_depth ());
+    GdkVisual *vis = gdk_visual_get_system();
+    GdkPixmap* pixmap = gdk_pixmap_new (NULL, l, h, gdk_visual_get_depth (vis));
+    gdk_drawable_set_colormap (GDK_DRAWABLE(pixmap), gdk_colormap_get_system ());
     
     // render entity onto a pixmap
     gfx::screen_surface_gtk *surface = (gfx::screen_surface_gtk*) gfx::screen::get_surface();
