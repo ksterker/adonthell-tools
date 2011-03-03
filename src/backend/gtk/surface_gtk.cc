@@ -414,6 +414,7 @@ bool surface_gtk::get_png (std::ifstream & file)
     {
         set_length (cairo_image_surface_get_width (vis));
         set_height (cairo_image_surface_get_height (vis)); 
+        alpha_channel_ = cairo_image_surface_get_format (vis) == CAIRO_FORMAT_ARGB32;
     }
     
     return vis != NULL;
