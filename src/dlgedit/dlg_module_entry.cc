@@ -68,7 +68,7 @@ bool DlgModuleEntry::setProject (std::string p)
         if (p != "none")
         {
             // set path
-            base::Paths.init (p,  DlgCmdline::datadir);
+            base::Paths().init (p,  DlgCmdline::datadir);
 
             retval &= loadCharacters ();
             retval &= loadQuests ();

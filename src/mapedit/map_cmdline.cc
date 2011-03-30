@@ -37,6 +37,9 @@ std::string MapCmdline::datadir = DATA_DIR"/games";
 // the default project
 std::string MapCmdline::project = "";
 
+// the default project
+std::string MapCmdline::modeldir = "models";
+
 // index of the first dialgoue source in argv[]
 int MapCmdline::sources;
 
@@ -46,7 +49,7 @@ bool MapCmdline::parse (int argc, char* argv[])
     int c;
     
     // Check for options
-    while ((c = getopt (argc, argv, "dhvg:p:")) != -1)
+    while ((c = getopt (argc, argv, "dhvg:p:m:")) != -1)
     {
         switch (c)
         {
@@ -88,6 +91,16 @@ bool MapCmdline::parse (int argc, char* argv[])
                 break;
             }
             
+            case 'm':
+            {
+                modeldir = optarg;
+
+                if (modeldir[modeldir.size () - 1] == '/')
+                    modeldir.erase (modeldir.size () - 1);
+
+                break;
+            }
+
             case '?':
             case 'h':
             {

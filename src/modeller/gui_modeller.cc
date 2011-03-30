@@ -69,13 +69,13 @@ static void on_file_load (GtkMenuItem * menuitem, gpointer user_data)
     std::string directory = modeller->modelDirectory();
     if (directory.size() == 0)
     {
-        directory = base::Paths.user_data_dir();
+        directory = base::Paths().user_data_dir();
     }
     
     // open file chooser
     GuiFile fs (parent, GTK_FILE_CHOOSER_ACTION_OPEN, "Open Model", directory + "/");
     fs.add_filter ("*.xml", "Adonthell Model");
-    fs.add_shortcut (base::Paths.user_data_dir() + "/models/");
+    fs.add_shortcut (base::Paths().user_data_dir() + "/models/");
     
     // File selection closed with OK
     if (fs.run ()) modeller->loadModel (fs.getSelection ());
@@ -94,7 +94,7 @@ static void on_file_save_as_activate (GtkMenuItem * menuitem, gpointer user_data
     if (filename.find ("untitled") != filename.npos)
     {        
         saveDir = modeller->spriteDirectory ();
-        size_t index = saveDir.find ("/gfx/"); 
+        size_t index = saveDir.find ("/gfx");
         if (index != std::string::npos)
         {
             saveDir.replace (index, 4, "/models");
@@ -117,11 +117,11 @@ static void on_file_save_as_activate (GtkMenuItem * menuitem, gpointer user_data
     
     // try to create directory, if it doesn't exist
     // TODO: make a program setting for that instead of doing it by default 
-    // g_mkdir_with_parents (spriteDir.c_str(), 0755);
+    g_mkdir_with_parents (saveDir.c_str(), 0755);
         
     GuiFile fs (parent, GTK_FILE_CHOOSER_ACTION_SAVE, "Save Model", saveDir + "/" + filename);
     fs.add_filter ("*.xml", "Adonthell Model");
-    fs.add_shortcut (base::Paths.user_data_dir() + "/models/");
+    fs.add_shortcut (base::Paths().user_data_dir() + "/models/");
 
     // File selection closed with OK
     if (fs.run ()) modeller->saveModel (fs.getSelection ());
@@ -246,7 +246,7 @@ static void on_add_sprite_pressed (GtkButton * button, gpointer user_data)
     
     GuiFile fs (parent, GTK_FILE_CHOOSER_ACTION_OPEN, "Load Sprite", modeller->spriteDirectory () + "/");
     fs.add_filter ("*.xml|*.png", "Adonthell Sprite");
-    fs.add_shortcut (base::Paths.user_data_dir() + "/gfx/");
+    fs.add_shortcut (base::Paths().user_data_dir() + "/gfx/");
 
     // File selection closed with OK
     if (fs.run ()) modeller->addSprite (fs.getSelection ());
@@ -519,7 +519,7 @@ void GuiModeller::addSprite (const std::string & name)
     world::placeable_model *model = new world::placeable_model();
     
     // try to create a relative sprite path
-    std::string sprite_path = util::get_relative_path (name, "gfx/");
+    std::string sprite_path = util::get_relative_path (name, "/gfx");
     if (g_path_is_absolute (sprite_path.c_str()))
     {
         // FIXME: display error in status bar

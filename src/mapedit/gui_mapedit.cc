@@ -327,8 +327,8 @@ void GuiMapedit::newMap ()
     EntityList->setMap (area);
     ZoneList->setMap (area);
     
-    std::string datadir = base::Paths.user_data_dir ();
-    EntityList->setDataDir (std::string (datadir) + "/models");
+    std::string datadir = base::Paths().user_data_dir ();
+    EntityList->setDataDir (std::string (datadir) + "/" + MapCmdline::modeldir);
 }
 
 // load map from disk
@@ -348,7 +348,7 @@ void GuiMapedit::loadMap (const std::string & fname)
     ZoneList->setMap (area);
     
     gchar *datadir = g_path_get_dirname (fname.c_str());
-    EntityList->setDataDir (std::string (datadir) + "/models");
+    EntityList->setDataDir (std::string (datadir) + "/" + MapCmdline::modeldir);
     g_free (datadir);
 }
 

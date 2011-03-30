@@ -53,11 +53,17 @@ public:
     static std::string datadir;
     
     /**
-     * The project. This is the directory that contains the mapobjects
-     * that can be placed on the map.
+     * The project. This is the directory that contains the model
+     * directory.
      */
     static std::string project;
     
+    /**
+     * The directory where mapedit searches for models to
+     * place on the map. The default is "models/"
+     */
+    static std::string modeldir;
+
     /**
      * The index in the argument vector pointing to the first non-option.
      * With a bit of luck, this is a map file to load on startup.

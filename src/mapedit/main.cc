@@ -65,8 +65,8 @@ int main (int argc, char *argv[])
     python::init();
 
     // update the python search path
-    python::add_search_path (base::Paths.game_data_dir());
-    python::add_search_path (base::Paths.user_data_dir());
+    python::add_search_path (base::Paths().game_data_dir());
+    python::add_search_path (base::Paths().user_data_dir());
     
     // need to load world module
     python::import_module ("adonthell.world");

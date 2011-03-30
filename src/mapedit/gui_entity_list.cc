@@ -34,6 +34,7 @@
 
 #include "common/util.h"
 
+#include "map_cmdline.h"
 #include "gui_mapedit.h"
 #include "gui_mapview.h"
 #include "gui_entity_list.h"
@@ -448,7 +449,7 @@ void GuiEntityList::scanDir (const std::string & datadir, GtkListStore *model)
                     // not present on map, so add it to the list
                     
                     // try to create a relative sprite path
-                    std::string model_path = util::get_relative_path (filepath, "models/");
+                    std::string model_path = util::get_relative_path (filepath, MapCmdline::modeldir + "/");
                     if (g_path_is_absolute (model_path.c_str()))
                     {
                         // FIXME: display error in status bar

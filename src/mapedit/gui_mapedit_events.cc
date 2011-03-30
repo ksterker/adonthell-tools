@@ -59,7 +59,7 @@ void on_file_load_activate (GtkMenuItem * menuitem, gpointer user_data)
     
     GuiFile fs (parent, GTK_FILE_CHOOSER_ACTION_OPEN, "Load map", mapedit->directory ());
     fs.add_filter ("*.xml", "Adonthell Map");
-    fs.add_shortcut (base::Paths.user_data_dir() + "/");
+    fs.add_shortcut (base::Paths().user_data_dir() + "/");
 
     // File selection closed with OK
     if (fs.run ()) mapedit->loadMap (fs.getSelection ());
@@ -86,7 +86,7 @@ void on_file_save_as_activate (GtkMenuItem * menuitem, gpointer user_data)
 
     GuiFile fs (parent, GTK_FILE_CHOOSER_ACTION_SAVE, "Save Map", mapedit->filename ());
     fs.add_filter ("*.xml", "Adonthell Map");
-    fs.add_shortcut (base::Paths.user_data_dir() + "/");
+    fs.add_shortcut (base::Paths().user_data_dir() + "/");
 
     // File selection closed with OK
     if (fs.run ()) mapedit->saveMap (fs.getSelection ());

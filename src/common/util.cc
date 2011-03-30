@@ -40,22 +40,26 @@
 // get path relative to data directory
 std::string util::get_relative_path (const std::string & path, const std::string & target_dir)
 {
-    std::string base_path = MK_UNIX_PATH (base::Paths.user_data_dir());
+    std::string base_path = MK_UNIX_PATH (base::Paths().user_data_dir());
     std::string rel_path = path;
     
     // make sure to use path relative to (user defined) data directory
     if (base_path == "" || !remove_common_path (rel_path, base_path))
     {
         // fallback to builtin data dir if that doesn't seem to work
-        base_path = MK_UNIX_PATH (base::Paths.game_data_dir());
+        base_path = MK_UNIX_PATH (base::Paths().game_data_dir());
         if (!remove_common_path (rel_path, base_path))
         {
-            // if everythin fails, try locating target_dir in the path and use 
+            // if everything fails, try locating target_dir in the path and use
             // that as relative path
             size_t pos = rel_path.rfind (target_dir);
             if (pos != std::string::npos)
             {
                 rel_path = rel_path.substr (pos);
+                if (rel_path[0] == '/')
+                {
+                    rel_path = rel_path.substr (1);
+                }
             }
         }
     }

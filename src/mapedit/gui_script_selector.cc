@@ -105,8 +105,8 @@ void GuiScriptSelector::set_script_package (const std::string & dir)
     GtkListStore *script_list = GTK_LIST_STORE (gtk_combo_box_get_model (Script));
     gtk_list_store_clear (script_list);
 
-    scan_script_dir (base::Paths.game_data_dir () + scandir);
-    scan_script_dir (base::Paths.user_data_dir () + scandir);    
+    scan_script_dir (base::Paths().game_data_dir () + scandir);
+    scan_script_dir (base::Paths().user_data_dir () + scandir);    
 }
 
 // find all valid manager schedule scripts
