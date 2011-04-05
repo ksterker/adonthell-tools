@@ -385,7 +385,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkLabel" id="lbl_args_0">
+                                  <object class="GtkLabel" id="lbl_args_a_0">
                                     <property name="visible">True</property>
                                     <property name="xalign">1</property>
                                     <property name="label" translatable="yes">Arguments</property>
@@ -397,7 +397,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkEntry" id="entry_args_0">
+                                  <object class="GtkEntry" id="entry_args_a_0">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="invisible_char">&#x25CF;</property>
@@ -516,7 +516,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkLabel" id="lbl_args_0">
+                                  <object class="GtkLabel" id="lbl_args_b_0">
                                     <property name="visible">True</property>
                                     <property name="label" translatable="yes">Arguments</property>
                                   </object>
@@ -527,7 +527,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkEntry" id="entry_args_0">
+                                  <object class="GtkEntry" id="entry_args_b_0">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="invisible_char">&#x25CF;</property>
