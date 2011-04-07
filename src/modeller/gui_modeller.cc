@@ -36,6 +36,7 @@
 
 #include "common/util.h"
 
+#include "mdl_cmdline.h"
 #include "gui_modeller.h"
 #include "gui_preview.h"
 #include "gui_file.h"
@@ -302,6 +303,7 @@ GuiModeller::GuiModeller ()
     
     Ui = gtk_builder_new();
     Filename = "untitled.xml";
+    SpriteDir = MdlCmdline::datadir + "/" + MdlCmdline::project;
     Spritename = "";
     
 	if (!gtk_builder_add_from_string(Ui, modeller_ui, -1, &err)) 
@@ -389,6 +391,9 @@ GuiModeller::GuiModeller ()
     gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW(widget), -1, "Shapes", renderer, "text", 0, NULL);
     selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(widget));
     g_signal_connect (G_OBJECT(selection), "changed", G_CALLBACK(shape_selected_event), this);
+
+    // update title
+    setTitle(false);
 }
 
 // start creating a new model
@@ -415,6 +420,9 @@ void GuiModeller::newModel ()
     setActive("copy_shape", false);
     setActive("remove_shape", false);
     setActive("remove_sprite", false);
+
+    // update title
+    setTitle(false);
 }
 
 // load model from disk
@@ -461,6 +469,9 @@ void GuiModeller::loadModel (const std::string & name)
             addModel (model);
         }
     }
+
+    // update title
+    setTitle(false);
 }    
 
 // save model to disk
@@ -497,6 +508,9 @@ void GuiModeller::saveModel (const std::string & name)
     }
     
     placeable.put_record (name);
+
+    // update title
+    setTitle(false);
 }
 
 // add a new sprite to the model
@@ -581,6 +595,9 @@ void GuiModeller::addModel (world::placeable_model *model)
         
         // cleanup
         g_free (sprite_name);
+
+        // update modified state
+        setTitle(true);
     }
 }
 
@@ -630,7 +647,10 @@ void GuiModeller::removeSprite ()
             setActive ("copy_shape", false);
             setActive ("paste_shape", false);
             setActive ("remove_shape", false);
-            setActive ("remove_sprite", false);            
+            setActive ("remove_sprite", false);
+
+            // update modified state
+            setTitle(true);
         }
     }
 }
@@ -666,6 +686,9 @@ void GuiModeller::addShape ()
             gtk_tree_selection_select_path (selection, path);
             
             gtk_tree_path_free (path);
+
+            // update modified state
+            setTitle(true);
         }
     }
 }
@@ -742,6 +765,9 @@ void GuiModeller::pasteShapes ()
                 
                 // update preview
                 updateShapeList (model);
+
+                // update modified state
+                setTitle(true);
             }                
         }            
     }
@@ -788,6 +814,9 @@ void GuiModeller::removeShape ()
                 gtk_tree_selection_select_path (selection, path);                
                 gtk_tree_path_free (path);                
             }
+
+            // update modified state
+            setTitle(true);
         }
     }
 }
@@ -806,6 +835,9 @@ void GuiModeller::setSolid (const bool & is_solid)
         if (shape != NULL)
         {
             shape->set_solid (is_solid);
+
+            // update modified state
+            setTitle(true);
         }
     }
 }
@@ -845,6 +877,10 @@ void GuiModeller::updateShapeList (world::placeable_model *model)
         gtk_tree_store_set (shape_store, &shape_iter, 0, "cube", 1, (gpointer) *i, -1);
     }
     
+    // expand list
+    GtkTreeView *tree_view = GTK_TREE_VIEW(gtk_builder_get_object (Ui, "shape_view"));
+    gtk_tree_view_expand_all (tree_view);
+
     // enable add shape button
     setActive ("copy_shape", true);
     setActive ("add_shape", true);
@@ -860,4 +896,14 @@ void GuiModeller::setActive (const std::string & id, const bool & sensitive)
 {
     GtkWidget *widget = GTK_WIDGET(gtk_builder_get_object (Ui, id.c_str()));
     gtk_widget_set_sensitive (widget, sensitive);
+}
+
+// update title bar
+void GuiModeller::setTitle(const bool & modified)
+{
+    std::string title = "Adonthell Modeller v"VERSION" [";
+    title += filename();
+    title += modified ? "*]" : "]";
+
+    gtk_window_set_title(GTK_WINDOW(Window), title.c_str());
 }

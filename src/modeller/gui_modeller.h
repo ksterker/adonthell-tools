@@ -167,6 +167,13 @@ public:
      */
     void setActive (const std::string & id, const bool & sensitive);
     
+protected:
+    /**
+     * Update main window title.
+     * @param modified whether the edited model is modified.
+     */
+    void setTitle(const bool & modified);
+
 private:
     /// a shape that has been copied
     world::placeable_shape *ShapeToPaste;
