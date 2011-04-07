@@ -256,7 +256,7 @@ PyObject *GuiScriptSelector::get_arguments () const
         while (children != NULL)
         {
             GtkWidget *widget = GTK_WIDGET(children->data);
-            const gchar* name = gtk_widget_get_name (widget);
+            const gchar* name = gtk_buildable_get_name (GTK_BUILDABLE(widget));
             if (strncmp ("entry_args", name, 10) == 0)
             {
                 int index;
@@ -455,7 +455,7 @@ void GuiScriptSelector::update_arg_table (std::string *arg_list, const long & le
     while (children != NULL)
     {
         GtkWidget *widget = GTK_WIDGET(children->data);
-        const gchar* name = gtk_widget_get_name (widget);
+        const gchar* name = gtk_buildable_get_name (GTK_BUILDABLE (widget));
         if (strncmp ("entry_args", name, 10) == 0)
         {
             gtk_container_remove (GTK_CONTAINER(Arguments), widget);
@@ -520,7 +520,7 @@ void GuiScriptSelector::set_arguments (PyObject *args)
         while (children != NULL)
         {
             GtkWidget *widget = GTK_WIDGET(children->data);
-            const gchar* name = gtk_widget_get_name (widget);
+            const gchar* name = gtk_buildable_get_name (GTK_BUILDABLE(widget));
             if (strncmp ("entry_args", name, 10) == 0)
             {
                 int index;

@@ -92,7 +92,7 @@ static void on_type_changed (GtkToggleButton * button, gpointer user_data)
     if (gtk_toggle_button_get_active (button))
     {
         GuiEntityDialog *dlg = (GuiEntityDialog *) user_data;
-        const gchar *id = gtk_widget_get_name (GTK_WIDGET(button));
+        const gchar *id = gtk_buildable_get_name (GTK_BUILDABLE(button));
         if (strcmp (id, "type_scenery") == 0)
         {
             dlg->set_object_type (world::OBJECT);

@@ -56,7 +56,7 @@ static void update_size (GtkSpinButton *spinbutton, gpointer user_data)
     char tmp[16];
     GObject *widget;
     GtkBuilder *ui = (GtkBuilder*) user_data;
-    std::string name (gtk_widget_get_name (GTK_WIDGET (spinbutton)));
+    std::string name (gtk_buildable_get_name (GTK_BUILDABLE (spinbutton)));
     
     sprintf (tmp, "min_%c", *name.rbegin());
     widget = gtk_builder_get_object (ui, tmp);
