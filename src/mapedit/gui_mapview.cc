@@ -199,9 +199,6 @@ void GuiMapview::renderObject (world::chunk_info *obj)
 // update size of the view
 void GuiMapview::resizeSurface (GtkWidget *widget)
 {
-    // set the size of the drawing area
-    gtk_widget_set_size_request (GTK_WIDGET (Screen), widget->allocation.width, widget->allocation.height);
-
     // set the size of the actual map view
     View->resize (widget->allocation.width, widget->allocation.height);
     
