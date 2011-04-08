@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <requires lib="gtk+" version="2.16"/>
   <!-- interface-naming-policy project-wide -->
@@ -25,14 +25,13 @@
     <child>
       <object class="GtkVBox" id="vbox1">
         <property name="visible">True</property>
-        <property name="orientation">vertical</property>
         <child>
           <object class="GtkMenuBar" id="menu_bar">
             <property name="visible">True</property>
             <child>
               <object class="GtkMenuItem" id="menuitem1">
                 <property name="visible">True</property>
-                <property name="label" translatable="yes">_Datei</property>
+                <property name="label" translatable="yes">_File</property>
                 <property name="use_underline">True</property>
                 <child type="submenu">
                   <object class="GtkMenu" id="menu1">
@@ -91,6 +90,51 @@
                 </child>
               </object>
             </child>
+            <child>
+              <object class="GtkMenuItem" id="menuitem2">
+                <property name="visible">True</property>
+                <property name="label">_Model</property>
+                <property name="use_underline">True</property>
+                <child type="submenu">
+                  <object class="GtkMenu" id="menu2">
+                    <property name="visible">True</property>
+                    <property name="ubuntu_local">True</property>
+                    <child>
+                      <object class="GtkImageMenuItem" id="item_zoom_in">
+                        <property name="label">gtk-zoom-in</property>
+                        <property name="visible">True</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
+                        <property name="accel_group">menu_accelerators</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkImageMenuItem" id="item_zoom_out">
+                        <property name="label">gtk-zoom-out</property>
+                        <property name="visible">True</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
+                        <property name="accel_group">menu_accelerators</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkSeparatorMenuItem" id="item_zoom_separator">
+                        <property name="visible">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkImageMenuItem" id="item_zoom_normal">
+                        <property name="label">gtk-zoom-100</property>
+                        <property name="visible">True</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
+                        <property name="accel_group">menu_accelerators</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -112,7 +156,6 @@
               <object class="GtkVBox" id="vbox2">
                 <property name="width_request">300</property>
                 <property name="visible">True</property>
-                <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkFrame" id="frame1">
                     <property name="visible">True</property>
@@ -230,12 +273,10 @@
                         <child>
                           <object class="GtkVBox" id="vbox3">
                             <property name="visible">True</property>
-                            <property name="orientation">vertical</property>
                             <property name="spacing">2</property>
                             <child>
-                              <object class="GtkVBox" id="vbox4">
+                              <object class="GtkHBox" id="hbox4">
                                 <property name="visible">True</property>
-                                <property name="orientation">horizontal</property>
                                 <property name="spacing">4</property>
                                 <child>
                                   <object class="GtkScrolledWindow" id="scrolledwindow2">
@@ -269,8 +310,8 @@
                                         <property name="sensitive">False</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
-                                        <property name="image">img_add2</property>
                                         <property name="tooltip_text" translatable="yes">Add new shape</property>
+                                        <property name="image">img_add2</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -284,8 +325,8 @@
                                         <property name="sensitive">False</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
-                                        <property name="image">img_remove2</property>
                                         <property name="tooltip_text" translatable="yes">Remove selected shape</property>
+                                        <property name="image">img_remove2</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -299,8 +340,8 @@
                                         <property name="sensitive">False</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
-                                        <property name="image">img_copy</property>
                                         <property name="tooltip_text" translatable="yes">Copy current shape(s) to clipboard</property>
+                                        <property name="image">img_copy</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -438,7 +479,7 @@
                               <object class="GtkEntry" id="offset_x">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="invisible_char">&#x25CF;</property>
+                                <property name="invisible_char">●</property>
                                 <property name="width_chars">3</property>
                               </object>
                               <packing>
@@ -453,7 +494,7 @@
                               <object class="GtkEntry" id="offset_y">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="invisible_char">&#x25CF;</property>
+                                <property name="invisible_char">●</property>
                                 <property name="width_chars">3</property>
                               </object>
                               <packing>
@@ -468,7 +509,7 @@
                               <object class="GtkEntry" id="pos_x">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="invisible_char">&#x25CF;</property>
+                                <property name="invisible_char">●</property>
                                 <property name="width_chars">3</property>
                               </object>
                               <packing>
@@ -483,7 +524,7 @@
                               <object class="GtkEntry" id="pos_y">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="invisible_char">&#x25CF;</property>
+                                <property name="invisible_char">●</property>
                                 <property name="width_chars">3</property>
                               </object>
                               <packing>
@@ -498,7 +539,7 @@
                               <object class="GtkEntry" id="pos_z">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="invisible_char">&#x25CF;</property>
+                                <property name="invisible_char">●</property>
                                 <property name="width_chars">3</property>
                               </object>
                               <packing>
@@ -513,7 +554,7 @@
                               <object class="GtkEntry" id="size_x">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="invisible_char">&#x25CF;</property>
+                                <property name="invisible_char">●</property>
                                 <property name="width_chars">3</property>
                               </object>
                               <packing>
@@ -528,7 +569,7 @@
                               <object class="GtkEntry" id="size_y">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="invisible_char">&#x25CF;</property>
+                                <property name="invisible_char">●</property>
                                 <property name="width_chars">3</property>
                               </object>
                               <packing>
@@ -543,7 +584,7 @@
                               <object class="GtkEntry" id="size_z">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="invisible_char">&#x25CF;</property>
+                                <property name="invisible_char">●</property>
                                 <property name="width_chars">3</property>
                               </object>
                               <packing>

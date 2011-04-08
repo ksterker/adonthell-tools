@@ -85,12 +85,16 @@ void ModelRenderer::draw (const s_int16 & x, const s_int16 & y, const world::ren
 {
     if (ActiveModel != NULL && obj.Shape == ActiveModel->current_shape())
     {
+        // draw everything behind the currently selected sprite
         Overlay->draw (0, 0, &da, target);
+        // clear overlay
         Overlay->fillrect (0, 0, Overlay->length(), Overlay->height(), 0);
+        // draw currently selected sprite
         renderer_base::draw (x, y, obj, da, target);        
     }
     else
     {
+        // render unselected sprites onto translucent overlay
         renderer_base::draw (x, y, obj, da, Overlay);        
     }
 }

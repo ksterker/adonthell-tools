@@ -145,16 +145,25 @@ void GuiPreview::draw (const int & sx, const int & sy, const int & l, const int 
     // set clipping rectangle
     gfx::drawing_area da (sx, sy, l, h);
     
-    // draw target
-    Target->draw (0, 0, &da, s);
+    // zoom stuff (testing)
+    if (base::Scale != 1)
+    {
+        gfx::surface *tmp = gfx::create_surface();
+        tmp->resize(Target->length(), Target->height());
+        Target->scale(tmp, base::Scale);
+        tmp->draw (0, 0, &da, s);
+        delete tmp;
+    }
+    else
+    {
+        // draw target
+        Target->draw (0, 0, &da, s);
+    }
 }
 
 // update size of the view
 void GuiPreview::resizeSurface (GtkWidget *widget)
 {
-    // set the size of the drawing area
-    gtk_widget_set_size_request (GTK_WIDGET (DrawingArea), widget->allocation.width, widget->allocation.height);
-    
     // set size of the render target
     Target->resize (widget->allocation.width, widget->allocation.height);
     

@@ -148,6 +148,36 @@ static void on_file_save_activate (GtkMenuItem * menuitem, gpointer user_data)
     }
 }
 
+// Model Menu: Zoom In
+static void on_model_zoom_in (GtkMenuItem * menuitem, gpointer user_data)
+{
+    base::Scale++;
+
+    GuiModeller *modeller = (GuiModeller *) user_data;
+    modeller->setActive("item_zoom_out", true);
+    modeller->zoom();
+}
+
+// Model Menu: Zoom Out
+static void on_model_zoom_out (GtkMenuItem * menuitem, gpointer user_data)
+{
+    base::Scale--;
+
+    GuiModeller *modeller = (GuiModeller *) user_data;
+    modeller->setActive("item_zoom_out", base::Scale > 1);
+    modeller->zoom();
+}
+
+// Model Menu: Zoom Normal
+static void on_model_reset_zoom (GtkMenuItem * menuitem, gpointer user_data)
+{
+    base::Scale = 1;
+
+    GuiModeller *modeller = (GuiModeller *) user_data;
+    modeller->setActive("item_zoom_out", false);
+    modeller->zoom();
+}
+
 // callback for selection changes in sprite list
 static void anim_selected_event (GtkTreeSelection *selection, gpointer user_data)
 {
@@ -361,6 +391,12 @@ GuiModeller::GuiModeller ()
     g_signal_connect (widget, "activate", G_CALLBACK (on_file_save_as_activate), (gpointer) this);
     widget = gtk_builder_get_object (Ui, "item_quit");    
     g_signal_connect (widget, "activate", G_CALLBACK (on_widget_destroy), (gpointer) NULL);
+    widget = gtk_builder_get_object (Ui, "item_zoom_in");
+    g_signal_connect (widget, "activate", G_CALLBACK (on_model_zoom_in), (gpointer) this);
+    widget = gtk_builder_get_object (Ui, "item_zoom_out");
+    g_signal_connect (widget, "activate", G_CALLBACK (on_model_zoom_out), (gpointer) this);
+    widget = gtk_builder_get_object (Ui, "item_zoom_normal");
+    g_signal_connect (widget, "activate", G_CALLBACK (on_model_reset_zoom), (gpointer) this);
 
     // connect button signals
     widget = gtk_builder_get_object (Ui, "add_sprite");
@@ -391,6 +427,9 @@ GuiModeller::GuiModeller ()
     gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW(widget), -1, "Shapes", renderer, "text", 0, NULL);
     selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(widget));
     g_signal_connect (G_OBJECT(selection), "changed", G_CALLBACK(shape_selected_event), this);
+
+    // can't zoom less than 1
+    setActive("item_zoom_out", false);
 
     // update title
     setTitle(false);
@@ -889,6 +928,12 @@ void GuiModeller::updateShapeList (world::placeable_model *model)
     // update solid flag
     GtkToggleButton *is_solid = GTK_TOGGLE_BUTTON(gtk_builder_get_object (Ui, "is_solid"));
     gtk_toggle_button_set_active (is_solid, shape->is_solid ());
+}
+
+// zoom displayed model
+void GuiModeller::zoom()
+{
+    Preview->draw(0, 0, 800, 600);
 }
 
 // enable or disable a widget

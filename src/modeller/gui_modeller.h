@@ -167,6 +167,11 @@ public:
      */
     void setActive (const std::string & id, const bool & sensitive);
     
+    /**
+     * Update zoom level of displayed model.
+     */
+    void zoom ();
+
 protected:
     /**
      * Update main window title.
