@@ -194,8 +194,9 @@ void surface_gtk::scale (surface *target, const u_int32 & factor) const
 {
     cairo_t* cr = ((const surface_gtk *) target)->create_drawing_context ();
 
-    cairo_set_source_surface (cr, vis, 0, 0);
     cairo_scale (cr, factor, factor);
+    cairo_set_source_surface (cr, vis, 0, 0);
+    cairo_pattern_set_filter (cairo_get_source (cr), CAIRO_FILTER_NEAREST);
     cairo_paint (cr);
 
     // cleanup
