@@ -86,12 +86,31 @@ gint motion_notify_event (GtkWidget *widget, GdkEventMotion *event, gpointer dat
         {
             view->stopDragging();
         }
+
+        // highlight handles under cursor
+        view->mouseMoved (&point);
     }
 
-    // highlight handles under cursor
-    view->mouseMoved (&point);
-        
+    if (event->is_hint)
+    {
+        gdk_event_request_motions (event);
+    }
+
     return FALSE;
+}
+
+// Mouse button pressed on drawing area
+gint button_press_event (GtkWidget *widget, GdkEventButton *event, gpointer data)
+{
+    // Left button pressed
+    if (event->button == 1)
+    {
+        GuiPreview *view = (GuiPreview *) data;
+        GdkPoint point = { event->x, event->y };
+        view->startDragging (&point);
+    }
+
+    return false;
 }
 
 // direct editing of shape
@@ -113,11 +132,11 @@ GuiPreview::GuiPreview (GtkWidget *drawing_area, GtkEntry** shape_data, GtkTreeM
     g_signal_connect (G_OBJECT (DrawingArea), "expose_event", G_CALLBACK(expose_event), this);
     g_signal_connect (G_OBJECT (DrawingArea), "configure_event", G_CALLBACK(configure_event), this);
     g_signal_connect (G_OBJECT (DrawingArea), "motion_notify_event", G_CALLBACK(motion_notify_event), this);
-    // g_signal_connect (G_OBJECT (DrawingArea), "button_press_event", G_CALLBACK(button_press_event), this);
+    g_signal_connect (G_OBJECT (DrawingArea), "button_press_event", G_CALLBACK(button_press_event), this);
     // g_signal_connect (G_OBJECT (GuiMapedit::window->getWindow ()), "key_press_event", G_CALLBACK(key_press_notify_event), this);
     
     gtk_widget_set_events (DrawingArea, GDK_EXPOSURE_MASK | GDK_LEAVE_NOTIFY_MASK | GDK_BUTTON_PRESS_MASK |
-                           GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK | GDK_KEY_PRESS_MASK);
+                           GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_KEY_PRESS_MASK);
 
     // callbacks for directly editing shape
     for (int i = EDIT_OFFSET_X; i <= EDIT_SIZE_Z; i++)
@@ -127,6 +146,10 @@ GuiPreview::GuiPreview (GtkWidget *drawing_area, GtkEntry** shape_data, GtkTreeM
     
     // create the render target
     Target = gfx::create_surface();    
+
+    // create UI overlay
+    Overlay = gfx::create_surface();
+    Overlay->set_alpha(255, true);
     
     // no handle selected
     SelectedHandle = -1;
@@ -148,10 +171,13 @@ void GuiPreview::draw (const int & sx, const int & sy, const int & l, const int 
     // zoom stuff (testing)
     if (base::Scale != 1)
     {
+        int x = -X_AXIS_POS * (base::Scale - 1);
+        int y = -(Target->height() / 2) * (base::Scale - 1);
+
         gfx::surface *tmp = gfx::create_surface();
-        tmp->resize(Target->length(), Target->height());
+        tmp->resize(Target->length() * base::Scale, Target->height() * base::Scale);
         Target->scale(tmp, base::Scale);
-        tmp->draw (0, 0, &da, s);
+        tmp->draw (x, y, &da, s);
         delete tmp;
     }
     else
@@ -159,6 +185,8 @@ void GuiPreview::draw (const int & sx, const int & sy, const int & l, const int 
         // draw target
         Target->draw (0, 0, &da, s);
     }
+
+    Overlay->draw(0, 0, &da, s);
 }
 
 // update size of the view
@@ -166,6 +194,7 @@ void GuiPreview::resizeSurface (GtkWidget *widget)
 {
     // set size of the render target
     Target->resize (widget->allocation.width, widget->allocation.height);
+    Overlay->resize (widget->allocation.width, widget->allocation.height);
     
     // update screen
     render ();
@@ -182,6 +211,7 @@ void GuiPreview::render (const int & sx, const int & sy, const int & l, const in
 {
     // reset target before drawing
     Target->fillrect (sx, sy, l, h, 0xFF000000);
+    Overlay->fillrect (sx, sy, l, h, 0x00000000);
 
     if (Model != NULL)
     {
@@ -189,9 +219,9 @@ void GuiPreview::render (const int & sx, const int & sy, const int & l, const in
         gfx::drawing_area da (sx, sy, l, h);
         
         // render x and y axis
-        u_int32 color = Target->map_color (0x40, 0x40, 0x40);
-        Target->draw_line (0, Target->height()/2, Target->length(), Target->height()/2, color, &da);
-        Target->draw_line (X_AXIS_POS, 0, X_AXIS_POS, Target->height(), color, &da);
+        u_int32 color = Overlay->map_color (0x40, 0x40, 0x40);
+        Overlay->draw_line (0, Overlay->height()/2, Overlay->length(), Overlay->height()/2, color, &da);
+        Overlay->draw_line (X_AXIS_POS, 0, X_AXIS_POS, Overlay->height(), color, &da);
 
         // collect all the sprites we have for rendering
         GtkTreeIter iter;
@@ -223,7 +253,7 @@ void GuiPreview::render (const int & sx, const int & sy, const int & l, const in
         Renderer.render (models, da, Target);
         
         // draw handles
-        Renderer.render (Model, Handles, da, Target);
+        Renderer.render (Model, Handles, da, Overlay);
     }
         
     // schedule screen update
@@ -309,7 +339,7 @@ void GuiPreview::mouseMoved (const GdkPoint *point)
     if (SelectedHandle != -1)
     {
         // deselect handle
-        Renderer.drawHandle (Handles[SelectedHandle], false, da, Target);
+        Renderer.drawHandle (Handles[SelectedHandle], false, da, Overlay);
         // reset value
         indicateEditingField (SelectedHandle, false);
         // refresh screen
@@ -321,7 +351,7 @@ void GuiPreview::mouseMoved (const GdkPoint *point)
     if (curHandle != -1)
     {
         // highlight handle
-        Renderer.drawHandle (Handles[curHandle], true, da, Target);
+        Renderer.drawHandle (Handles[curHandle], true, da, Overlay);
         // highlight value
         indicateEditingField (curHandle, true);
         // refresh screen
@@ -368,36 +398,42 @@ void GuiPreview::indicateEditingField (const s_int32 & handle, const bool & high
         }
     }
     
-    GtkStyle *style = gtk_widget_get_default_style ();
-    if (highlight)
-    {
-        GdkColor color = { 0, 43760, 55745, 8315 };
-        style = gtk_style_copy (style);
-        style->base[GTK_STATE_NORMAL]   = color;
-        style->base[GTK_STATE_ACTIVE]   = color;
-        style->base[GTK_STATE_PRELIGHT] = color;
-        style->base[GTK_STATE_SELECTED] = color;
-    }
-    
     for (int i = 0; i < 3; i++)
     {
         if (fields[i] == -1) break;
+
+        GtkStyle *style = NULL;
+        if (highlight)
+        {
+            GdkColor color = { 0, 43760, 55745, 8315 };
+            style = gtk_style_copy (gtk_widget_get_style (GTK_WIDGET (ShapeData[fields[i]])));
+            style->base[GTK_STATE_NORMAL]   = color;
+            style->base[GTK_STATE_ACTIVE]   = color;
+            style->base[GTK_STATE_PRELIGHT] = color;
+            style->base[GTK_STATE_SELECTED] = color;
+        }
         
         gtk_widget_set_style (GTK_WIDGET (ShapeData[fields[i]]), style);    
     }
 }
 
-// update shape size or position
-void GuiPreview::handleDragged (GdkPoint *point, const bool & modifier)
+// set initial position from which we start dragging
+void GuiPreview::startDragging (GdkPoint *point)
 {
-    // dragging has just started
     if (PrevPos == NULL)
     {
         PrevPos = new GdkPoint();
         PrevPos->x = point->x;
         PrevPos->y = point->y;
     }
-    
+}
+
+// update shape size or position
+void GuiPreview::handleDragged (GdkPoint *point, const bool & modifier)
+{
+    // set initial position, if not available yet
+    startDragging (point);
+
     // any change at all?
     if (PrevPos->x == point->x && PrevPos->y == point->y) 
     {
@@ -477,6 +513,12 @@ void GuiPreview::handleDragged (GdkPoint *point, const bool & modifier)
         }
     }
     
+    // take care of scaling
+    offset = offset * (1.0f / base::Scale);
+
+    // handle small movements in scaled mode
+    if (offset.squared_length() == 0) return;
+
     // now update the selected points
     for (int i = 0; i < world::cube3::NUM_CORNERS; i++)
     {

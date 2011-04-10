@@ -120,6 +120,14 @@ protected:
      */
     void drawRect (const s_int16 & x, const s_int16 & y, const u_int16 & l, const u_int16 & h, const u_int32 & color, const gfx::drawing_area & da, gfx::surface * target) const;
 
+    /**
+     * Return a scaled copy of the given cube, using
+     * the scale factor of base::Scale.
+     * @param the cube to copy and scale.
+     * @return a new cube object. Delete when no longer required.
+     */
+    const world::cube3* scaleCube (const world::cube3 *src) const;
+
 private:
     /// this is the model currently being edited
     world::placeable_model *ActiveModel;

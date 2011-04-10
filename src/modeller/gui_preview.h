@@ -85,6 +85,12 @@ public:
      */
     //@{
     /**
+     * Set initial drag position when selecting a shape handle.
+     * @param point location of the mouse pointer.
+     */
+    void startDragging (GdkPoint *point);
+
+    /**
      * Process dragging shape handles.
      * @param point location of the mouse pointer.
      * @param modifier whether modifier (shift) key is pressed.
@@ -159,6 +165,8 @@ private:
     GtkTreeModel *ModelList;
     /// the render surface
     gfx::surface *Target;
+    /// for rendering UI elements
+    gfx::surface *Overlay;
     /// the shape currently being edited 
     world::cube3 *Shape;
     /// the model currently being edited

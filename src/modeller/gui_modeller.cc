@@ -933,7 +933,7 @@ void GuiModeller::updateShapeList (world::placeable_model *model)
 // zoom displayed model
 void GuiModeller::zoom()
 {
-    Preview->draw(0, 0, 800, 600);
+    Preview->render();
 }
 
 // enable or disable a widget

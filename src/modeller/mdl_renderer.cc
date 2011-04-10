@@ -99,29 +99,41 @@ void ModelRenderer::draw (const s_int16 & x, const s_int16 & y, const world::ren
     }
 }
 
+const world::cube3* ModelRenderer::scaleCube (const world::cube3 *src) const
+{
+    world::cube3 *result = new world::cube3 (0, 0, 0);
+
+    for (int i = 0; i < world::cube3::NUM_CORNERS; i++)
+    {
+        world::vector3<s_int16> p = src->get_point(i);
+        result->set_point(i, p * base::Scale);
+    }
+
+    return result;
+}
+
 // draw cube outline(s)
 void ModelRenderer::draw (GdkPoint *handles, const s_int16 & x, const s_int16 & y, const world::render_info & ri, const gfx::drawing_area & da, gfx::surface * target) const
 {
-    // render sprite
-    // renderer_base::draw (x, y, ri, da, target);
-
     // sprite screen coordinates
-    s_int16 sx = x + ri.screen_x ();
-    s_int16 sy = y + ri.screen_y ();
+    s_int16 sx = x + ri.screen_x () * base::Scale;
+    s_int16 sy = y + ri.screen_y () * base::Scale;
     
     // draw border around sprite
     u_int32 color = target->map_color (0xD8, 0x77, 0x2D);
-    drawRect (sx, sy, ri.Sprite->length(), ri.Sprite->height(), color, da, target);
+    drawRect (sx, sy, ri.Sprite->length() * base::Scale, ri.Sprite->height() * base::Scale, color, da, target);
     
     // render shapes, if any, relative to sprite
     for (std::vector<world::cube3*>::const_iterator i = ri.Shape->begin(); i != ri.Shape->end(); i++)
     {
-        (*i)->draw (x, y, &da, target);
+        const world::cube3 *c = scaleCube (*i);
+        c->draw (x, y, &da, target);
+        delete c;
         
         if (ActiveShape == *i)
         {
-            s_int16 ox = x + (*i)->min_x();
-            s_int16 oy = y + (*i)->min_y() - (*i)->min_z();
+            s_int16 ox = x + (*i)->min_x() * base::Scale;
+            s_int16 oy = y + ((*i)->min_y() - (*i)->min_z()) * base::Scale;
             
             updateHandles (handles, ox, oy);
         }
@@ -131,9 +143,9 @@ void ModelRenderer::draw (GdkPoint *handles, const s_int16 & x, const s_int16 & 
 // update position of handles used for manipulating shapes
 void ModelRenderer::updateHandles (GdkPoint *handles, const s_int16 & x, const s_int16 & y) const
 {
-    s_int16 length = ActiveShape->max_x() - ActiveShape->min_x();
-    s_int16 width = ActiveShape->max_y() - ActiveShape->min_y();
-    s_int16 height = ActiveShape->max_z() - ActiveShape->min_z();
+    s_int16 length = (ActiveShape->max_x() - ActiveShape->min_x()) * base::Scale;
+    s_int16 width = (ActiveShape->max_y() - ActiveShape->min_y()) * base::Scale;
+    s_int16 height = (ActiveShape->max_z() - ActiveShape->min_z()) * base::Scale;
     
     // move position (x/y/z) handle in the top north-west corner of the shape
     handles[POSITION].x = x - HANDLE_OFFSET;
