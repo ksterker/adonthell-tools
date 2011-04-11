@@ -136,7 +136,7 @@ GuiPreview::GuiPreview (GtkWidget *drawing_area, GtkEntry** shape_data, GtkTreeM
     // g_signal_connect (G_OBJECT (GuiMapedit::window->getWindow ()), "key_press_event", G_CALLBACK(key_press_notify_event), this);
     
     gtk_widget_set_events (DrawingArea, GDK_EXPOSURE_MASK | GDK_LEAVE_NOTIFY_MASK | GDK_BUTTON_PRESS_MASK |
-                           GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_KEY_PRESS_MASK);
+                           GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK);
 
     // callbacks for directly editing shape
     for (int i = EDIT_OFFSET_X; i <= EDIT_SIZE_Z; i++)

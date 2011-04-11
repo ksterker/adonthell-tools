@@ -106,9 +106,14 @@ const world::cube3* ModelRenderer::scaleCube (const world::cube3 *src) const
     for (int i = 0; i < world::cube3::NUM_CORNERS; i++)
     {
         world::vector3<s_int16> p = src->get_point(i);
-        result->set_point(i, p * base::Scale);
+
+        // we need the explicit cast, because vector3::operator*
+        // returns a vector3 of the operand type, which in case
+        // of base::Scale is u_int8. Way too small for us!
+        result->set_point(i, p * ((s_int16) base::Scale));
     }
 
+    result->create_bounding_box();
     return result;
 }
 
@@ -128,15 +133,16 @@ void ModelRenderer::draw (GdkPoint *handles, const s_int16 & x, const s_int16 & 
     {
         const world::cube3 *c = scaleCube (*i);
         c->draw (x, y, &da, target);
-        delete c;
         
         if (ActiveShape == *i)
         {
-            s_int16 ox = x + (*i)->min_x() * base::Scale;
-            s_int16 oy = y + ((*i)->min_y() - (*i)->min_z()) * base::Scale;
+            s_int16 ox = x + c->min_x();
+            s_int16 oy = y + c->min_y() - c->min_z();
             
             updateHandles (handles, ox, oy);
         }
+
+        delete c;
     }    
 }
 

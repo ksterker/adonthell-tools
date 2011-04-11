@@ -25,6 +25,7 @@
  */
 
 #include <gtk/gtk.h>
+#include <gdk/gdkkeysyms.h>
 
 #ifdef MAC_INTEGRATION
 #include <ige-mac-integration.h>
@@ -335,14 +336,14 @@ GuiModeller::GuiModeller ()
     Filename = "untitled.xml";
     SpriteDir = MdlCmdline::datadir + "/" + MdlCmdline::project;
     Spritename = "";
-    
+
 	if (!gtk_builder_add_from_string(Ui, modeller_ui, -1, &err)) 
     {
         g_message ("building modeller main window failed: %s", err->message);
         g_error_free (err);
         return;
     }
-    
+
     // get entries linked to the preview
     GtkEntry **shapeData = new GtkEntry*[8];
     shapeData[0] = GTK_ENTRY (gtk_builder_get_object (Ui, "offset_x"));
@@ -379,7 +380,7 @@ GuiModeller::GuiModeller ()
     // IgeMacMenuGroup *group = ige_mac_menu_add_app_menu_group ();
     // ige_mac_menu_add_app_menu_item (group, GTK_MENU_ITEM (quit_item), NULL);
 #endif
-        
+
     // connect menu signals
     widget = gtk_builder_get_object (Ui, "item_new");
     g_signal_connect (widget, "activate", G_CALLBACK (on_file_new), (gpointer) this);
@@ -414,7 +415,7 @@ GuiModeller::GuiModeller ()
     
     widget = gtk_builder_get_object (Ui, "is_solid");    
     g_signal_connect (widget, "toggled", G_CALLBACK (on_solid_state_changed), (gpointer) this);
-    
+
     // set tree columns and signals
     // FIXME: this could be done in the ui description, but my glade appears buggy in that area.
     GtkCellRenderer *renderer = gtk_cell_renderer_text_new ();
