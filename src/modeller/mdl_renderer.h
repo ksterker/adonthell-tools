@@ -55,12 +55,13 @@ public:
 
     /**
      * Render the given shape.
+     * @param offset the scroll offset.
      * @param model the model being currently edited.
      * @param handles the handles for the currently edited shape.
      * @param da clipping rectangle.
      * @param target surface to draw on.
      */
-    void render (world::placeable_model *model, GdkPoint *handles, const gfx::drawing_area & da, gfx::surface *target);
+    void render (const GdkPoint & offset, world::placeable_model *model, GdkPoint *handles, const gfx::drawing_area & da, gfx::surface *target);
 
     /**
      * Draw the handle at given index.

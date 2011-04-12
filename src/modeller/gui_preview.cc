@@ -75,6 +75,9 @@ gint motion_notify_event (GtkWidget *widget, GdkEventMotion *event, gpointer dat
     GuiPreview *view = (GuiPreview *) data;
     GdkPoint point = { event->x, event->y };
     
+    // scroll the preview, if necessary
+    view->prepareScrolling (point);
+
     // drag handle?
     if (event->state & GDK_BUTTON1_MASK)
     {
@@ -144,6 +147,10 @@ GuiPreview::GuiPreview (GtkWidget *drawing_area, GtkEntry** shape_data, GtkTreeM
         g_signal_connect (G_OBJECT (shape_data[i]), "changed", G_CALLBACK(on_number_changed), this); 
     }
     
+    // scroll offset
+    Offset.x = 0;
+    Offset.y = 0;
+
     // create the render target
     Target = gfx::create_surface();    
 
@@ -171,8 +178,8 @@ void GuiPreview::draw (const int & sx, const int & sy, const int & l, const int 
     // zoom stuff (testing)
     if (base::Scale != 1)
     {
-        int x = -X_AXIS_POS * (base::Scale - 1);
-        int y = -(Target->height() / 2) * (base::Scale - 1);
+        int x = Offset.x - X_AXIS_POS * (base::Scale - 1);
+        int y = Offset.y - (Target->height() / 2) * (base::Scale - 1);
 
         gfx::surface *tmp = gfx::create_surface();
         tmp->resize(Target->length() * base::Scale, Target->height() * base::Scale);
@@ -220,8 +227,8 @@ void GuiPreview::render (const int & sx, const int & sy, const int & l, const in
         
         // render x and y axis
         u_int32 color = Overlay->map_color (0x40, 0x40, 0x40);
-        Overlay->draw_line (0, Overlay->height()/2, Overlay->length(), Overlay->height()/2, color, &da);
-        Overlay->draw_line (X_AXIS_POS, 0, X_AXIS_POS, Overlay->height(), color, &da);
+        Overlay->draw_line (0, Offset.y + Overlay->height()/2, Overlay->length(), Offset.y + Overlay->height()/2, color, &da);
+        Overlay->draw_line (Offset.x + X_AXIS_POS, 0, Offset.x + X_AXIS_POS, Overlay->height(), color, &da);
 
         // collect all the sprites we have for rendering
         GtkTreeIter iter;
@@ -253,7 +260,7 @@ void GuiPreview::render (const int & sx, const int & sy, const int & l, const in
         Renderer.render (models, da, Target);
         
         // draw handles
-        Renderer.render (Model, Handles, da, Overlay);
+        Renderer.render (Offset, Model, Handles, da, Overlay);
     }
         
     // schedule screen update
@@ -719,4 +726,38 @@ void GuiPreview::setShapeData (const u_int32 & data, const s_int32 & value) cons
     strval << value;
     
     gtk_entry_set_text (GTK_ENTRY(ShapeData[data]), strval.str().c_str());
+}
+
+// perform scrolling
+void GuiPreview::scroll()
+{
+    GdkPoint newOffset =
+    {
+        Offset.x + scroll_offset.x,
+        Offset.y + scroll_offset.y
+    };
+
+    if (newOffset.x > 0)
+    {
+        newOffset.x = 0;
+    }
+    else if (newOffset.x < (X_AXIS_POS - Target->length()) * (base::Scale -1))
+    {
+        newOffset.x = (X_AXIS_POS - Target->length()) * (base::Scale - 1);
+    }
+
+    if (newOffset.y < 0)
+    {
+        newOffset.y = 0;
+    }
+    else if (newOffset.y > Target->height()/2 * (base::Scale -1))
+    {
+        newOffset.y = Target->height()/2 * (base::Scale - 1);
+    }
+
+    if (newOffset.x != Offset.x || newOffset.y != Offset.y)
+    {
+        Offset = newOffset;
+        render ();
+    }
 }

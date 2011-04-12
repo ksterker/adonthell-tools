@@ -56,7 +56,7 @@ void ModelRenderer::render (std::list <world::render_info> & objectlist, const g
 }
 
 // render model and handles
-void ModelRenderer::render (world::placeable_model *model, GdkPoint *handles, const gfx::drawing_area & da, gfx::surface *target)
+void ModelRenderer::render (const GdkPoint & offset, world::placeable_model *model, GdkPoint *handles, const gfx::drawing_area & da, gfx::surface *target)
 {
     gfx::sprite *sprt = model->get_sprite();
     if (sprt != NULL)
@@ -66,8 +66,8 @@ void ModelRenderer::render (world::placeable_model *model, GdkPoint *handles, co
         world::render_info ri (model->current_shape(), sprt, world::vector3<s_int32>(), &shadow);
         
         // center on screen
-        s_int16 x = X_AXIS_POS;
-        s_int16 y = target->height() / 2;
+        s_int16 x = offset.x + X_AXIS_POS;
+        s_int16 y = offset.y + target->height() / 2;
         
         // draw to target
         draw (handles, x, y, ri, da, target);

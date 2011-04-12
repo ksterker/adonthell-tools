@@ -28,6 +28,7 @@
 #ifndef GUI_PREVIEW_H
 #define GUI_PREVIEW_H
 
+#include "gui_scrollable.h"
 #include "mdl_renderer.h"
 
 /**
@@ -35,7 +36,7 @@
  * Allows to position the sprites and shapes relative to each other
  * and to manipulate the size and shape of shapes.
  */
-class GuiPreview 
+class GuiPreview : public Scrollable
 {
 public:
     /**
@@ -134,6 +135,34 @@ public:
      */
     void setCurShape (world::cube3 *shape);
 
+    /**
+     * Scrolling.
+     */
+    //@{
+    /**
+     * Return the drawing area.
+     * @return the scrolled area.
+     */
+    virtual GtkWidget* drawingArea() const
+    {
+        return DrawingArea;
+    }
+
+    /**
+     * Perform scrolling.
+     */
+    virtual void scroll();
+    //@}
+
+    /**
+     * Whether scrolling is possible in current state.
+     * @return whether scrolling is allowed.
+     */
+    virtual bool scrollingAllowed() const
+    {
+        return !isHandleDragged();
+    }
+
 protected:
     /**
      * Indicate which value will be affected by dragging a handle.
@@ -177,6 +206,8 @@ private:
     GdkPoint *PrevPos;
     /// the position of the edit handles
     GdkPoint Handles[4];
+    /// the scroll offset
+    GdkPoint Offset;
 };
 
 #endif
