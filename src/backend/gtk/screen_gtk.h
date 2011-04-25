@@ -69,13 +69,21 @@ public:
     { 
         clear ();
         
-        int l, h;
-        gdk_drawable_get_size (drawable, &l, &h);
-        set_length (l);
-        set_height (h);
-        
-        g_object_ref (drawable);
-        Drawable = drawable;
+        if (GDK_IS_DRAWABLE (drawable))
+        {
+            int l, h;
+            gdk_drawable_get_size (drawable, &l, &h);
+            set_length (l);
+            set_height (h);
+
+            g_object_ref (drawable);
+            Drawable = drawable;
+        }
+        else
+        {
+            fprintf (stderr, "*** screen::set_drawable: Invalid drawable: %s!\n",
+                    drawable ? G_OBJECT_TYPE_NAME(drawable) : "<null>");
+        }
     }
     
 protected:
