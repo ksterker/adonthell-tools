@@ -143,7 +143,7 @@ guint key_press_notify_event (GtkWidget * widget, GdkEventKey * event, gpointer 
     switch (event->keyval)
     {
 	    // scroll up
-	    case GDK_Up:
+	    case GDK_KEY_Up:
 	    {
 	    	if (view->scrollingAllowed()) 
 	    	{
@@ -153,7 +153,7 @@ guint key_press_notify_event (GtkWidget * widget, GdkEventKey * event, gpointer 
 	        break;
 	    }
 	    // scroll down
-	    case GDK_Down:
+	    case GDK_KEY_Down:
 	    {
 	    	if (view->scrollingAllowed()) 
 	    	{
@@ -163,7 +163,7 @@ guint key_press_notify_event (GtkWidget * widget, GdkEventKey * event, gpointer 
 	        break;
 	    }
 	    // scroll left
-	    case GDK_Left:
+	    case GDK_KEY_Left:
 	    {
 	    	if (view->scrollingAllowed()) 
 	    	{
@@ -173,7 +173,7 @@ guint key_press_notify_event (GtkWidget * widget, GdkEventKey * event, gpointer 
 	        break;
 	    }
 	    // scroll right
-	    case GDK_Right:
+	    case GDK_KEY_Right:
 	    {
 	    	if (view->scrollingAllowed())
 	    	{
@@ -183,32 +183,32 @@ guint key_press_notify_event (GtkWidget * widget, GdkEventKey * event, gpointer 
 	        break;
 	    }
         // increase object z position
-        case GDK_plus:
+        case GDK_KEY_plus:
         {
             view->updateHeight (event->state & GDK_CONTROL_MASK ? 10 : 1);
             break;
         }
         // decrease object z position
-        case GDK_minus:
+        case GDK_KEY_minus:
         {
             view->updateHeight (event->state & GDK_CONTROL_MASK ? -10 : -1);
             break;
         }
         // edit highlighted object
-        case GDK_Return:
+        case GDK_KEY_Return:
         {
             view->editCurObject ();
             break;
         }
         // deselect object
-        case GDK_Escape:
+        case GDK_KEY_Escape:
         {
             view->releaseObject ();
             break;
         }
         // delete highlighted node
-        case GDK_BackSpace: // fall through
-        case GDK_Delete:
+        case GDK_KEY_BackSpace: // fall through
+        case GDK_KEY_Delete:
         {
             view->deleteCurObj ();
             break;

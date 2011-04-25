@@ -205,7 +205,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>
-                                    <property name="tooltip_text" translatable="yes">Add a new sprite</property>
+                                    <property name="tooltip_text">Add a new sprite to the model</property>
                                     <property name="image">img_add</property>
                                   </object>
                                   <packing>
@@ -316,7 +316,7 @@
                                         <property name="sensitive">False</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
-                                        <property name="tooltip_text" translatable="yes">Add new shape</property>
+                                        <property name="tooltip_text" translatable="yes">Add new shape to the selected sprite</property>
                                         <property name="image">img_add2</property>
                                       </object>
                                       <packing>
@@ -605,7 +605,17 @@
                               <placeholder/>
                             </child>
                             <child>
-                              <placeholder/>
+                              <object class="GtkToggleButton" id="btn_edit_mode">
+                                <property name="label" translatable="yes">BBox Mode</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">True</property>
+                                <property name="tooltip_text" translatable="yes">In this mode, the general size and position of the selected shape can be edited. Click to switch to Point Mode.</property>
+                                <property name="xalign">0.43000000715255737</property>
+                              </object>
+                              <packing>
+                                <property name="y_options">GTK_FILL</property>
+                              </packing>
                             </child>
                           </object>
                         </child>

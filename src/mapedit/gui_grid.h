@@ -46,6 +46,11 @@ public:
      * Notify that the grid has changed.
      */
     virtual void gridChanged() = 0;
+
+    /**
+     * Notify that the auto-adjust object has changed.
+     */
+    virtual void objChanged() = 0;
 };
 
 /**

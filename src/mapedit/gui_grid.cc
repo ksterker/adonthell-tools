@@ -83,6 +83,11 @@ void GuiGrid::grid_from_object (world::chunk_info & ci, const s_int32 & ox, cons
     delete CurObject;
     CurObject = new world::chunk_info (ci.get_entity(), ci.Min, ci.Max);
     
+    if (Monitor)
+    {
+        Monitor->objChanged();
+    }
+
     if (AutoAdjust)
     {
         grid_from_cur_object (ox, oy);
@@ -92,6 +97,8 @@ void GuiGrid::grid_from_object (world::chunk_info & ci, const s_int32 & ox, cons
 // set the grid from the given object
 void GuiGrid::grid_from_cur_object (const s_int32 & ox, const s_int32 & oy)
 {
+    if (CurObject == NULL) return;
+
     if (CurObject->get_object()->length() && CurObject->get_object()->width())
     {
         // get location

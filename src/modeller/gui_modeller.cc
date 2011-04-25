@@ -326,6 +326,24 @@ static void on_solid_state_changed (GtkToggleButton *togglebutton, gpointer user
     modeller->setSolid (gtk_toggle_button_get_active (togglebutton));
 }
 
+// changed edit mode
+static void on_edit_mode_changed (GtkToggleButton *togglebutton, gpointer user_data)
+{
+    GuiModeller *modeller = (GuiModeller *) user_data;
+    if (gtk_toggle_button_get_active (togglebutton))
+    {
+        g_object_set (GTK_WIDGET(togglebutton),
+                "label", "Point Mode",
+                "tooltip-text", "In this mode, the position of each corner point can be edited. Click to switch to BBox Mode.", NULL);
+    }
+    else
+    {
+        g_object_set (GTK_WIDGET(togglebutton),
+                "label", "BBox Mode",
+                "tooltip-text", "In this mode, the general size and position of the selected shape can be edited. Click to switch to Point Mode.", NULL);
+    }
+}
+
 // ctor
 GuiModeller::GuiModeller ()
 {
@@ -415,6 +433,8 @@ GuiModeller::GuiModeller ()
     
     widget = gtk_builder_get_object (Ui, "is_solid");    
     g_signal_connect (widget, "toggled", G_CALLBACK (on_solid_state_changed), (gpointer) this);
+    widget = gtk_builder_get_object (Ui, "btn_edit_mode");
+    g_signal_connect (widget, "toggled", G_CALLBACK (on_edit_mode_changed), (gpointer) this);
 
     // set tree columns and signals
     // FIXME: this could be done in the ui description, but my glade appears buggy in that area.
@@ -934,6 +954,11 @@ void GuiModeller::updateShapeList (world::placeable_model *model)
 // zoom displayed model
 void GuiModeller::zoom()
 {
+    // adapt scrolled region when zoom level changes
+    Preview->setScrollOffset(0, 0);
+    Preview->scroll();
+
+    // update display
     Preview->render();
 }
 

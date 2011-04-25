@@ -170,7 +170,7 @@ void GuiPreview::draw (const int & sx, const int & sy, const int & l, const int 
 {
     // get "screen" surface 
     gfx::screen_surface_gtk *s = (gfx::screen_surface_gtk*) gfx::screen::get_surface();
-    s->set_drawable (DrawingArea->window);
+    s->set_drawable (gtk_widget_get_window (DrawingArea));
     
     // set clipping rectangle
     gfx::drawing_area da (sx, sy, l, h);
@@ -199,9 +199,12 @@ void GuiPreview::draw (const int & sx, const int & sy, const int & l, const int 
 // update size of the view
 void GuiPreview::resizeSurface (GtkWidget *widget)
 {
+    GtkAllocation size;
+    gtk_widget_get_allocation (DrawingArea, &size);
+
     // set size of the render target
-    Target->resize (widget->allocation.width, widget->allocation.height);
-    Overlay->resize (widget->allocation.width, widget->allocation.height);
+    Target->resize (size.width, size.height);
+    Overlay->resize (size.width, size.height);
     
     // update screen
     render ();
@@ -210,7 +213,10 @@ void GuiPreview::resizeSurface (GtkWidget *widget)
 // update screen
 void GuiPreview::render ()
 {
-    render (0, 0, DrawingArea->allocation.width, DrawingArea->allocation.height);
+    GtkAllocation size;
+    gtk_widget_get_allocation (DrawingArea, &size);
+
+    render (0, 0, size.width, size.height);
 }
 
 // update part of the screen
@@ -265,7 +271,7 @@ void GuiPreview::render (const int & sx, const int & sy, const int & l, const in
         
     // schedule screen update
     GdkRectangle rect = { sx, sy, l, h };
-    gdk_window_invalidate_rect (DrawingArea->window, &rect, FALSE);    
+    gdk_window_invalidate_rect (gtk_widget_get_window (DrawingArea), &rect, FALSE);
 }
 
 // set object being edited
@@ -351,7 +357,7 @@ void GuiPreview::mouseMoved (const GdkPoint *point)
         indicateEditingField (SelectedHandle, false);
         // refresh screen
         GdkRectangle rect = { Handles[SelectedHandle].x, Handles[SelectedHandle].y, HANDLE_SIZE, HANDLE_SIZE };
-        gdk_window_invalidate_rect (DrawingArea->window, &rect, FALSE);    
+        gdk_window_invalidate_rect (gtk_widget_get_window (DrawingArea), &rect, FALSE);
     }
             
     // is new handle selected?
@@ -363,7 +369,7 @@ void GuiPreview::mouseMoved (const GdkPoint *point)
         indicateEditingField (curHandle, true);
         // refresh screen
         GdkRectangle rect = { Handles[curHandle].x, Handles[curHandle].y, HANDLE_SIZE, HANDLE_SIZE };
-        gdk_window_invalidate_rect (DrawingArea->window, &rect, FALSE);    
+        gdk_window_invalidate_rect (gtk_widget_get_window (DrawingArea), &rect, FALSE);
     }
             
     // update handle
@@ -535,6 +541,9 @@ void GuiPreview::handleDragged (GdkPoint *point, const bool & modifier)
         Shape->set_point (points[i], curPos + offset);
     }
     
+    // set modified state
+    setModified();
+
     // remember position for next iteration
     PrevPos->x = point->x;
     PrevPos->y = point->y;
@@ -678,6 +687,12 @@ void GuiPreview::updateShape (GtkEntry *entry)
         default: return;
     }
     
+    // check if there is any modification at all
+    if (offset.squared_length() == 0) return;
+
+    // set modified state
+    setModified();
+
     // now update the selected points
     for (int i = 0; i < world::cube3::NUM_CORNERS; i++)
     {
@@ -726,6 +741,21 @@ void GuiPreview::setShapeData (const u_int32 & data, const s_int32 & value) cons
     strval << value;
     
     gtk_entry_set_text (GTK_ENTRY(ShapeData[data]), strval.str().c_str());
+}
+
+void GuiPreview::setModified()
+{
+    GtkWidget *toplevel = gtk_widget_get_toplevel (DrawingArea);
+    if (gtk_widget_is_toplevel (toplevel))
+    {
+        std::string title (gtk_window_get_title (GTK_WINDOW (toplevel)));
+        size_t len = title.length();
+        if (len > 1 && title[len-2] != '*')
+        {
+            title.insert (len-1, "*");
+            gtk_window_set_title (GTK_WINDOW (toplevel), title.c_str());
+        }
+    }
 }
 
 // perform scrolling

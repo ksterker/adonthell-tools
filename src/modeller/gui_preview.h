@@ -136,6 +136,11 @@ public:
     void setCurShape (world::cube3 *shape);
 
     /**
+     * Indicate that the model is modified.
+     */
+    void setModified();
+
+    /**
      * Scrolling.
      */
     //@{

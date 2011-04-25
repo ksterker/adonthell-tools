@@ -42,7 +42,7 @@ void on_file_save_as_activate (GtkMenuItem *, gpointer);
 void on_grid_toggled (GtkToggleButton *, gpointer);
 
 // Main Window Callbacks
-void on_tree_switched (GtkNotebook *, GtkNotebookPage *, guint, gpointer);
+void on_tree_switched (GtkNotebook *, gpointer, guint, gpointer);
 
 // Statusbar callbacks
 // gboolean on_display_help (GtkWidget *widget, GdkEventCrossing *event, gpointer user_data);

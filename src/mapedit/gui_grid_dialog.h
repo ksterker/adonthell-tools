@@ -58,6 +58,12 @@ public:
     virtual void gridChanged();
     
     /**
+     * Callback to get notified of changes
+     * to the auto-adjust object.
+     */
+    virtual void objChanged ();
+
+    /**
      * Update grid with user supplied values.
      */
     void updateGrid ();

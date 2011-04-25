@@ -107,7 +107,7 @@ GuiMapedit::GuiMapedit ()
         
     // Main Window
     Wnd = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-    gtk_widget_set_usize (GTK_WIDGET (Wnd), 800, 600);
+    gtk_widget_set_size_request (GTK_WIDGET (Wnd), 800, 600);
     g_signal_connect (G_OBJECT (Wnd), "delete_event", G_CALLBACK (on_widget_destroy), NULL);
             
     // Menu Accelerators
@@ -259,17 +259,17 @@ GuiMapedit::GuiMapedit ()
     // Status bars
     hbox = gtk_hbox_new (FALSE, 0);
     g_object_ref (hbox);
-    gtk_object_set_data_full (GTK_OBJECT (Wnd), "hbox", hbox, (GtkDestroyNotify) g_object_unref);
+    g_object_set_data_full (G_OBJECT (Wnd), "hbox", hbox, (GDestroyNotify) g_object_unref);
     gtk_widget_show (hbox);
     gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, TRUE, 0);
-    gtk_widget_set_usize (hbox, -2, 20);
+    gtk_widget_set_size_request (hbox, -1, 20);
 
     // help message
     g_object_ref (status_help);
-    gtk_object_set_data_full (GTK_OBJECT (Wnd), "status_help", status_help, (GtkDestroyNotify) g_object_unref);
+    g_object_set_data_full (G_OBJECT (Wnd), "status_help", status_help, (GDestroyNotify) g_object_unref);
     gtk_widget_show (status_help);
     gtk_box_pack_start (GTK_BOX (hbox), status_help, TRUE, TRUE, 0);
-    gtk_widget_set_usize (status_help, -2, 20);
+    gtk_widget_set_size_request (status_help, -1, 20);
 
     // grid controls
     GtkWidget *gridbox = gtk_hbox_new (FALSE, 4);
@@ -277,23 +277,23 @@ GuiMapedit::GuiMapedit ()
     gtk_box_pack_start (GTK_BOX (gridbox), showGrid, TRUE, TRUE, 0);
     g_signal_connect (G_OBJECT (showGrid), "toggled", G_CALLBACK (on_grid_toggled), (gpointer) View);
     // gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(showGrid), TRUE);
-    GTK_WIDGET_UNSET_FLAGS(showGrid, GTK_CAN_FOCUS);
+    gtk_widget_set_can_focus (showGrid, false);
     
     GtkWidget *status_grid = gtk_frame_new (NULL);
     gtk_frame_set_shadow_type (GTK_FRAME(status_grid), GTK_SHADOW_IN);
     gtk_container_add (GTK_CONTAINER(status_grid), gridbox);
     gtk_widget_show_all (status_grid);
-    gtk_widget_set_usize (status_grid, 120, 20);
+    gtk_widget_set_size_request (status_grid, 120, 20);
 
     gtk_box_pack_start (GTK_BOX (hbox), status_grid, FALSE, TRUE, 0);
     
     // coordinates
     StatusCoordinates = gtk_statusbar_new ();
     g_object_ref (StatusCoordinates);
-    gtk_object_set_data_full (GTK_OBJECT (Wnd), "status_coordinates", StatusCoordinates, (GtkDestroyNotify) g_object_unref);
+    g_object_set_data_full (G_OBJECT (Wnd), "status_coordinates", StatusCoordinates, (GDestroyNotify) g_object_unref);
     gtk_widget_show (StatusCoordinates);
     gtk_box_pack_start (GTK_BOX (hbox), StatusCoordinates, FALSE, TRUE, 0);
-    gtk_widget_set_usize (StatusCoordinates, 150, -2);
+    gtk_widget_set_size_request (StatusCoordinates, 150, -1);
     
     // set the editor's icon    
     GdkPixbuf *icon = gdk_pixbuf_new_from_xpm_data ((const char**) icon_xpm);

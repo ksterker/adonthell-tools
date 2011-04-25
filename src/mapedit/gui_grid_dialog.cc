@@ -182,10 +182,13 @@ GuiGridDialog::GuiGridDialog (GuiGrid *grid, GtkWidget* ctrl)
     Grid->Monitor = this;
     
     // move dialog out of the way
+    GtkAllocation size;
+    gtk_widget_get_allocation (window, &size);
+
     int x, y;
     gtk_widget_show_all (window);
     gtk_window_get_position (GTK_WINDOW(window), &x, &y);
-    gtk_window_move (GTK_WINDOW(window), x, y - (window->allocation.height / 2));
+    gtk_window_move (GTK_WINDOW(window), x, y - (size.height / 2));
 }
 
 // dtor
@@ -225,6 +228,12 @@ void GuiGridDialog::gridChanged ()
     gtk_adjustment_configure (adj, Grid->Iy, 4, 512, 1.0, 10.0, 0.0);
     
     GridChanging = false;
+}
+
+void GuiGridDialog::objChanged ()
+{
+    GObject *widget = gtk_builder_get_object (Ui, "btn_adjust");
+    gtk_widget_set_sensitive (GTK_WIDGET(widget), !Grid->AutoAdjust & Grid->CurObject != NULL);
 }
 
 // update the grid
@@ -285,7 +294,7 @@ void GuiGridDialog::setAutoAdjust (const bool & auto_adjust)
     Grid->AutoAdjust = auto_adjust;
     
     GObject *widget = gtk_builder_get_object (Ui, "btn_adjust");
-    gtk_widget_set_sensitive (GTK_WIDGET(widget), !auto_adjust);
+    gtk_widget_set_sensitive (GTK_WIDGET(widget), !auto_adjust & Grid->CurObject != NULL);
     
     if (auto_adjust)
     {

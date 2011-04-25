@@ -127,10 +127,13 @@ void GuiMapview::setMap (MapData *area)
 // redraw the whole screen
 void GuiMapview::draw ()
 {
-    draw (0, 0, Screen->allocation.width, Screen->allocation.height);
+    GtkAllocation allocation;
+    gtk_widget_get_allocation (Screen, &allocation);
+
+    draw (0, 0, allocation.width, allocation.height);
     
-    GdkRectangle rect = { 0, 0, Screen->allocation.width, Screen->allocation.height };
-    gdk_window_invalidate_rect (Screen->window, &rect, FALSE);
+    GdkRectangle rect = { 0, 0, allocation.width, allocation.height };
+    gdk_window_invalidate_rect (gtk_widget_get_window (Screen), &rect, FALSE);
 }
 
 // redraw the given part of the screen
@@ -138,7 +141,7 @@ void GuiMapview::draw (const int & sx, const int & sy, const int & l, const int 
 {
     // get "screen" surface 
     gfx::screen_surface_gtk *s = (gfx::screen_surface_gtk*) gfx::screen::get_surface();
-    s->set_drawable (Screen->window);
+    s->set_drawable (gtk_widget_get_window (Screen));
     
     // set clipping rectangle
     gfx::drawing_area da (sx, sy, l, h);
@@ -153,7 +156,10 @@ void GuiMapview::draw (const int & sx, const int & sy, const int & l, const int 
 // render the whole map view
 void GuiMapview::render ()
 {
-    render (0, 0, Screen->allocation.width, Screen->allocation.height);
+    GtkAllocation allocation;
+    gtk_widget_get_allocation (Screen, &allocation);
+
+    render (0, 0, allocation.width, allocation.height);
 }
 
 // render part of the map view
@@ -176,7 +182,7 @@ void GuiMapview::render (const int & sx, const int & sy, const int & l, const in
     
     // schedule screen update
     GdkRectangle rect = { sx, sy, l, h };
-    gdk_window_invalidate_rect (Screen->window, &rect, FALSE);    
+    gdk_window_invalidate_rect (gtk_widget_get_window (Screen), &rect, FALSE);
 }
 
 // render specific object at given offset
@@ -199,15 +205,18 @@ void GuiMapview::renderObject (world::chunk_info *obj)
 // update size of the view
 void GuiMapview::resizeSurface (GtkWidget *widget)
 {
+    GtkAllocation allocation;
+    gtk_widget_get_allocation (widget, &allocation);
+
     // set the size of the actual map view
-    View->resize (widget->allocation.width, widget->allocation.height);
+    View->resize (allocation.width, allocation.height);
     
     // set size of the map view render target
-    Target->resize (widget->allocation.width, widget->allocation.height);
+    Target->resize (allocation.width, allocation.height);
     
     // set the size of the overlay
-    Overlay->resize (widget->allocation.width, widget->allocation.height);
-    Overlay->fillrect (0, 0, widget->allocation.width, widget->allocation.height, 0);
+    Overlay->resize (allocation.width, allocation.height);
+    Overlay->fillrect (0, 0, allocation.width, allocation.height, 0);
     
     // update grid
     Grid->draw();
@@ -313,7 +322,7 @@ void GuiMapview::mouseMoved (const GdkPoint * point)
             indicateOverlap ();
             
             // blit to screen
-            gdk_window_invalidate_region (Screen->window, region, FALSE);
+            gdk_window_invalidate_region (gtk_widget_get_window (Screen), region, FALSE);
             gdk_region_destroy (region);
         }
     }
@@ -444,7 +453,7 @@ void GuiMapview::selectObj (MapEntity *ety)
     
     // update screen
     GdkRectangle rect = { 0, 0, Overlay->length(), Overlay->height() };
-    gdk_window_invalidate_rect (Screen->window, &rect, FALSE);        
+    gdk_window_invalidate_rect (gtk_widget_get_window (Screen), &rect, FALSE);
 }
 
 // drop object currently picked for drawing
@@ -458,7 +467,7 @@ void GuiMapview::releaseObject ()
         
         // update screen
         GdkRectangle rect = { 0, 0, Overlay->length(), Overlay->height() };
-        gdk_window_invalidate_rect (Screen->window, &rect, FALSE);
+        gdk_window_invalidate_rect (gtk_widget_get_window (Screen), &rect, FALSE);
         
         // clear selection, so we can select it again
         GuiMapedit::window->entityList()->setSelected (DrawObj, false);
@@ -635,7 +644,7 @@ void GuiMapview::scroll ()
     Grid->scroll (scroll_offset.x, scroll_offset.y);
     
     // rendering the whole mapview is less performant than doing
-    // gdk_window_scroll (GDK_WINDOW(Screen->window), scroll_offset.x, scroll_offset.y);
+    // gdk_window_scroll (GDK_WINDOW(gtk_widget_get_window (Screen)), scroll_offset.x, scroll_offset.y);
     // but it appears to be the only way to prevent artifacts from appearing
     
     // render at new position

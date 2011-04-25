@@ -52,7 +52,7 @@ gint expose_event (GtkWidget * widget, GdkEventExpose * event, gpointer data)
 {
     GuiGraph *graph = (GuiGraph *) data;
 
-    gdk_draw_pixmap (widget->window, widget->style->fg_gc[GTK_WIDGET_STATE (widget)],
+    gdk_draw_drawable (widget->window, widget->style->fg_gc[GTK_WIDGET_STATE (widget)],
         graph->pixmap (), event->area.x, event->area.y, event->area.x, event->area.y,
         event->area.width, event->area.height);
 
@@ -206,7 +206,7 @@ guint key_press_notify_event (GtkWidget * widget, GdkEventKey * event, gpointer 
     switch (event->keyval)
     {
 	    // scroll up
-	    case GDK_Up:
+	    case GDK_KEY_Up:
 	    {
 	    	if (graph->scrollingAllowed()) 
 	    	{
@@ -217,7 +217,7 @@ guint key_press_notify_event (GtkWidget * widget, GdkEventKey * event, gpointer 
 	    }
             
         // scroll down
-	    case GDK_Down:
+	    case GDK_KEY_Down:
 	    {
 	    	if (graph->scrollingAllowed()) 
 	    	{
@@ -228,7 +228,7 @@ guint key_press_notify_event (GtkWidget * widget, GdkEventKey * event, gpointer 
 	    }
             
         // scroll left
-	    case GDK_Left:
+	    case GDK_KEY_Left:
 	    {
 	    	if (graph->scrollingAllowed()) 
 	    	{
@@ -239,7 +239,7 @@ guint key_press_notify_event (GtkWidget * widget, GdkEventKey * event, gpointer 
 	    }
             
         // scroll right
-	    case GDK_Right:
+	    case GDK_KEY_Right:
 	    {
 	    	if (graph->scrollingAllowed())
 	    	{
@@ -285,7 +285,7 @@ guint key_press_notify_event (GtkWidget * widget, GdkEventKey * event, gpointer 
         }
             
         // edit selected node
-        case GDK_Return:
+        case GDK_KEY_Return:
         {
             int x, y;
 
@@ -311,15 +311,15 @@ guint key_press_notify_event (GtkWidget * widget, GdkEventKey * event, gpointer 
         }
         
         // deselect Node
-        case GDK_Escape:
+        case GDK_KEY_Escape:
         {
             graph->deselectNode ();
             break;
         }
         
         // delete node
-        case GDK_BackSpace: // fall through
-        case GDK_Delete:
+        case GDK_KEY_BackSpace: // fall through
+        case GDK_KEY_Delete:
         {
             // ignore delete command if in preview mode
             if (GuiDlgedit::window->mode () == L10N_PREVIEW)
