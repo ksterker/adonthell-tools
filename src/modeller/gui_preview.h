@@ -29,6 +29,7 @@
 #define GUI_PREVIEW_H
 
 #include "gui_scrollable.h"
+#include "mdl_bbox_editor.h"
 #include "mdl_renderer.h"
 
 /**
@@ -168,27 +169,9 @@ public:
         return !isHandleDragged();
     }
 
-protected:
-    /**
-     * Indicate which value will be affected by dragging a handle.
-     * @param handle index of the handle being dragged.
-     * @param highlight true to turn indicator on, false to turn indicator off.
-     */
-    void indicateEditingField (const s_int32 & handle, const bool & highlight);
-
-    /**
-     * Display size and position of current shape.
-     */
-    void updateShapeData () const;
-
-    /**
-     * Fill in one piece of data of the given shape.
-     * @param data the index into the ShapeData array.
-     * @param value the new value to display.
-     */
-    void setShapeData (const u_int32 & data, const s_int32 & value) const;
-
 private:
+    /// the editor
+    BboxEditor *Editor;
     /// the renderer
     ModelRenderer Renderer;
     /// the display widget

@@ -7,6 +7,7 @@ noinst_PROGRAMS = modeller
 noinst_HEADERS = \
     gui_modeller.h \
     gui_preview.h \
+    mdl_bbox_editor.h \
     mdl_cmdline.h \
     mdl_handle.h \
     mdl_renderer.h
@@ -15,6 +16,7 @@ modeller_SOURCES = \
     gui_modeller.cc \
     gui_preview.cc \
     main.cc \
+    mdl_bbox_editor.cc \
     mdl_cmdline.cc \
     mdl_renderer.cc
 
