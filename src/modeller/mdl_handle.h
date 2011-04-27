@@ -27,21 +27,52 @@
 #ifndef MDL_HANDLE_H
 #define MDL_HANDLE_H
 
+#include <vector>
+#include <gdk/gdk.h>
+#include <world/cube3.h>
+
 /// size of handle
 #define HANDLE_SIZE 8
 /// offset from handle center
 #define HANDLE_OFFSET HANDLE_SIZE/2
 
 /**
- * Handle types
+ * Base class for Handles to editing shapes in a
+ * specific way using the mouse. A single handle
+ * represents a point that can be dragged to alter
+ * shape size, position, etc.
  */
-enum
+class Handles
 {
-    POSITION = 0,
-    LENGTH = 1,
-    WIDTH = 2,
-    HEIGHT = 3,
-    MAX_HANDLES = 4
+public:
+    /**
+     * Update handle position relative to where the shape is rendered.
+     */
+    virtual void updateHandles(const world::cube3 *shape, const s_int16 & x, const s_int16 & y) = 0;
+
+    /**
+     * Get number of handles.
+     * @return maximum number of handles.
+     */
+    u_int32 size () const
+    {
+        return Handles.size();
+    }
+
+    /**
+     * Get handle at given index.
+     * @param index the index of the handle
+     * @return the handle at given index.
+     */
+    GdkPoint operator[] (const u_int32 & index) const
+    {
+        return Handles[index];
+    }
+
+protected:
+    /// list of handle positions
+    std::vector<GdkPoint> Handles;
 };
+
 
 #endif

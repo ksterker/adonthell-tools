@@ -31,6 +31,8 @@
 #include <gdk/gdk.h>
 #include <world/renderer.h>
 
+#include "mdl_handle.h"
+
 #define X_AXIS_POS 80
 
 /**
@@ -61,7 +63,7 @@ public:
      * @param da clipping rectangle.
      * @param target surface to draw on.
      */
-    void render (const GdkPoint & offset, world::placeable_model *model, GdkPoint *handles, const gfx::drawing_area & da, gfx::surface *target);
+    void render (const GdkPoint & offset, world::placeable_model *model, Handles *handles, const gfx::drawing_area & da, gfx::surface *target);
 
     /**
      * Draw the handle at given index.
@@ -100,15 +102,7 @@ protected:
      * @param da clipping rectangle
      * @param target render target
      */
-    void draw (GdkPoint *handles, const s_int16 & x, const s_int16 & y, const world::render_info & ri, const gfx::drawing_area & da, gfx::surface * target) const;
-
-    /**
-     * Update position of the edit handles for the active shape.
-     * @param handles list of handles to update.
-     * @param x x-offset of rendered model
-     * @param y y-offset of rendered model
-     */
-    void updateHandles (GdkPoint *handles, const s_int16 & x, const s_int16 & y) const;
+    void draw (Handles *handles, const s_int16 & x, const s_int16 & y, const world::render_info & ri, const gfx::drawing_area & da, gfx::surface * target) const;
 
     /**
      * Draw a rectangular outline.

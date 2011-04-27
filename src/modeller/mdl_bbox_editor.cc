@@ -27,7 +27,7 @@
 #include <base/base.h>
 
 #include "mdl_bbox_editor.h"
-#include "mdl_handle.h"
+#include "mdl_bbox_handles.h"
 
 /// indices of text fields
 enum
@@ -39,6 +39,18 @@ enum
     EDIT_SIZE_Y = 6,
     EDIT_SIZE_Z = 7
 };
+
+// ctor
+BboxEditor::BboxEditor ()
+{
+    Hndls = new BboxHandles();
+}
+
+// dtor
+BboxEditor::~BboxEditor()
+{
+    delete Hndls;
+}
 
 // update shape size or position via mouse
 bool BboxEditor::handleDragged (world::cube3 *shape, const int & handle, GdkPoint *dist, const bool & modifier) const
@@ -318,13 +330,4 @@ void BboxEditor::updateShapeData (GtkEntry** shape_data, const world::cube3 *sha
         gtk_entry_set_text (GTK_ENTRY(shape_data[EDIT_SIZE_Y]), "");
         gtk_entry_set_text (GTK_ENTRY(shape_data[EDIT_SIZE_Z]), "");
     }
-}
-
-// set shape data
-void BboxEditor::setShapeData (GtkEntry *entry, const s_int32 & value) const
-{
-    std::stringstream strval (std::ios::out);
-    strval << value;
-
-    gtk_entry_set_text (entry, strval.str().c_str());
 }

@@ -149,6 +149,7 @@ GuiPreview::GuiPreview (GtkWidget *drawing_area, GtkEntry** shape_data, GtkTreeM
     Overlay = gfx::create_surface();
     Overlay->set_alpha(255, true);
     
+    // default editor
     Editor = new BboxEditor();
 
     // no handle selected
@@ -259,7 +260,7 @@ void GuiPreview::render (const int & sx, const int & sy, const int & l, const in
         Renderer.render (models, da, Target);
         
         // draw handles
-        Renderer.render (Offset, Model, Handles, da, Overlay);
+        Renderer.render (Offset, Model, Editor->getHandles(), da, Overlay);
     }
         
     // schedule screen update
@@ -322,9 +323,10 @@ void GuiPreview::mouseMoved (const GdkPoint *point)
     // handle below cursor
     int curHandle = -1;
     
-    for (int i = 0; i < MAX_HANDLES; i++)
+    Handles *handles = Editor->getHandles();
+    for (u_int32 i = 0; i < handles->size(); i++)
     {
-        GdkRectangle rect = { Handles[i].x, Handles[i].y, HANDLE_SIZE, HANDLE_SIZE };
+        GdkRectangle rect = { (*handles)[i].x, (*handles)[i].y, HANDLE_SIZE, HANDLE_SIZE };
         GdkRegion *region = gdk_region_rectangle (&rect);
 
         // printf ("[%i, %i] <-> [%i, %i]\n", Handles[i].x, Handles[i].y, point->x, point->y); 
@@ -345,11 +347,11 @@ void GuiPreview::mouseMoved (const GdkPoint *point)
     if (SelectedHandle != -1)
     {
         // deselect handle
-        Renderer.drawHandle (Handles[SelectedHandle], false, da, Overlay);
+        Renderer.drawHandle ((*handles)[SelectedHandle], false, da, Overlay);
         // reset value
         Editor->indicateEditingField (ShapeData, SelectedHandle, false);
         // refresh screen
-        GdkRectangle rect = { Handles[SelectedHandle].x, Handles[SelectedHandle].y, HANDLE_SIZE, HANDLE_SIZE };
+        GdkRectangle rect = { (*handles)[SelectedHandle].x, (*handles)[SelectedHandle].y, HANDLE_SIZE, HANDLE_SIZE };
         gdk_window_invalidate_rect (gtk_widget_get_window (DrawingArea), &rect, FALSE);
     }
             
@@ -357,11 +359,11 @@ void GuiPreview::mouseMoved (const GdkPoint *point)
     if (curHandle != -1)
     {
         // highlight handle
-        Renderer.drawHandle (Handles[curHandle], true, da, Overlay);
+        Renderer.drawHandle ((*handles)[curHandle], true, da, Overlay);
         // highlight value
         Editor->indicateEditingField (ShapeData, curHandle, true);
         // refresh screen
-        GdkRectangle rect = { Handles[curHandle].x, Handles[curHandle].y, HANDLE_SIZE, HANDLE_SIZE };
+        GdkRectangle rect = { (*handles)[curHandle].x, (*handles)[curHandle].y, HANDLE_SIZE, HANDLE_SIZE };
         gdk_window_invalidate_rect (gtk_widget_get_window (DrawingArea), &rect, FALSE);
     }
             

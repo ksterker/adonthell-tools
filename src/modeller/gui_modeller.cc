@@ -47,6 +47,13 @@ static char modeller_ui[] =
 #include "modeller.glade.h"
 ;
 
+/** supported editing modes */
+enum
+{
+    BBOX_MODE,
+    POINT_MODE
+};
+
 // Main Window: on_widget_destroy App
 static void on_widget_destroy (GtkWidget * widget, gpointer data)
 {
@@ -335,12 +342,14 @@ static void on_edit_mode_changed (GtkToggleButton *togglebutton, gpointer user_d
         g_object_set (GTK_WIDGET(togglebutton),
                 "label", "Point Mode",
                 "tooltip-text", "In this mode, the position of each corner point can be edited. Click to switch to BBox Mode.", NULL);
+        modeller->setEditingMode(BBOX_MODE);
     }
     else
     {
         g_object_set (GTK_WIDGET(togglebutton),
                 "label", "BBox Mode",
                 "tooltip-text", "In this mode, the general size and position of the selected shape can be edited. Click to switch to Point Mode.", NULL);
+        modeller->setEditingMode(POINT_MODE);
     }
 }
 
@@ -967,6 +976,24 @@ void GuiModeller::setActive (const std::string & id, const bool & sensitive)
 {
     GtkWidget *widget = GTK_WIDGET(gtk_builder_get_object (Ui, id.c_str()));
     gtk_widget_set_sensitive (widget, sensitive);
+}
+
+void GuiModeller::setEditingMode (const int & editing_mode)
+{
+    static BboxEditor bbox_mode;
+
+    switch (editing_mode)
+    {
+        case BBOX_MODE:
+        {
+            Preview->setEditor (&bbox_mode);
+            break;
+        }
+        case POINT_MODE:
+        {
+            break;
+        }
+    }
 }
 
 // update title bar

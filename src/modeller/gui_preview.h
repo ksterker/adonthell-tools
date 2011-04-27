@@ -142,6 +142,17 @@ public:
     void setModified();
 
     /**
+     * Set editor for the current editing mode.
+     */
+    void setEditor (ModelEditor *editor)
+    {
+        Editor = editor;
+
+        // update view
+        render();
+    }
+
+    /**
      * Scrolling.
      */
     //@{
@@ -158,7 +169,6 @@ public:
      * Perform scrolling.
      */
     virtual void scroll();
-    //@}
 
     /**
      * Whether scrolling is possible in current state.
@@ -168,10 +178,11 @@ public:
     {
         return !isHandleDragged();
     }
+    //@}
 
 private:
     /// the editor
-    BboxEditor *Editor;
+    ModelEditor *Editor;
     /// the renderer
     ModelRenderer Renderer;
     /// the display widget
@@ -192,8 +203,6 @@ private:
     int SelectedHandle;
     /// previous position when dragging
     GdkPoint *PrevPos;
-    /// the position of the edit handles
-    GdkPoint Handles[4];
     /// the scroll offset
     GdkPoint Offset;
 };

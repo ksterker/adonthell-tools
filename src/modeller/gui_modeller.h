@@ -168,6 +168,12 @@ public:
     void setActive (const std::string & id, const bool & sensitive);
     
     /**
+     * Toggle the editing mode.
+     * @param editing_mode a recognized editing mode.
+     */
+    void setEditingMode (const int & editing_mode);
+
+    /**
      * Update zoom level of displayed model.
      */
     void zoom ();

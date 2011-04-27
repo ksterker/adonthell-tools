@@ -8,7 +8,9 @@ noinst_HEADERS = \
     gui_modeller.h \
     gui_preview.h \
     mdl_bbox_editor.h \
+    mdl_bbox_handles.h \
     mdl_cmdline.h \
+    mdl_editor.h \
     mdl_handle.h \
     mdl_renderer.h
     
@@ -17,6 +19,7 @@ modeller_SOURCES = \
     gui_preview.cc \
     main.cc \
     mdl_bbox_editor.cc \
+    mdl_bbox_handles.cc \
     mdl_cmdline.cc \
     mdl_renderer.cc
 
