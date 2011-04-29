@@ -29,7 +29,7 @@
 #define GUI_PREVIEW_H
 
 #include "gui_scrollable.h"
-#include "mdl_bbox_editor.h"
+#include "mdl_editor.h"
 #include "mdl_renderer.h"
 
 /**
@@ -148,6 +148,10 @@ public:
     {
         Editor = editor;
 
+        // initialize editor
+        Editor->getHandles()->clearSelection();
+        Editor->updateShapeData(ShapeData, Shape);
+
         // update view
         render();
     }
@@ -199,8 +203,6 @@ private:
     world::cube3 *Shape;
     /// the model currently being edited
     world::placeable_model *Model;
-    /// the currently selected handle
-    int SelectedHandle;
     /// previous position when dragging
     GdkPoint *PrevPos;
     /// the scroll offset

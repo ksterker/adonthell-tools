@@ -42,13 +42,51 @@
  * represents a point that can be dragged to alter
  * shape size, position, etc.
  */
-class Handles
+class ModelHandles
 {
 public:
+    /**
+     * Construction.
+     */
+    ModelHandles() : SelectedHandle (-1) { }
+
     /**
      * Update handle position relative to where the shape is rendered.
      */
     virtual void updateHandles(const world::cube3 *shape, const s_int16 & x, const s_int16 & y) = 0;
+
+    /**
+     * Update selected handle.
+     * @param point the mouse location.
+     */
+    bool updateSelection (const GdkPoint *point)
+    {
+        s_int32 curHandle = -1;
+
+        for (u_int32 i = 0; i < Handles.size(); i++)
+        {
+            GdkRectangle rect = { Handles[i].x, Handles[i].y, HANDLE_SIZE, HANDLE_SIZE };
+            GdkRegion *region = gdk_region_rectangle (&rect);
+
+            // printf ("[%i, %i] <-> [%i, %i]\n", Handles[i].x, Handles[i].y, point->x, point->y);
+            if (gdk_region_point_in (region, point->x, point->y))
+            {
+                curHandle = i;
+                break;
+            }
+
+            // cleanup
+            gdk_region_destroy (region);
+        }
+
+        if (curHandle != SelectedHandle)
+        {
+            SelectedHandle = curHandle;
+            return true;
+        }
+
+        return false;
+    }
 
     /**
      * Get number of handles.
@@ -57,6 +95,23 @@ public:
     u_int32 size () const
     {
         return Handles.size();
+    }
+
+    /**
+     * Return index of the selected handle.
+     * @return selected handle or -1 if none selected.
+     */
+    s_int32 selected () const
+    {
+        return SelectedHandle;
+    }
+
+    /**
+     * Clear selection.
+     */
+    void clearSelection ()
+    {
+        SelectedHandle = -1;
     }
 
     /**
@@ -72,7 +127,8 @@ public:
 protected:
     /// list of handle positions
     std::vector<GdkPoint> Handles;
+    /// the currently selected handle
+    s_int32 SelectedHandle;
 };
-
 
 #endif

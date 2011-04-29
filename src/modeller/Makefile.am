@@ -12,6 +12,8 @@ noinst_HEADERS = \
     mdl_cmdline.h \
     mdl_editor.h \
     mdl_handle.h \
+    mdl_point_editor.h \
+    mdl_point_handles.h \
     mdl_renderer.h
     
 modeller_SOURCES = \
@@ -21,6 +23,8 @@ modeller_SOURCES = \
     mdl_bbox_editor.cc \
     mdl_bbox_handles.cc \
     mdl_cmdline.cc \
+    mdl_point_editor.cc \
+    mdl_point_handles.cc \
     mdl_renderer.cc
 
 # just for the dependency

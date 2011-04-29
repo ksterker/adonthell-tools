@@ -43,24 +43,24 @@ enum
 // ctor
 BboxEditor::BboxEditor ()
 {
-    Hndls = new BboxHandles();
+    Handles = new BboxHandles();
 }
 
 // dtor
 BboxEditor::~BboxEditor()
 {
-    delete Hndls;
+    delete Handles;
 }
 
 // update shape size or position via mouse
-bool BboxEditor::handleDragged (world::cube3 *shape, const int & handle, GdkPoint *dist, const bool & modifier) const
+bool BboxEditor::handleDragged (world::cube3 *shape, GdkPoint *dist, const bool & modifier) const
 {
     // list of points that will get updated
     int points[world::cube3::NUM_CORNERS];
     // the offset by which the points will be moved
     world::vector3<s_int16> offset;
 
-    switch (handle)
+    switch (Handles->selected())
     {
         case POSITION:
         {

@@ -38,6 +38,8 @@
 #include "common/util.h"
 
 #include "mdl_cmdline.h"
+#include "mdl_bbox_editor.h"
+#include "mdl_point_editor.h"
 #include "gui_modeller.h"
 #include "gui_preview.h"
 #include "gui_file.h"
@@ -162,7 +164,10 @@ static void on_model_zoom_in (GtkMenuItem * menuitem, gpointer user_data)
     base::Scale++;
 
     GuiModeller *modeller = (GuiModeller *) user_data;
+
     modeller->setActive("item_zoom_out", true);
+    modeller->setActive("item_zoom_in", base::Scale < 16);
+
     modeller->zoom();
 }
 
@@ -172,7 +177,10 @@ static void on_model_zoom_out (GtkMenuItem * menuitem, gpointer user_data)
     base::Scale--;
 
     GuiModeller *modeller = (GuiModeller *) user_data;
+
     modeller->setActive("item_zoom_out", base::Scale > 1);
+    modeller->setActive("item_zoom_in", true);
+
     modeller->zoom();
 }
 
@@ -182,7 +190,10 @@ static void on_model_reset_zoom (GtkMenuItem * menuitem, gpointer user_data)
     base::Scale = 1;
 
     GuiModeller *modeller = (GuiModeller *) user_data;
+
     modeller->setActive("item_zoom_out", false);
+    modeller->setActive("item_zoom_in", true);
+
     modeller->zoom();
 }
 
@@ -342,14 +353,14 @@ static void on_edit_mode_changed (GtkToggleButton *togglebutton, gpointer user_d
         g_object_set (GTK_WIDGET(togglebutton),
                 "label", "Point Mode",
                 "tooltip-text", "In this mode, the position of each corner point can be edited. Click to switch to BBox Mode.", NULL);
-        modeller->setEditingMode(BBOX_MODE);
+        modeller->setEditingMode(POINT_MODE);
     }
     else
     {
         g_object_set (GTK_WIDGET(togglebutton),
                 "label", "BBox Mode",
                 "tooltip-text", "In this mode, the general size and position of the selected shape can be edited. Click to switch to Point Mode.", NULL);
-        modeller->setEditingMode(POINT_MODE);
+        modeller->setEditingMode(BBOX_MODE);
     }
 }
 
@@ -386,6 +397,7 @@ GuiModeller::GuiModeller ()
     widget = gtk_builder_get_object (Ui, "model_area");
     GtkTreeModel *sprites = GTK_TREE_MODEL(gtk_builder_get_object (Ui, "sprite_list"));
     Preview = new GuiPreview (GTK_WIDGET (widget), shapeData, sprites);
+    setEditingMode(BBOX_MODE);
     
     // get reference to dialog window
     Window = GTK_WIDGET (gtk_builder_get_object (Ui, "main_window"));
@@ -981,6 +993,7 @@ void GuiModeller::setActive (const std::string & id, const bool & sensitive)
 void GuiModeller::setEditingMode (const int & editing_mode)
 {
     static BboxEditor bbox_mode;
+    static PointEditor point_mode;
 
     switch (editing_mode)
     {
@@ -991,6 +1004,7 @@ void GuiModeller::setEditingMode (const int & editing_mode)
         }
         case POINT_MODE:
         {
+            Preview->setEditor (&point_mode);
             break;
         }
     }

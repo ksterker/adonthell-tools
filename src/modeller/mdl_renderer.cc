@@ -56,7 +56,7 @@ void ModelRenderer::render (std::list <world::render_info> & objectlist, const g
 }
 
 // render model and handles
-void ModelRenderer::render (const GdkPoint & offset, world::placeable_model *model, Handles *handles, const gfx::drawing_area & da, gfx::surface *target)
+void ModelRenderer::render (const GdkPoint & offset, world::placeable_model *model, ModelHandles *handles, const gfx::drawing_area & da, gfx::surface *target)
 {
     gfx::sprite *sprt = model->get_sprite();
     if (sprt != NULL)
@@ -118,7 +118,7 @@ const world::cube3* ModelRenderer::scaleCube (const world::cube3 *src) const
 }
 
 // draw cube outline(s)
-void ModelRenderer::draw (Handles *handles, const s_int16 & x, const s_int16 & y, const world::render_info & ri, const gfx::drawing_area & da, gfx::surface * target) const
+void ModelRenderer::draw (ModelHandles *handles, const s_int16 & x, const s_int16 & y, const world::render_info & ri, const gfx::drawing_area & da, gfx::surface * target) const
 {
     // sprite screen coordinates
     s_int16 sx = x + ri.screen_x () * base::Scale;
@@ -136,10 +136,7 @@ void ModelRenderer::draw (Handles *handles, const s_int16 & x, const s_int16 & y
         
         if (ActiveShape == *i)
         {
-            s_int16 ox = x + c->min_x();
-            s_int16 oy = y + c->min_y() - c->min_z();
-            
-            handles->updateHandles (ActiveShape, ox, oy);
+            handles->updateHandles (ActiveShape, x, y);
         }
 
         delete c;

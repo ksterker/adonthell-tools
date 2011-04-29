@@ -18,47 +18,32 @@
  */
 
 /**
- * @file modeller/mdl_bbox_handles.h
+ * @file modeller/mdl_point_handles.cc
  *
  * @author Kai Sterker
- * @brief Handles to edit a models bbox.
+ * @brief Handles to edit a models corner points.
  */
 
-#ifndef MDL_BBOX_HANDLES_H_
-#define MDL_BBOX_HANDLES_H_
 
-#include "mdl_handle.h"
+#include <base/base.h>
+#include <world/cube3.h>
 
-/**
- * Handle types
- */
-enum
+#include "mdl_point_handles.h"
+
+// ctor
+PointHandles::PointHandles()
 {
-    POSITION = 0,
-    LENGTH = 1,
-    WIDTH = 2,
-    HEIGHT = 3,
-    MAX_HANDLES = 4
-};
+    Handles.resize(world::cube3::NUM_CORNERS);
+}
 
-/**
- * Handles for editing the bounding box of a shape.
- */
-class BboxHandles : public ModelHandles
+// update position of handles used for manipulating shapes
+void PointHandles::updateHandles (const world::cube3 *shape, const s_int16 & x, const s_int16 & y)
 {
-public:
-    /**
-     * Initialize list of handles.
-     */
-    BboxHandles();
+    for (int i = 0; i < world::cube3::NUM_CORNERS; i++)
+    {
+        world::vector3<s_int16> point = shape->get_point(i);
 
-    /**
-     * Update position of the edit handles for the active shape.
-     * @param shape shape for which to set the handles.
-     * @param x x-offset of rendered model
-     * @param y y-offset of rendered model
-     */
-    virtual void updateHandles(const world::cube3 *shape, const s_int16 & x, const s_int16 & y);
-};
-
-#endif /* MDL_BBOX_HANDLES_H_ */
+        Handles[i].x = x - HANDLE_OFFSET + point.x() * base::Scale;
+        Handles[i].y = y - HANDLE_OFFSET + (point.y() - point.z()) * base::Scale;
+    }
+}

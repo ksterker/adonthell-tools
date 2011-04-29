@@ -30,7 +30,7 @@
 #include "mdl_bbox_handles.h"
 
 // ctor
-BboxHandles::BboxHandles()
+BboxHandles::BboxHandles() : ModelHandles ()
 {
     Handles.resize(MAX_HANDLES);
 }
@@ -38,23 +38,26 @@ BboxHandles::BboxHandles()
 // update position of handles used for manipulating shapes
 void BboxHandles::updateHandles (const world::cube3 *shape, const s_int16 & x, const s_int16 & y)
 {
+    s_int16 ox = x + shape->min_x() * base::Scale;
+    s_int16 oy = y + (shape->min_y() - shape->min_z()) * base::Scale;
+
     s_int16 length = (shape->max_x() - shape->min_x()) * base::Scale;
     s_int16 width = (shape->max_y() - shape->min_y()) * base::Scale;
     s_int16 height = (shape->max_z() - shape->min_z()) * base::Scale;
 
     // move position (x/y/z) handle in the top north-west corner of the shape
-    Handles[POSITION].x = x - HANDLE_OFFSET;
-    Handles[POSITION].y = y - HANDLE_OFFSET - height;
+    Handles[POSITION].x = ox - HANDLE_OFFSET;
+    Handles[POSITION].y = oy - HANDLE_OFFSET - height;
 
     // change length handle in the top east vector of the shape
-    Handles[LENGTH].x = x - HANDLE_OFFSET + length;
-    Handles[LENGTH].y = y - HANDLE_OFFSET - height + width / 2;
+    Handles[LENGTH].x = ox - HANDLE_OFFSET + length;
+    Handles[LENGTH].y = oy - HANDLE_OFFSET - height + width / 2;
 
     // change width handle in the top south vector of the shape
-    Handles[WIDTH].x = x - HANDLE_OFFSET + length / 2;
-    Handles[WIDTH].y = y - HANDLE_OFFSET - height + width;
+    Handles[WIDTH].x = ox - HANDLE_OFFSET + length / 2;
+    Handles[WIDTH].y = oy - HANDLE_OFFSET - height + width;
 
     // change height handle in the top north vector of the shape
-    Handles[HEIGHT].x = x - HANDLE_OFFSET + length / 2;
-    Handles[HEIGHT].y = y - HANDLE_OFFSET - height;
+    Handles[HEIGHT].x = ox - HANDLE_OFFSET + length / 2;
+    Handles[HEIGHT].y = oy - HANDLE_OFFSET - height;
 }

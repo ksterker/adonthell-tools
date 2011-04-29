@@ -53,11 +53,10 @@ public:
     /**
      * Update the given shape by moving the handle by the given distance.
      * @param shape the shape being edited.
-     * @param handle index of the handle being dragged.
      * @param dist distance the handle has been dragged.
      * @param modifier whether the modifier key (shift) was pressed while dragging.
      */
-    virtual bool handleDragged (world::cube3 *shape, const int & handle, GdkPoint *dist, const bool & modifier) const;
+    virtual bool handleDragged (world::cube3 *shape, GdkPoint *dist, const bool & modifier) const;
 
     /**
      * Update the given shape at the given position with the given value.

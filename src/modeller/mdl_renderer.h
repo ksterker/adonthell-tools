@@ -63,7 +63,7 @@ public:
      * @param da clipping rectangle.
      * @param target surface to draw on.
      */
-    void render (const GdkPoint & offset, world::placeable_model *model, Handles *handles, const gfx::drawing_area & da, gfx::surface *target);
+    void render (const GdkPoint & offset, world::placeable_model *model, ModelHandles *handles, const gfx::drawing_area & da, gfx::surface *target);
 
     /**
      * Draw the handle at given index.
@@ -102,7 +102,7 @@ protected:
      * @param da clipping rectangle
      * @param target render target
      */
-    void draw (Handles *handles, const s_int16 & x, const s_int16 & y, const world::render_info & ri, const gfx::drawing_area & da, gfx::surface * target) const;
+    void draw (ModelHandles *handles, const s_int16 & x, const s_int16 & y, const world::render_info & ri, const gfx::drawing_area & da, gfx::surface * target) const;
 
     /**
      * Draw a rectangular outline.

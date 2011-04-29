@@ -149,12 +149,9 @@ GuiPreview::GuiPreview (GtkWidget *drawing_area, GtkEntry** shape_data, GtkTreeM
     Overlay = gfx::create_surface();
     Overlay->set_alpha(255, true);
     
-    // default editor
-    Editor = new BboxEditor();
-
-    // no handle selected
-    SelectedHandle = -1;
+    // no editor, model and no shape yet
     PrevPos = NULL;
+    Editor = NULL;
     Model = NULL;
     Shape = NULL;
 }
@@ -277,7 +274,7 @@ void GuiPreview::setCurModel (world::placeable_model *model)
     Model = model;
 
     // no handle selected, initially
-    SelectedHandle = -1;
+    Editor->getHandles()->clearSelection();
 
     // update offset
     if (model != NULL)
@@ -307,7 +304,7 @@ void GuiPreview::setCurShape (world::cube3 *shape)
     Editor->updateShapeData (ShapeData, Shape);
     
     // no handle selected, initially
-    SelectedHandle = -1;
+    Editor->getHandles()->clearSelection();
 
     // update screen
     render ();
@@ -320,55 +317,40 @@ void GuiPreview::mouseMoved (const GdkPoint *point)
     
     // restrict drawing to view size
     gfx::drawing_area da (0, 0, Target->length()-1, Target->height()-1);
-    // handle below cursor
-    int curHandle = -1;
+    // the handles for the current editor
+    ModelHandles *handles = Editor->getHandles();
+    // store current handle
+    int curHandle = handles->selected();
     
-    Handles *handles = Editor->getHandles();
-    for (u_int32 i = 0; i < handles->size(); i++)
-    {
-        GdkRectangle rect = { (*handles)[i].x, (*handles)[i].y, HANDLE_SIZE, HANDLE_SIZE };
-        GdkRegion *region = gdk_region_rectangle (&rect);
-
-        // printf ("[%i, %i] <-> [%i, %i]\n", Handles[i].x, Handles[i].y, point->x, point->y); 
-        if (gdk_region_point_in (region, point->x, point->y))
-        {
-            curHandle = i;
-            break;
-        }
-        
-        // cleanup
-        gdk_region_destroy (region);
-    }
-
     // selection changed?
-    if (curHandle == SelectedHandle) return;
+    if (!handles->updateSelection (point)) return;
 
-    // was handle selected?
-    if (SelectedHandle != -1)
-    {
-        // deselect handle
-        Renderer.drawHandle ((*handles)[SelectedHandle], false, da, Overlay);
-        // reset value
-        Editor->indicateEditingField (ShapeData, SelectedHandle, false);
-        // refresh screen
-        GdkRectangle rect = { (*handles)[SelectedHandle].x, (*handles)[SelectedHandle].y, HANDLE_SIZE, HANDLE_SIZE };
-        gdk_window_invalidate_rect (gtk_widget_get_window (DrawingArea), &rect, FALSE);
-    }
-            
-    // is new handle selected?
+    // was handle selected before?
     if (curHandle != -1)
     {
-        // highlight handle
-        Renderer.drawHandle ((*handles)[curHandle], true, da, Overlay);
-        // highlight value
-        Editor->indicateEditingField (ShapeData, curHandle, true);
+        // deselect handle
+        Renderer.drawHandle ((*handles)[curHandle], false, da, Overlay);
+        // reset value
+        Editor->indicateEditingField (ShapeData, curHandle, false);
         // refresh screen
         GdkRectangle rect = { (*handles)[curHandle].x, (*handles)[curHandle].y, HANDLE_SIZE, HANDLE_SIZE };
         gdk_window_invalidate_rect (gtk_widget_get_window (DrawingArea), &rect, FALSE);
     }
             
-    // update handle
-    SelectedHandle = curHandle;        
+    // is handle selected now?
+    if (handles->selected() != -1)
+    {
+        // highlight handle
+        Renderer.drawHandle ((*handles)[handles->selected()], true, da, Overlay);
+        // highlight value
+        Editor->indicateEditingField (ShapeData, handles->selected(), true);
+        // refresh screen
+        GdkRectangle rect = { (*handles)[handles->selected()].x, (*handles)[handles->selected()].y, HANDLE_SIZE, HANDLE_SIZE };
+        gdk_window_invalidate_rect (gtk_widget_get_window (DrawingArea), &rect, FALSE);
+    }
+
+    // display new data related to selected handle
+    Editor->updateShapeData (ShapeData, Shape);
 }
 
 // set initial position from which we start dragging
@@ -395,7 +377,7 @@ void GuiPreview::handleDragged (GdkPoint *point, const bool & modifier)
     }
 
     GdkPoint distance = { point->x - PrevPos->x, point->y - PrevPos->y };
-    if (!Editor->handleDragged (Shape, SelectedHandle, &distance, modifier))
+    if (!Editor->handleDragged (Shape, &distance, modifier))
     {
         return;
     }

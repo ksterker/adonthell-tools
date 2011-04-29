@@ -18,39 +18,27 @@
  */
 
 /**
- * @file modeller/mdl_bbox_handles.h
+ * @file modeller/mdl_point_handles.h
  *
  * @author Kai Sterker
- * @brief Handles to edit a models bbox.
+ * @brief Handles to edit a models corner points.
  */
 
-#ifndef MDL_BBOX_HANDLES_H_
-#define MDL_BBOX_HANDLES_H_
+#ifndef MDL_POINT_HANDLES_H
+#define MDL_POINT_HANDLES_H
 
 #include "mdl_handle.h"
 
 /**
- * Handle types
- */
-enum
-{
-    POSITION = 0,
-    LENGTH = 1,
-    WIDTH = 2,
-    HEIGHT = 3,
-    MAX_HANDLES = 4
-};
-
-/**
  * Handles for editing the bounding box of a shape.
  */
-class BboxHandles : public ModelHandles
+class PointHandles : public ModelHandles
 {
 public:
     /**
      * Initialize list of handles.
      */
-    BboxHandles();
+    PointHandles();
 
     /**
      * Update position of the edit handles for the active shape.
@@ -61,4 +49,4 @@ public:
     virtual void updateHandles(const world::cube3 *shape, const s_int16 & x, const s_int16 & y);
 };
 
-#endif /* MDL_BBOX_HANDLES_H_ */
+#endif /* MDL_POINT_HANDLES_H */
