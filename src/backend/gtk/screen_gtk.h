@@ -68,22 +68,29 @@ public:
     void set_drawable (GdkDrawable *drawable) 
     { 
         clear ();
-        
-        if (GDK_IS_DRAWABLE (drawable))
-        {
-            int l, h;
-            gdk_drawable_get_size (drawable, &l, &h);
-            set_length (l);
-            set_height (h);
 
-            g_object_ref (drawable);
-            Drawable = drawable;
+        gint l, h;
+        if (GDK_IS_WINDOW (drawable))
+        {
+            l = gdk_window_get_width (GDK_WINDOW (drawable));
+            h = gdk_window_get_height (GDK_WINDOW (drawable));
+        }
+        else if (GDK_IS_PIXMAP (drawable))
+        {
+            gdk_pixmap_get_size (GDK_PIXMAP (drawable), &l, &h);
         }
         else
         {
             fprintf (stderr, "*** screen::set_drawable: Invalid drawable: %s!\n",
                     drawable ? G_OBJECT_TYPE_NAME(drawable) : "<null>");
+            return;
         }
+
+        set_length(l);
+        set_height(h);
+
+        g_object_ref (drawable);
+        Drawable = drawable;
     }
     
 protected:

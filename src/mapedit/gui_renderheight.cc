@@ -33,7 +33,7 @@ GuiRenderHeight::GuiRenderHeight()
     gtk_scale_set_digits (GTK_SCALE(Range), 0);
     gtk_scale_set_draw_value (GTK_SCALE(Range), TRUE);
     gtk_scale_set_value_pos (GTK_SCALE(Range), GTK_POS_TOP);
-    gtk_range_set_update_policy (GTK_RANGE(Range), GTK_UPDATE_DELAYED);
+    // gtk_range_set_update_policy (GTK_RANGE(Range), GTK_UPDATE_DELAYED);
     gtk_range_set_inverted (GTK_RANGE(Range), TRUE);
     gtk_range_set_value (GTK_RANGE(Range), 100);
     gtk_widget_show (Range);

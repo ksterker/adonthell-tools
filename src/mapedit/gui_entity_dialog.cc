@@ -356,7 +356,7 @@ void GuiEntityDialog::applyChanges()
     if (EntityType == 'S' || EntityType == 'U')
     {
         GObject *widget = gtk_builder_get_object (Ui, "entity_id");
-        id = gtk_combo_box_get_active_text (GTK_COMBO_BOX (widget));
+        id = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT (widget));
     }
     
     bool result; 
@@ -516,7 +516,7 @@ void GuiEntityDialog::set_page_active (const int & page, const bool & active)
     }
     else
     {
-        gtk_widget_hide_all (child);
+        gtk_widget_hide (child);
     }
 }
 
