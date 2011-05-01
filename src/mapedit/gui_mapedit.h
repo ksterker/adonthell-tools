@@ -32,6 +32,8 @@
 #include <string>
 #include <vector>
 
+#include "common/gui_recent_files.h"
+
 class GuiMapview;
 class GuiEntityList;
 class GuiZoneList;
@@ -44,7 +46,7 @@ class MapData;
  * be only one main window at a time, but several maps may be open
  * simultanously.
  */
-class GuiMapedit
+class GuiMapedit : public GuiRecentFileListener
 {
 public:
     /** 
@@ -119,19 +121,22 @@ public:
      */
     std::string filename () const;
                         
+    /**
+     * Callback when user chooses to load a previously opened file.
+     * @param full path to the filename.
+     */
+    virtual void OnRecentFileActivated (const std::string & file);
+
 private:
     /**
      * (Re)build the 'windows' menu 
      */
     void initMenu ();
     /**
-     * (Re)build the 'open recent' sub-menu.                      
-     */
-    void initRecentFiles ();
-    /**
      * Display the correct window title
+     * @param modified whether the map has been modified since last saving.
      */
-    void initTitle ();
+    void initTitle (const bool & modified = false);
     /**
      * Set the GUI back to it's initial state.
      */
@@ -151,6 +156,9 @@ private:
     /// a status bar
     GtkWidget *StatusCoordinates;
     
+    /// recent files
+    GuiRecentFiles *RecentFiles;
+
     /// list of loaded maps
     std::vector<MapData*> LoadedMaps;
     /// index of currently active map

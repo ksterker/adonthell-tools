@@ -48,6 +48,8 @@
 #include "mapedit/gui_entity_list.h"
 #include "mapedit/gui_zone_list.h"
 
+#define MIME_TYPE "application/x-adonthell-map"
+
 /**
  * Icon of the main window
  */
@@ -100,6 +102,11 @@ GuiMapedit::GuiMapedit ()
     
     window = this;
     
+    // recent file management
+    std::string cmdline = "-g" + MapCmdline::datadir + " -p" + MapCmdline::project + " -m" + MapCmdline::modeldir;
+    RecentFiles = new GuiRecentFiles ("mapedit", cmdline);
+    RecentFiles->setListener(this);
+
     // Statusbar for displaying help and error messages
     GtkWidget *status_help = gtk_statusbar_new ();
     gtk_statusbar_set_has_resize_grip (GTK_STATUSBAR(status_help), FALSE);
@@ -149,6 +156,7 @@ GuiMapedit::GuiMapedit ()
     // g_signal_connect (G_OBJECT (menuitem), "enter-notify-event", G_CALLBACK (on_display_help), message);
     // g_signal_connect (G_OBJECT (menuitem), "leave-notify-event", G_CALLBACK (on_clear_help), message);
     // menuItem[OPEN_RECENT] = menuitem;
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuitem), RecentFiles->recentFileMenu());
     
     // Save
     menuitem = gtk_image_menu_item_new_from_stock ("gtk-save", accel_group);
@@ -302,9 +310,6 @@ GuiMapedit::GuiMapedit ()
     // Display MainWindow
     gtk_widget_show (Wnd);
 
-    // init list of previously opened files
-    initRecentFiles ();
-    
     // get the current working directory
     Directory = g_get_current_dir ();
 
@@ -315,6 +320,7 @@ GuiMapedit::GuiMapedit ()
 // dtor
 GuiMapedit::~GuiMapedit ()
 {
+    delete RecentFiles;
 }
 
 void GuiMapedit::newMap ()
@@ -323,12 +329,19 @@ void GuiMapedit::newMap ()
     ActiveMap = LoadedMaps.size();
     LoadedMaps.push_back (area);
 
+    initTitle ();
+
     View->setMap (area);
     EntityList->setMap (area);
     ZoneList->setMap (area);
     
     std::string datadir = base::Paths().user_data_dir ();
     EntityList->setDataDir (std::string (datadir) + "/" + MapCmdline::modeldir);
+}
+
+void GuiMapedit::OnRecentFileActivated (const std::string & file)
+{
+    loadMap (file);
 }
 
 // load map from disk
@@ -340,9 +353,13 @@ void GuiMapedit::loadMap (const std::string & fname)
         // TODO: display warning
     }
     
+    RecentFiles->registerFile(fname, MIME_TYPE);
+
     ActiveMap = LoadedMaps.size();
     LoadedMaps.push_back (area);
     
+    initTitle ();
+
     View->setMap (area);
     EntityList->setMap (area);
     ZoneList->setMap (area);
@@ -363,57 +380,22 @@ void GuiMapedit::saveMap (const std::string & fname)
     {
         // error
     }
+
+    initTitle ();
+    RecentFiles->registerFile(fname, MIME_TYPE);
 }
 
 // sets the window title
-void GuiMapedit::initTitle ()
+void GuiMapedit::initTitle (const bool & modified)
 {
-    gchar *title = "Adonthell Map Editor v"_VERSION_;
-    /*
-    MapModule *module = graph_->dialogue ();
-  
-    if (module != NULL)
-    {
-        if (module->changed ())
-            title = g_strjoin (NULL, title, " - [", 
-                module->shortName ().c_str (), " (modified)]", NULL);
-        else
-            title = g_strjoin (NULL, title, " - [", 
-                module->shortName ().c_str (), "]", NULL);
-    }
-    */
-    gtk_window_set_title (GTK_WINDOW (Wnd), title);
-}
+    gchar *fname = g_path_get_basename (filename().c_str());
+    std::string title = "Adonthell Mapedit v"VERSION" [";
 
-// initialize the list of recently opened files
-void GuiMapedit::initRecentFiles ()
-{
-    /*
-    GtkWidget *submenu = GTK_MENU_ITEM(menuItem[OPEN_RECENT])->submenu;
-    GtkWidget *menuitem;
-    
-    // first, remove everything from the submenu
-    if (submenu != NULL)
-        gtk_container_foreach (GTK_CONTAINER (submenu), (GtkCallback) gtk_widget_destroy, NULL);
-    else
-        submenu = gtk_menu_new ();
+    title += fname;
+    title += modified ? "*]" : "]";
 
-    // get list of files
-    std::list<std::string> files = CfgData::data->getFiles ();
-    
-    // now recreate the recent files list
-    for (std::list<std::string>::iterator i = files.begin (); i != files.end (); i++)
-    {
-        menuitem = gtk_menu_item_new_with_label ((*i).c_str ());
-        gtk_container_add (GTK_CONTAINER (submenu), menuitem);
-        gtk_object_set_user_data (GTK_OBJECT (menuitem), (void *) (*i).c_str ());
-        g_signal_connect (GTK_OBJECT (menuitem), "activate", G_CALLBACK (on_file_load_recent_activate), (gpointer) this);
-        gtk_widget_show (menuitem);          
-    }
-
-    // append submenu
-    gtk_menu_item_set_submenu (GTK_MENU_ITEM(menuItem[OPEN_RECENT]), submenu);
-    */
+    gtk_window_set_title (GTK_WINDOW (Wnd), title.c_str());
+    g_free (fname);
 }
 
 void GuiMapedit::clear ()
