@@ -59,10 +59,13 @@ int on_scroll_graph (gpointer data)
     
     // get the present cursor position (relative to the graph)    
     gtk_widget_get_pointer (widget, &x, &y);
-    
+
+    GtkAllocation allocation;
+    gtk_widget_get_allocation (widget, &allocation);
+
     // stop scrolling if outside widget or too far from widget's border
-    if (x < 0 || x > widget->allocation.width || 
-        y < 0 || y > widget->allocation.height ||
+    if (x < 0 || x > allocation.width ||
+        y < 0 || y > allocation.height ||
         !scroller->isScrolling ())
     {
         scroller->stopScrolling ();
@@ -101,11 +104,14 @@ void Scrollable::prepareScrolling (const GdkPoint & point)
     
     GtkWidget *widget = drawingArea ();
 
+    GtkAllocation allocation;
+    gtk_widget_get_allocation (widget, &allocation);
+
     // set scrolling offset and direction    
     if (point.x < ACTIVE_BORDER) scroll_x = SCROLL_OFFSET;
     if (point.y < ACTIVE_BORDER) scroll_y = SCROLL_OFFSET;
-    if (point.x + ACTIVE_BORDER > widget->allocation.width) scroll_x = -SCROLL_OFFSET;
-    if (point.y + ACTIVE_BORDER > widget->allocation.height) scroll_y = -SCROLL_OFFSET;
+    if (point.x + ACTIVE_BORDER > allocation.width) scroll_x = -SCROLL_OFFSET;
+    if (point.y + ACTIVE_BORDER > allocation.height) scroll_y = -SCROLL_OFFSET;
     
     // enable scrolling
     if (scroll_x || scroll_y)
