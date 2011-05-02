@@ -77,12 +77,6 @@ void CfgIO::load ()
         // get next token
         switch (token = parse_cfgfile (s, n))
         {
-            case LOAD_FILE:
-            {
-                if (parse_cfgfile (s, n) == LOAD_STR) Data.addFile (s);               
-                break;
-            }
-            
             case LOAD_PROJECT:
             {
                 if (parse_cfgfile (s, n) == LOAD_STR) Data.addProject (s);

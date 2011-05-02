@@ -66,17 +66,6 @@ void on_file_load_activate (GtkMenuItem * menuitem, gpointer user_data)
     if (fs.run ()) dlgedit->loadDialogue (fs.getSelection ());
 }
 
-// File Menu: Load Recent
-void on_file_load_recent_activate (GtkMenuItem * menuitem, gpointer user_data)
-{
-    // get file
-    const char *file = (const char*) gtk_object_get_user_data (GTK_OBJECT (menuitem));
-
-    // load
-    GuiDlgedit *dlgedit = (GuiDlgedit *) user_data;
-    dlgedit->loadDialogue (file);
-}
-
 // File Menu: Save As
 void on_file_save_as_activate (GtkMenuItem * menuitem, gpointer user_data)
 {

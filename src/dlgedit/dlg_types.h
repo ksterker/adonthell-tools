@@ -98,9 +98,8 @@ enum menu_item
     COMPILE         = 5,
     PREVIEW         = 6,
     RUN             = 7,
-    OPEN_RECENT     = 8,
-    REVERT          = 9,
-    MAX_ITEM        = 10
+    REVERT          = 8,
+    MAX_ITEM        = 9
 };
 
 /**

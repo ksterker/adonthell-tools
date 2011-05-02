@@ -39,6 +39,8 @@
 #include <windows.h>
 #endif
 
+#define MIME_TYPE "application/x-adonthell-dlg"
+
 #include <algorithm>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include <gtk/gtk.h>
@@ -130,6 +132,11 @@ GuiDlgedit::GuiDlgedit ()
     window = this;
     number = 0;
     
+    // recent file management
+    std::string cmdline = "-g" + DlgCmdline::datadir + " -p" + DlgCmdline::project;
+    RecentFiles = new GuiRecentFiles ("dlgedit", cmdline);
+    RecentFiles->setListener(this);
+
     // Statusbar for displaying help and error messages
     GtkWidget *status_help = gtk_statusbar_new ();
     gtk_statusbar_set_has_resize_grip (GTK_STATUSBAR(status_help), FALSE);
@@ -180,7 +187,7 @@ GuiDlgedit::GuiDlgedit ()
     gtk_object_set_data (GTK_OBJECT (menuitem), "help-id", GINT_TO_POINTER (2));
     g_signal_connect (G_OBJECT (menuitem), "enter-notify-event", G_CALLBACK (on_display_help), message);
     g_signal_connect (G_OBJECT (menuitem), "leave-notify-event", G_CALLBACK (on_clear_help), message);
-    menuItem[OPEN_RECENT] = menuitem;
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuitem), RecentFiles->recentFileMenu());
     
     // Save
     menuitem = gtk_image_menu_item_new_from_stock ("gtk-save", accel_group);
@@ -394,9 +401,6 @@ GuiDlgedit::GuiDlgedit ()
 
     // Display welcome message
     message->display (1000);
-
-    // init list of previously opened files
-    initRecentFiles ();
     
     // get the current working directory
     directory_ = g_get_current_dir ();
@@ -430,6 +434,12 @@ void GuiDlgedit::newDialogue ()
     showDialogue (module);
 }
 
+// open recent file
+void GuiDlgedit::OnRecentFileActivated (const std::string & file)
+{
+    loadDialogue (file);
+}
+
 // load a new dialogue
 void GuiDlgedit::loadDialogue (const std::string &f)
 {
@@ -439,10 +449,6 @@ void GuiDlgedit::loadDialogue (const std::string &f)
     // test if we have a valid dialogue
     if (!checkDialogue (file))
     {        
-        // update list of previously opened files
-        CfgData::data->removeFile (file);
-        initRecentFiles ();
-    
         message->display (-2, g_basename (file.c_str ()));
         return;
     }
@@ -471,8 +477,7 @@ void GuiDlgedit::loadDialogue (const std::string &f)
     else 
     {
         // update list of previously opened files
-        CfgData::data->addFile (file);
-        initRecentFiles ();
+        RecentFiles->registerFile(file, MIME_TYPE);
 
         message->display (200);     
         showDialogue (module, true);
@@ -568,8 +573,7 @@ void GuiDlgedit::saveDialogue (const std::string &file)
         message->display (201);
         
         // update list of previously opened files
-        CfgData::data->addFile (file);
-        initRecentFiles ();
+        RecentFiles->registerFile(file, MIME_TYPE);
 
         // update 'Revert to Saved' menu item
         gtk_widget_set_sensitive (menuItem[REVERT], TRUE);
@@ -602,9 +606,6 @@ void GuiDlgedit::closeDialogue ()
     
     // rebuild the 'windows' menu
     initMenu ();
-    
-    // update list of previously opened files
-    initRecentFiles ();
     
     // delete the dialogue
     delete module;
@@ -937,45 +938,6 @@ void GuiDlgedit::initMenu ()
 #ifdef MAC_INTEGRATION
     ige_mac_menu_sync(GTK_MENU_SHELL(mainMenu));
 #endif
-}
-
-// initialize the list of recently opened files
-void GuiDlgedit::initRecentFiles ()
-{
-    GtkWidget *submenu = gtk_menu_item_get_submenu (GTK_MENU_ITEM(menuItem[OPEN_RECENT]));
-    GtkWidget *menuitem;
-    
-    // first, remove everything from the submenu
-    if (submenu != NULL)
-    {
-        gtk_container_foreach (GTK_CONTAINER (submenu), (GtkCallback) gtk_widget_destroy, NULL);
-    }
-    else
-    {
-        // append submenu
-        submenu = gtk_menu_new ();
-        gtk_menu_item_set_submenu (GTK_MENU_ITEM(menuItem[OPEN_RECENT]), submenu);
-    }
-    
-    // get list of files
-    std::list<std::string> files = CfgData::data->getFiles ();
-    
-    // now recreate the recent files list
-    if (files.size() > 0)
-    {
-        for (std::list<std::string>::iterator i = files.begin (); i != files.end (); i++)
-        {
-            menuitem = gtk_menu_item_new_with_label ((*i).c_str ());
-            gtk_menu_shell_append (GTK_MENU_SHELL (submenu), menuitem);
-            gtk_object_set_user_data (GTK_OBJECT (menuitem), (void *) (*i).c_str ());
-            g_signal_connect (G_OBJECT (menuitem), "activate", G_CALLBACK (on_file_load_recent_activate), (gpointer) this);
-            gtk_widget_show (menuitem);
-        }
-    }
-    else
-    {
-        // gtk_menu_item_set_submenu (GTK_MENU_ITEM(menuItem[OPEN_RECENT]), NULL);
-    }
 }
 
 void GuiDlgedit::clear ()

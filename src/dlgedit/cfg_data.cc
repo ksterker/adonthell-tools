@@ -56,49 +56,6 @@ CfgData::~CfgData ()
         delete *i;
 }
 
-// add entry to list of recently opened files
-void CfgData::addFile (const std::string &file)
-{
-    // check whether the file already exists
-    std::deque<std::string>::iterator i = find (Files.begin (), Files.end (), file);
-
-    // if that's the case, remove it
-    if (i != Files.end ()) Files.erase (i);
-    
-    // otherwise make sure that we can add it 
-    else 
-    {
-        // check whether the file exists at all
-        FILE* test = g_fopen (file.c_str (), "r");
-        if (!test) return;
-        else fclose (test);
-        
-        // check whether there's enough room
-        if (Files.size () == 15) Files.pop_front ();
-    }
-    
-    // add file
-    Files.push_back (file);
-}
-
-// get list of previously opened files
-std::list<std::string> CfgData::getFiles ()
-{
-    // copy contents of Files into the list
-    std::list<std::string> files (Files.begin (), Files.end ());
-
-    // sort the list
-    files.sort ();
-
-    return files;
-}
-
-// erase a file from the list
-void CfgData::removeFile (const std::string & file)
-{
-    Files.erase (remove (Files.begin (), Files.end (), file), Files.end ());    
-}
-
 // add entry to list of projects
 void CfgData::addProject (const std::string &project)
 {
@@ -195,10 +152,6 @@ std::vector<std::string> CfgData::projectsFromDatadir ()
 // save configuration data
 void CfgData::save (std::ofstream &out)
 {
-    // save list of files
-    for (std::deque<std::string>::iterator i = Files.begin (); i != Files.end (); i++)
-        out << "File [" << *i << "]\n";
-
     // save list of projects
     for (std::vector<CfgProject*>::iterator i = Projects.begin (); i != Projects.end (); i++)
         (*i)->save (out);    
