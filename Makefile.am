@@ -1,5 +1,5 @@
-EXTRA_DIST = ./config.rpath  autogen.sh
+EXTRA_DIST = ./config.rpath autogen.sh
 
-SUBDIRS = src test util
+SUBDIRS = desktop src test util
 
 ACLOCAL_AMFLAGS = -I m4

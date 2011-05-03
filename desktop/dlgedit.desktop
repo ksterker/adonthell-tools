@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Dlgedit
+Comment=The Adonthell Dialogue Editor.
+Exec=dlgedit
+Terminal=false
+Type=Application
+Categories=Development;Game;GTK;RolePlaying;
+StartupNotify=false
+MimeType=application/x-adonthell-dlg;
