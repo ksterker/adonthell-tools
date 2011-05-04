@@ -180,7 +180,7 @@ public:
      */
     virtual bool scrollingAllowed() const
     {
-        return !isHandleDragged();
+        return !isHandleDragged() && base::Scale > 1;
     }
     //@}
 

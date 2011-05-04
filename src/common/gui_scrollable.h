@@ -104,8 +104,13 @@ protected:
     GdkPoint scroll_offset; 
 
 private:
+    /// create the cursor to display when scrolling is active
+    void createScrollCursor ();
+    /// Cursor to indicate scrolling
+    GdkCursor *scrollCursor;
+
     /// Indicates whether autoscrolling is active
-    bool scrolling;         
+    bool scrolling;
 };
 
 #endif // COMMON_SCROLLING_H
