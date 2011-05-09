@@ -300,14 +300,14 @@ void GuiMapview::mouseMoved (const GdkPoint * point)
             // get object height
             world::placeable *obj = DrawObj->entity()->get_object();
             int h = obj->cur_z() + obj->height();
-            
+
             GdkRectangle rect1 = { DrawObjPos.x(), DrawObjPos.y(), DrawObjSurface->length(), DrawObjSurface->height() };
             GdkRegion *region = gdk_region_rectangle (&rect1);
             
             // erase at previous position
             Overlay->fillrect (DrawObjPos.x(), DrawObjPos.y(), DrawObjSurface->length(), DrawObjSurface->height(), 0x00FFFFFF);
             Grid->draw (DrawObjPos.x(), DrawObjPos.y(), DrawObjSurface->length(), DrawObjSurface->height());
-            
+
             // store new position
             DrawObjPos = Grid->align_to_grid (world::vector3<s_int32> (point->x, point->y, oz));
             DrawObjPos.set_y (DrawObjPos.y() - h);
@@ -334,7 +334,7 @@ void GuiMapview::indicateOverlap ()
     static world::vector3<s_int32> V1(1,1,1);
 
     MapData *area = (MapData*) MapMgr::get_map();        
-    world::vector3<s_int32> area_pos (area->x(), area->y(), area->z());
+    world::vector3<s_int32> area_pos (area->x(), area->y(), 0); // DrawObj is already located at z-position of area
     
     const world::placeable *obj = DrawObj->entity()->get_object();
     int h = obj->cur_z() + obj->height();
@@ -371,14 +371,16 @@ void GuiMapview::updateHeight (const s_int16 & oz)
         {
             highlightObject ();
         }
+        else
+        {
+            // update map coordinate display
+            int x, y;
+            gtk_widget_get_pointer (Screen, &x, &y);
+            GuiMapedit::window->setLocation (x + area->x(), y + area->y(), area->z());
+        }
         
         // redraw
         render();
-        
-        // update map coordinate display
-        int x, y;
-        gtk_widget_get_pointer (Screen, &x, &y);
-        GuiMapedit::window->setLocation (x + area->x(), y + area->y(), area->z());
     }
 }
 
