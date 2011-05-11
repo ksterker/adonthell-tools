@@ -345,8 +345,9 @@ void GuiMapview::indicateOverlap ()
 
     world::chunk_info ci (DrawObj->entity(), min + V1, max - V1);
     
+    // get all objects that possibly intersect with our object
     std::list<world::chunk_info*> objs_on_map = area->objects_in_bbox (ci.Min, ci.Max);
-    if (!objs_on_map.empty())
+    if (!objs_on_map.empty() && DrawObj->intersects(objs_on_map, ci.center_min() - V1))
     {
         gfx::surface *tint = gfx::create_surface ();
         tint->set_alpha (128);

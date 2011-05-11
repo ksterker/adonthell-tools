@@ -225,6 +225,45 @@ bool MapEntity::removeAtCurLocation()
     return false;
 }
 
+// check intersection of map entity at given position with objects from the given list
+bool MapEntity::intersects (const std::list<world::chunk_info*> & objects, const world::vector3<s_int32> & pos) const
+{
+    // check all objects returned
+    for (std::list<world::chunk_info*>::const_iterator i = objects.begin(); i != objects.end(); i++)
+    {
+        const world::placeable *object = (*i)->get_object();
+
+        // check all models the placeable consists of
+        for (world::placeable::iterator model = object->begin(); model != object->end(); model++)
+        {
+            // get the model's current shape, ...
+            const world::placeable_shape *shape = (*model)->current_shape ();
+            if (shape->is_solid() && intersects (shape, pos - (*i)->center_min()))
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+// check for intersection of a specific shape with this object
+bool MapEntity::intersects (const world::placeable_shape *other_shape, const world::vector3<s_int32> & offset) const
+{
+    // check all models this entity consists of
+    for (world::placeable::iterator model = Object->begin(); model != Object->end(); model++)
+    {
+        const world::placeable_shape *shape = (*model)->current_shape ();
+        if (shape->is_solid() && shape->intersects (other_shape, offset))
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 // update tags
 void MapEntity::update_tags ()
 {

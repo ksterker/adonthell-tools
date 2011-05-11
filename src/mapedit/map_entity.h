@@ -75,6 +75,14 @@ public:
     bool update_entity (const world::placeable_type & obj_type, const char & entity_type, const std::string & id);
     
     /**
+     * Check whether this entity at the given position intersects with any of the given objects.
+     * @param objects list of objects to compare.
+     * @param pos position of ourselves.
+     * @return true if intersection is found, false otherwise.
+     */
+    bool intersects (const std::list<world::chunk_info*> & objects, const world::vector3<s_int32> & pos) const;
+
+    /**
      * @name Reference count
      *
      * Keeps track of how many instances of this object
@@ -198,8 +206,19 @@ public:
     //@}
 
 protected:
+    /**
+     * Calculate tags for this map entity.
+     */
     void update_tags ();
     
+    /**
+     * Check whether the given shape intersects with this map entity.
+     * @param other_shape the shape to compare.
+     * @param offset offset between the other entity and ourselves.
+     * @return true if intersection is found, false otherwise.
+     */
+    bool intersects (const world::placeable_shape *other_shape, const world::vector3<s_int32> & offset) const;
+
 private:
     /// number of times this object is present on the map
     u_int32 RefCount;
