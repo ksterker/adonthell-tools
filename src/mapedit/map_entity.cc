@@ -226,7 +226,7 @@ bool MapEntity::removeAtCurLocation()
 }
 
 // check intersection of map entity at given position with objects from the given list
-bool MapEntity::intersects (const std::list<world::chunk_info*> & objects, const world::vector3<s_int32> & pos) const
+bool MapEntity::intersects (const std::list<world::chunk_info*> & objects, const world::vector3<s_int32> & pos)
 {
     // check all objects returned
     for (std::list<world::chunk_info*>::const_iterator i = objects.begin(); i != objects.end(); i++)
@@ -240,11 +240,13 @@ bool MapEntity::intersects (const std::list<world::chunk_info*> & objects, const
             const world::placeable_shape *shape = (*model)->current_shape ();
             if (shape->is_solid() && intersects (shape, pos - (*i)->center_min()))
             {
+                Overlapping = true;
                 return true;
             }
         }
     }
 
+    Overlapping = false;
     return false;
 }
 
@@ -377,7 +379,7 @@ GdkPixbuf *MapEntity::get_icon (const u_int32 & size) const
 
     // determine background color
     u_int32 color = 0xFFFFFFFF;
-    if (is_on_map())
+    if (isOnMap())
     {
         // present on map, but unused
         if (RefCount == 0)

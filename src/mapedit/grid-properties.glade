@@ -1,8 +1,9 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <!-- interface-requires gtk+ 2.12 -->
+  <requires lib="gtk+" version="2.24"/>
   <!-- interface-naming-policy toplevel-contextual -->
   <object class="GtkDialog" id="grid-dialog">
+    <property name="can_focus">False</property>
     <property name="border_width">5</property>
     <property name="title">Grid</property>
     <property name="resizable">False</property>
@@ -13,16 +14,16 @@
     <property name="skip_taskbar_hint">True</property>
     <property name="skip_pager_hint">True</property>
     <property name="deletable">False</property>
-    <property name="opacity">0.75</property>
-    <property name="has_separator">False</property>
+    <property name="opacity">0.80000000000000004</property>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox1">
         <property name="visible">True</property>
-        <property name="orientation">vertical</property>
+        <property name="can_focus">False</property>
         <property name="spacing">2</property>
         <child>
           <object class="GtkTable" id="table1">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="n_rows">3</property>
             <property name="n_columns">3</property>
             <property name="column_spacing">4</property>
@@ -30,6 +31,7 @@
             <child>
               <object class="GtkLabel" id="label1">
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="label" translatable="yes">X</property>
                 <property name="justify">right</property>
               </object>
@@ -43,6 +45,7 @@
             <child>
               <object class="GtkLabel" id="label2">
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="xalign">1</property>
                 <property name="yalign">1</property>
                 <property name="label" translatable="yes">Y</property>
@@ -58,6 +61,7 @@
             <child>
               <object class="GtkLabel" id="label3">
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Offset</property>
               </object>
               <packing>
@@ -68,6 +72,7 @@
             <child>
               <object class="GtkLabel" id="label4">
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Spacing</property>
               </object>
               <packing>
@@ -79,9 +84,13 @@
               <object class="GtkSpinButton" id="x_offset">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="invisible_char">&#x25CF;</property>
+                <property name="invisible_char">●</property>
                 <property name="xalign">1</property>
                 <property name="overwrite_mode">True</property>
+                <property name="primary_icon_activatable">False</property>
+                <property name="secondary_icon_activatable">False</property>
+                <property name="primary_icon_sensitive">True</property>
+                <property name="secondary_icon_sensitive">True</property>
                 <property name="numeric">True</property>
                 <property name="wrap">True</property>
               </object>
@@ -96,9 +105,13 @@
               <object class="GtkSpinButton" id="y_offset">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="invisible_char">&#x25CF;</property>
+                <property name="invisible_char">●</property>
                 <property name="xalign">1</property>
                 <property name="overwrite_mode">True</property>
+                <property name="primary_icon_activatable">False</property>
+                <property name="secondary_icon_activatable">False</property>
+                <property name="primary_icon_sensitive">True</property>
+                <property name="secondary_icon_sensitive">True</property>
                 <property name="numeric">True</property>
                 <property name="wrap">True</property>
               </object>
@@ -113,9 +126,13 @@
               <object class="GtkSpinButton" id="x_interval">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="invisible_char">&#x25CF;</property>
+                <property name="invisible_char">●</property>
                 <property name="xalign">1</property>
                 <property name="overwrite_mode">True</property>
+                <property name="primary_icon_activatable">False</property>
+                <property name="secondary_icon_activatable">False</property>
+                <property name="primary_icon_sensitive">True</property>
+                <property name="secondary_icon_sensitive">True</property>
                 <property name="numeric">True</property>
               </object>
               <packing>
@@ -129,9 +146,13 @@
               <object class="GtkSpinButton" id="y_interval">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="invisible_char">&#x25CF;</property>
+                <property name="invisible_char">●</property>
                 <property name="xalign">1</property>
                 <property name="overwrite_mode">True</property>
+                <property name="primary_icon_activatable">False</property>
+                <property name="secondary_icon_activatable">False</property>
+                <property name="primary_icon_sensitive">True</property>
+                <property name="secondary_icon_sensitive">True</property>
                 <property name="numeric">True</property>
               </object>
               <packing>
@@ -144,6 +165,7 @@
             <child>
               <object class="GtkImage" id="img-grid">
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="stock">gtk-zoom-fit</property>
               </object>
               <packing>
@@ -154,22 +176,38 @@
           <packing>
             <property name="expand">False</property>
             <property name="fill">False</property>
-            <property name="position">1</property>
+            <property name="position">0</property>
           </packing>
         </child>
         <child>
           <object class="GtkHSeparator" id="hseparator1">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
           </object>
           <packing>
             <property name="expand">False</property>
+            <property name="fill">True</property>
             <property name="padding">4</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child internal-child="action_area">
+          <object class="GtkHButtonBox" id="dialog-action_area">
+            <property name="width_request">0</property>
+            <property name="height_request">0</property>
+            <property name="can_focus">False</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="pack_type">end</property>
             <property name="position">2</property>
           </packing>
         </child>
         <child>
           <object class="GtkTable" id="table2">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="n_rows">3</property>
             <property name="n_columns">5</property>
             <property name="column_spacing">2</property>
@@ -182,6 +220,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="tooltip_text" translatable="yes">Adjust grid to the current object.</property>
+                <property name="use_action_appearance">False</property>
               </object>
               <packing>
                 <property name="left_attach">2</property>
@@ -197,6 +236,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="tooltip_text" translatable="yes">Align current object to the left side of the grid.</property>
+                <property name="use_action_appearance">False</property>
                 <property name="image">image4</property>
               </object>
               <packing>
@@ -214,6 +254,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="tooltip_text" translatable="yes">Align current object to the top of the grid.</property>
+                <property name="use_action_appearance">False</property>
                 <property name="image">image3</property>
               </object>
               <packing>
@@ -229,6 +270,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="tooltip_text" translatable="yes">Align current object to the bottom of the grid.</property>
+                <property name="use_action_appearance">False</property>
                 <property name="image">image1</property>
               </object>
               <packing>
@@ -246,6 +288,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="tooltip_text" translatable="yes">Align current object to the right side of the grid.</property>
+                <property name="use_action_appearance">False</property>
                 <property name="image">image2</property>
               </object>
               <packing>
@@ -260,6 +303,7 @@
             <child>
               <object class="GtkLayout" id="layout1">
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
               </object>
               <packing>
                 <property name="top_attach">1</property>
@@ -269,6 +313,7 @@
             <child>
               <object class="GtkLayout" id="layout2">
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
               </object>
               <packing>
                 <property name="left_attach">4</property>
@@ -311,9 +356,11 @@
         <child>
           <object class="GtkHSeparator" id="hseparator2">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
           </object>
           <packing>
             <property name="expand">False</property>
+            <property name="fill">True</property>
             <property name="padding">4</property>
             <property name="position">4</property>
           </packing>
@@ -324,18 +371,22 @@
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">False</property>
+            <property name="tooltip_text" translatable="yes">When checked, matches grid automatically to the object being placed.</property>
+            <property name="use_action_appearance">False</property>
             <property name="focus_on_click">False</property>
             <property name="active">True</property>
             <property name="draw_indicator">True</property>
           </object>
           <packing>
             <property name="expand">False</property>
+            <property name="fill">True</property>
             <property name="position">5</property>
           </packing>
         </child>
         <child>
           <object class="GtkHBox" id="hbox1">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="spacing">4</property>
             <property name="homogeneous">True</property>
             <child>
@@ -344,12 +395,14 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>
-                <property name="tooltip_text" translatable="yes">Align objects to the grid when placing them onto the map.</property>
+                <property name="tooltip_text" translatable="yes">When checked, objects are aligned to the grid.</property>
+                <property name="use_action_appearance">False</property>
                 <property name="active">True</property>
                 <property name="draw_indicator">True</property>
               </object>
               <packing>
                 <property name="expand">False</property>
+                <property name="fill">True</property>
                 <property name="position">0</property>
               </packing>
             </child>
@@ -359,19 +412,26 @@
           </object>
           <packing>
             <property name="expand">False</property>
+            <property name="fill">True</property>
             <property name="position">6</property>
           </packing>
         </child>
-        <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="dialog-action_area">
-            <property name="width_request">0</property>
-            <property name="height_request">0</property>
+        <child>
+          <object class="GtkCheckButton" id="cb_preventoverlap">
+            <property name="label" translatable="yes">Prevent Overlap</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">False</property>
+            <property name="tooltip_text" translatable="yes">When checked, forbids placing objects where they intersect with other objects.</property>
+            <property name="use_action_appearance">False</property>
+            <property name="focus_on_click">False</property>
+            <property name="active">True</property>
+            <property name="draw_indicator">True</property>
           </object>
           <packing>
             <property name="expand">False</property>
-            <property name="fill">False</property>
-            <property name="pack_type">end</property>
-            <property name="position">0</property>
+            <property name="fill">True</property>
+            <property name="position">7</property>
           </packing>
         </child>
       </object>
@@ -379,18 +439,22 @@
   </object>
   <object class="GtkImage" id="image1">
     <property name="visible">True</property>
+    <property name="can_focus">False</property>
     <property name="stock">gtk-goto-bottom</property>
   </object>
   <object class="GtkImage" id="image2">
     <property name="visible">True</property>
+    <property name="can_focus">False</property>
     <property name="stock">gtk-goto-last</property>
   </object>
   <object class="GtkImage" id="image3">
     <property name="visible">True</property>
+    <property name="can_focus">False</property>
     <property name="stock">gtk-goto-top</property>
   </object>
   <object class="GtkImage" id="image4">
     <property name="visible">True</property>
+    <property name="can_focus">False</property>
     <property name="stock">gtk-goto-first</property>
   </object>
 </interface>

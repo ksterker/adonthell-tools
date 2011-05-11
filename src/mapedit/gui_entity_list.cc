@@ -174,7 +174,7 @@ static void entity_list_get_value (GtkTreeModel *self, GtkTreeIter *iter, int co
         }
         case COLOR_COLUMN:
         {
-            const gchar *color = obj->is_on_map () ? (obj->getRefCount() ? "#FFFFFF" : "#80C8FE") : "#FEB380";
+            const gchar *color = obj->isOnMap () ? (obj->getRefCount() ? "#FFFFFF" : "#80C8FE") : "#FEB380";
 			g_value_set_string (value, color);
 			break;
         }
@@ -198,7 +198,7 @@ static void selected_event (GtkTreeSelection *selection, gpointer user_data)
         MapEntity *obj = (MapEntity*) entity_list_get_object (ENTITY_LIST (model), &iter);
 
         // check if object needs to be added to map
-        if (!obj->is_on_map ())
+        if (!obj->isOnMap ())
         {
             // allow user to add entity to map
             GuiEntityDialog dlg (obj, GuiEntityDialog::ADD_ENTITY_TO_MAP);

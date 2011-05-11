@@ -54,6 +54,12 @@ static void on_snap_to_grid (GtkToggleButton *btn, gpointer user_data)
     dlg->setSnapToGrid(gtk_toggle_button_get_active (btn));
 }
 
+static void on_prevent_overlap (GtkToggleButton *btn, gpointer user_data)
+{
+    GuiGridDialog* dlg = (GuiGridDialog*) user_data;
+    dlg->setPreventOverlap(gtk_toggle_button_get_active (btn));
+}
+
 static void on_adjust_grid (GtkButton * button, gpointer user_data)
 {
     GuiGrid *grid = (GuiGrid*) user_data;
@@ -134,6 +140,10 @@ GuiGridDialog::GuiGridDialog (GuiGrid *grid, GtkWidget* ctrl)
     widget = gtk_builder_get_object (Ui, "cb_enablegrid");
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(widget), Grid->SnapToGrid);
     g_signal_connect (widget, "toggled", G_CALLBACK (on_snap_to_grid), this);
+
+    widget = gtk_builder_get_object (Ui, "cb_preventoverlap");
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(widget), Grid->PreventOverlap);
+    g_signal_connect (widget, "toggled", G_CALLBACK (on_prevent_overlap), this);
 
     widget = gtk_builder_get_object (Ui, "btn_adjust");
     gtk_widget_set_sensitive (GTK_WIDGET(widget), !Grid->AutoAdjust);
@@ -310,4 +320,10 @@ void GuiGridDialog::setAutoAdjust (const bool & auto_adjust)
 void GuiGridDialog::setSnapToGrid (const bool & snap_to_grid)
 {
     Grid->SnapToGrid = snap_to_grid;
+}
+
+// toggle overlap prevention
+void GuiGridDialog::setPreventOverlap (const bool & prevent_overlap)
+{
+    Grid->PreventOverlap = prevent_overlap;
 }

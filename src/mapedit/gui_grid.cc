@@ -34,6 +34,7 @@ GuiGrid::GuiGrid (gfx::surface *overlay)
     Visible = false;
     SnapToGrid = true;
     AutoAdjust = true;
+    PreventOverlap = true;
     
     CurObject = NULL;
     Monitor = NULL;

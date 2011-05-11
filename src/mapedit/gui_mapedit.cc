@@ -132,7 +132,7 @@ GuiMapedit::GuiMapedit ()
     submenu = gtk_menu_new ();
 
     // New
-    menuitem =gtk_image_menu_item_new_from_stock ("gtk-new", accel_group);
+    menuitem = gtk_image_menu_item_new_from_stock ("gtk-new", accel_group);
     gtk_menu_shell_append (GTK_MENU_SHELL (submenu), menuitem);
     // gtk_object_set_data (GTK_OBJECT (menuitem), "help-id", GINT_TO_POINTER (1));
     // g_signal_connect (G_OBJECT (menuitem), "enter-notify-event", G_CALLBACK (on_display_help), message);
@@ -141,7 +141,7 @@ GuiMapedit::GuiMapedit ()
     gtk_widget_show (menuitem);
 
     // Open
-    menuitem =  gtk_image_menu_item_new_from_stock ("gtk-open", accel_group);
+    menuitem = gtk_image_menu_item_new_from_stock ("gtk-open", accel_group);
     gtk_menu_shell_append (GTK_MENU_SHELL (submenu), menuitem);
     // gtk_object_set_data (GTK_OBJECT (menuitem), "help-id", GINT_TO_POINTER (2));
     // g_signal_connect (G_OBJECT (menuitem), "enter-notify-event", G_CALLBACK (on_display_help), message);

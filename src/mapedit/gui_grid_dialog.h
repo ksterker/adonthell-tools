@@ -90,6 +90,13 @@ public:
     void setSnapToGrid (const bool & snap_to_grid);
 
     /**
+     * Toggle whether overlapping objects can be placed
+     * on the map or not.
+     * @param prevent_overlap true to forbid overlapping.
+     */
+    void setPreventOverlap (const bool & prevent_overlap);
+
+    /**
      * Called when the dialog is closed by pressing ESC.
      */
     void close ();

@@ -347,7 +347,7 @@ void GuiMapview::indicateOverlap ()
     
     // get all objects that possibly intersect with our object
     std::list<world::chunk_info*> objs_on_map = area->objects_in_bbox (ci.Min, ci.Max);
-    if (!objs_on_map.empty() && DrawObj->intersects(objs_on_map, ci.center_min() - V1))
+    if (DrawObj->intersects(objs_on_map, ci.center_min() - V1))
     {
         gfx::surface *tint = gfx::create_surface ();
         tint->set_alpha (128);
@@ -454,6 +454,9 @@ void GuiMapview::selectObj (MapEntity *ety)
     Grid->set_visible (true);
     Grid->draw ();
     
+    // update overlap indication
+    highlightObject();
+
     // update screen
     GdkRectangle rect = { 0, 0, Overlay->length(), Overlay->height() };
     gdk_window_invalidate_rect (gtk_widget_get_window (Screen), &rect, FALSE);
@@ -520,7 +523,7 @@ void GuiMapview::placeCurObj()
         return;
     }
     
-    if (DrawObj != NULL)
+    if (DrawObj != NULL && (DrawObj->canPlaceOnMap() || !Grid->overlap_prevented()))
     {
         MapData *area = (MapData*) MapMgr::get_map();
         world::entity *ety = DrawObj->entity();

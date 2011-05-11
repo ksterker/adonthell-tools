@@ -127,13 +127,12 @@ public:
     void set_visible (const bool & visible);
     
     /**
-     * Toggle snapping on or off. Decides whether objects will be
-     * automatically aligned to the current grid.
-     * @param snap true to turn snapping on, false to turn it off.
+     * Returns whether it is forbidden to place overlapping objects.
+     * @return true if overlapping forbidden, false otherwise.
      */
-    void set_snap_to_grid (const bool & snap)
+    bool overlap_prevented () const
     {
-        SnapToGrid = snap;
+        return PreventOverlap;
     }
     
     /// can edit the grid
@@ -170,6 +169,8 @@ private:
     bool SnapToGrid;
     /// whether grid automatically adjusts to selected object
     bool AutoAdjust;
+    /// whether overlapping objects are forbidden
+    bool PreventOverlap;
     /// whether the grid has changed
     bool Changed;
 };

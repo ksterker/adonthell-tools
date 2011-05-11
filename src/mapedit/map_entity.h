@@ -80,7 +80,7 @@ public:
      * @param pos position of ourselves.
      * @return true if intersection is found, false otherwise.
      */
-    bool intersects (const std::list<world::chunk_info*> & objects, const world::vector3<s_int32> & pos) const;
+    bool intersects (const std::list<world::chunk_info*> & objects, const world::vector3<s_int32> & pos);
 
     /**
      * @name Reference count
@@ -141,7 +141,13 @@ public:
      * Determines the background color of the row in the entity list.
      * @return true if object is part of the map, false otherwise.
      */
-    bool is_on_map () const { return RefCount != 0; };    
+    bool isOnMap () const { return RefCount != 0; };    
+
+    /**
+     * Whether this entity can be placed onto the map.
+     * @return true if placing is allowed, false otherwise.
+     */
+    bool canPlaceOnMap () const { return !Overlapping; }
     //@}
     
     /**
@@ -222,7 +228,9 @@ protected:
 private:
     /// number of times this object is present on the map
     u_int32 RefCount;
-        
+    /// whether the object is currently overlapping another object on the map
+    bool Overlapping;
+
     /// the object this meta data is associated with 
     world::placeable *Object;
     /// the entity this meta data is associated with
