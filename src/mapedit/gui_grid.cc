@@ -24,6 +24,7 @@
  * @brief Grid for aligning object placement.
  */
 
+#include "base/base.h"
 #include "gui_grid.h"
 
 // ctor
@@ -65,13 +66,13 @@ void GuiGrid::draw (const s_int32 & x, const s_int32 & y, const u_int16 & l, con
         int h = Overlay->height();
         
         // draw vertical lines
-        for (int i = Mx; i < l; i += Ix)
+        for (int i = Mx * base::Scale; i < l; i += Ix * base::Scale)
         {
             Overlay->fillrect (i, 0, 1, h, 0x88FFFFFF);
         }
         
         // draw horizontal lines
-        for (int j = My; j < h; j += Iy)
+        for (int j = My * base::Scale; j < h; j += Iy * base::Scale)
         {
             Overlay->fillrect (0, j, l, 1, 0x88FFFFFF);
         }
@@ -109,7 +110,7 @@ void GuiGrid::grid_from_cur_object (const s_int32 & ox, const s_int32 & oy)
         // get extend --> that will be our interval
         Ix = CurObject->get_object()->length();
         Iy = CurObject->get_object()->width();
-        
+
         // set offset from object position
         Ox = CurObject->Min.x() % Ix;
         Oy = CurObject->Min.y() % Iy;

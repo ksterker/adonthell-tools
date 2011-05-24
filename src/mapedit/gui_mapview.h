@@ -150,6 +150,11 @@ public:
     void showZones (const bool & show);
     
     /**
+     * Update zoom level of the map view.
+     */
+    void zoom ();
+
+    /**
      * @name Editing Functionality
      */
     //@{
@@ -238,6 +243,12 @@ protected:
      * on the map at the current position.
      */
     void indicateOverlap ();
+
+    /**
+     * Display map coordinates of mouse pointer in status bar
+     * @param area the current map.
+     */
+    void updateLocation(MapData *area);
 
 private:
     /// Drawing Area

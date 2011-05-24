@@ -165,3 +165,51 @@ gboolean on_clear_help (GtkWidget *widget, GdkEventCrossing *event, gpointer use
     return FALSE;
 }
 */
+
+// View Menu: Zoom In
+void on_model_zoom_in (GtkMenuItem * menuitem, gpointer user_data)
+{
+    if (base::Scale < 4)
+    {
+        base::Scale++;
+
+        GuiMapedit *mapedit = (GuiMapedit *) user_data;
+
+        // mapedit->setActive("item_zoom_out", true);
+        // mapedit->setActive("item_zoom_in", base::Scale < 5);
+
+        mapedit->view()->zoom();
+    }
+}
+
+// View Menu: Zoom Out
+void on_model_zoom_out (GtkMenuItem * menuitem, gpointer user_data)
+{
+    if (base::Scale > 1)
+    {
+        base::Scale--;
+
+        GuiMapedit *mapedit = (GuiMapedit *) user_data;
+
+        // mapedit->setActive("item_zoom_out", base::Scale > 1);
+        // mapedit->setActive("item_zoom_in", true);
+
+        mapedit->view()->zoom();
+    }
+}
+
+// View Menu: Zoom Normal
+void on_model_reset_zoom (GtkMenuItem * menuitem, gpointer user_data)
+{
+    if (base::Scale != 1)
+    {
+        base::Scale = 1;
+
+        GuiMapedit *mapedit = (GuiMapedit *) user_data;
+
+        // mapedit->setActive("item_zoom_out", false);
+        // mapedit->setActive("item_zoom_in", true);
+
+        mapedit->view()->zoom();
+    }
+}

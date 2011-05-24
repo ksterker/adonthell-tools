@@ -33,6 +33,7 @@
 #include <sstream>
 #include <gtk/gtk.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
+#include <gdk/gdkkeysyms.h>
 
 #include <base/base.h>
 
@@ -220,6 +221,38 @@ GuiMapedit::GuiMapedit ()
     menuitem = gtk_menu_item_new_with_mnemonic ("_File");
     gtk_menu_item_set_submenu (GTK_MENU_ITEM (menuitem), submenu);
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+
+    // View menu
+    submenu = gtk_menu_new ();
+
+    // Zoom in
+    menuitem = gtk_image_menu_item_new_from_stock ("gtk-zoom-in", accel_group);
+    gtk_menu_shell_append (GTK_MENU_SHELL (submenu), menuitem);
+    gtk_widget_add_accelerator(menuitem, "activate", accel_group, GDK_KEY_plus, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+    g_signal_connect (G_OBJECT (menuitem), "activate", G_CALLBACK (on_model_zoom_in), (gpointer) this);
+
+    // Zoom out
+    menuitem = gtk_image_menu_item_new_from_stock ("gtk-zoom-out", accel_group);
+    gtk_menu_shell_append (GTK_MENU_SHELL (submenu), menuitem);
+    gtk_widget_add_accelerator(menuitem, "activate", accel_group, GDK_KEY_minus, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+    g_signal_connect (G_OBJECT (menuitem), "activate", G_CALLBACK (on_model_zoom_out), (gpointer) this);
+
+    // Separator
+    menuitem = gtk_menu_item_new ();
+    gtk_menu_shell_append (GTK_MENU_SHELL (submenu), menuitem);
+    gtk_widget_set_sensitive (menuitem, FALSE);
+
+    // Zoom 1:1
+    menuitem = gtk_image_menu_item_new_from_stock ("gtk-zoom-100", accel_group);
+    gtk_menu_shell_append (GTK_MENU_SHELL (submenu), menuitem);
+    gtk_widget_add_accelerator(menuitem, "activate", accel_group, GDK_KEY_1, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+    g_signal_connect (G_OBJECT (menuitem), "activate", G_CALLBACK (on_model_reset_zoom), (gpointer) this);
+
+    // Attach View Menu
+    menuitem = gtk_menu_item_new_with_mnemonic ("_View");
+    gtk_menu_item_set_submenu (GTK_MENU_ITEM (menuitem), submenu);
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+
 
     gtk_box_pack_start (GTK_BOX (vbox), menu, FALSE, FALSE, 2);
     gtk_widget_show_all (menu);

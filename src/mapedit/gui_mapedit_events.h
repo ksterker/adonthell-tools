@@ -31,7 +31,7 @@
 
 void on_widget_destroy (GtkWidget *, gpointer);
 
-// Menu Callbacks
+// File Menu Callbacks
 void on_file_new_activate (GtkMenuItem *, gpointer);
 void on_file_load_activate (GtkMenuItem *, gpointer);
 // void on_file_load_recent_activate (GtkMenuItem *, gpointer);
@@ -40,6 +40,11 @@ void on_file_save_as_activate (GtkMenuItem *, gpointer);
 // void on_file_revert_activate (GtkMenuItem *, gpointer);
 // void on_file_close_activate (GtkMenuItem *, gpointer);
 void on_grid_toggled (GtkToggleButton *, gpointer);
+
+// View Menu Callbacks
+void on_model_zoom_in (GtkMenuItem * menuitem, gpointer user_data);
+void on_model_zoom_out (GtkMenuItem * menuitem, gpointer user_data);
+void on_model_reset_zoom (GtkMenuItem * menuitem, gpointer user_data);
 
 // Main Window Callbacks
 void on_tree_switched (GtkNotebook *, gpointer, guint, gpointer);

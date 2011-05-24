@@ -113,15 +113,34 @@ void GuiMapview::setMap (MapData *area)
     View->set_position (area->x(), area->y(), area->z());
     
     // display map coordinates of mouse pointer
-    int x, y;
-    gtk_widget_get_pointer (Screen, &x, &y);
-    GuiMapedit::window->setLocation (x + area->x(), y + area->y(), area->z());
+    updateLocation (area);
     
     // update valid height range
     RenderHeight->setMapExtend(area->min().z(), area->max().z());
     
     // draw map
     render();
+}
+
+void GuiMapview::zoom ()
+{
+    // update grid
+    Grid->scroll(0, 0);
+
+    // update paint object
+    if (DrawObj != NULL)
+    {
+        MapEntity *tmp = DrawObj;
+        DrawObj = NULL;
+        delete DrawObjSurface;
+        selectObj (tmp);
+    }
+
+    // update view
+    render ();
+
+    // update map coordinates of mouse pointer
+    updateLocation ((MapData*) MapMgr::get_map());
 }
 
 // redraw the whole screen
@@ -146,8 +165,20 @@ void GuiMapview::draw (const int & sx, const int & sy, const int & l, const int 
     // set clipping rectangle
     gfx::drawing_area da (sx, sy, l, h);
     
-    // draw mapview
-    Target->draw (0, 0, &da, s);
+    if (base::Scale > 1)
+    {
+        // draw target with zoom factor
+        gfx::surface *tmp = gfx::create_surface();
+        tmp->resize(Target->length(), Target->height());
+        Target->scale(tmp, base::Scale);
+        tmp->draw (0, 0, &da, s);
+        delete tmp;
+    }
+    else
+    {
+        // draw mapview
+        Target->draw (0, 0, &da, s);
+    }
     
     // draw overlay
     Overlay->draw (0, 0, &da, s);
@@ -159,7 +190,7 @@ void GuiMapview::render ()
     GtkAllocation allocation;
     gtk_widget_get_allocation (Screen, &allocation);
 
-    render (0, 0, allocation.width, allocation.height);
+    render (0, 0, allocation.width / base::Scale, allocation.height / base::Scale);
 }
 
 // render part of the map view
@@ -181,7 +212,7 @@ void GuiMapview::render (const int & sx, const int & sy, const int & l, const in
     }
     
     // schedule screen update
-    GdkRectangle rect = { sx, sy, l, h };
+    GdkRectangle rect = { sx * base::Scale, sy * base::Scale, l * base::Scale, h * base::Scale };
     gdk_window_invalidate_rect (gtk_widget_get_window (Screen), &rect, FALSE);
 }
 
@@ -229,7 +260,14 @@ void GuiMapview::resizeSurface (GtkWidget *widget)
 void GuiMapview::mouseMoved (const GdkPoint * point)
 {
     MapData *area = (MapData*) MapMgr::get_map();
-    
+    GdkPoint scaled = { point->x, point->y };
+
+    if (base::Scale > 1)
+    {
+        scaled.x = scaled.x / base::Scale;
+        scaled.y = scaled.y / base::Scale;
+    }
+
     if (area != NULL)
     {
         int ox = area->x();
@@ -237,11 +275,11 @@ void GuiMapview::mouseMoved (const GdkPoint * point)
         int oz = area->z();
         
         // display map coordinates of mouse pointer
-        GuiMapedit::window->setLocation (point->x + ox, point->y + oy, oz);
+        GuiMapedit::window->setLocation (scaled.x + ox, scaled.y + oy, oz);
 
         if (DrawObj == NULL)
         {
-            GdkPoint p = { point->x + ox, point->y + oy - oz };
+            GdkPoint p = { scaled.x + ox, scaled.y + oy - oz };
 
             // find object that's being moused over
             std::list<world::chunk_info*> objects_under_mouse;
@@ -301,22 +339,26 @@ void GuiMapview::mouseMoved (const GdkPoint * point)
             world::placeable *obj = DrawObj->entity()->get_object();
             int h = obj->cur_z() + obj->height();
 
-            GdkRectangle rect1 = { DrawObjPos.x(), DrawObjPos.y(), DrawObjSurface->length(), DrawObjSurface->height() };
+            // scaled position
+            int sx = DrawObjPos.x() * base::Scale;
+            int sy = DrawObjPos.y() * base::Scale;
+
+            GdkRectangle rect1 = { sx, sy, DrawObjSurface->length(), DrawObjSurface->height() };
             GdkRegion *region = gdk_region_rectangle (&rect1);
             
             // erase at previous position
-            Overlay->fillrect (DrawObjPos.x(), DrawObjPos.y(), DrawObjSurface->length(), DrawObjSurface->height(), 0x00FFFFFF);
-            Grid->draw (DrawObjPos.x(), DrawObjPos.y(), DrawObjSurface->length(), DrawObjSurface->height());
+            Overlay->fillrect (sx, sy, DrawObjSurface->length(), DrawObjSurface->height(), 0x00FFFFFF);
+            Grid->draw (sx, sy, DrawObjSurface->length(), DrawObjSurface->height());
 
             // store new position
-            DrawObjPos = Grid->align_to_grid (world::vector3<s_int32> (point->x, point->y, oz));
+            DrawObjPos = Grid->align_to_grid (world::vector3<s_int32> (scaled.x, scaled.y, oz));
             DrawObjPos.set_y (DrawObjPos.y() - h);
 
-            GdkRectangle rect2 = { DrawObjPos.x(), DrawObjPos.y(), DrawObjSurface->length(), DrawObjSurface->height() };
+            GdkRectangle rect2 = { DrawObjPos.x() * base::Scale, DrawObjPos.y() * base::Scale, DrawObjSurface->length(), DrawObjSurface->height() };
             gdk_region_union_with_rect (region, &rect2);
             
             // draw at new position
-            DrawObjSurface->draw (DrawObjPos.x(), DrawObjPos.y(), NULL, Overlay);
+            DrawObjSurface->draw (DrawObjPos.x() * base::Scale, DrawObjPos.y() * base::Scale, NULL, Overlay);
             
             // check for overlap with objects already on the map
             indicateOverlap ();
@@ -353,9 +395,27 @@ void GuiMapview::indicateOverlap ()
         tint->set_alpha (128);
         tint->resize (DrawObjSurface->length(), DrawObjSurface->height());
         tint->fillrect (0, 0, DrawObjSurface->length(), DrawObjSurface->height(), 0xFFFF0000);
-        tint->draw (DrawObjPos.x(), DrawObjPos.y(), NULL, Overlay);
+        tint->draw (DrawObjPos.x() * base::Scale, DrawObjPos.y() * base::Scale, NULL, Overlay);
         delete tint;
     }
+}
+
+// update map coordinate display
+void GuiMapview::updateLocation(MapData *area)
+{
+    int x, y;
+    GtkAllocation allocation;
+
+    gtk_widget_get_pointer (Screen, &x, &y);
+    gtk_widget_get_allocation (Screen, &allocation);
+
+    if (base::Scale > 1)
+    {
+        x = x / base::Scale;
+        y = y / base::Scale;
+    }
+
+    GuiMapedit::window->setLocation(x + area->x(), y + area->y(), area->z());
 }
 
 // change height
@@ -374,10 +434,7 @@ void GuiMapview::updateHeight (const s_int16 & oz)
         }
         else
         {
-            // update map coordinate display
-            int x, y;
-            gtk_widget_get_pointer (Screen, &x, &y);
-            GuiMapedit::window->setLocation (x + area->x(), y + area->y(), area->z());
+            updateLocation(area);
         }
         
         // redraw
@@ -449,6 +506,18 @@ void GuiMapview::selectObj (MapEntity *ety)
     // give tile some contrast
     DrawObjSurface->set_brightness (150);
     
+    // scale
+    if (base::Scale > 1)
+    {
+        gfx::surface *tmp = gfx::create_surface ();
+        tmp->set_alpha (128, true);
+        tmp->resize (l*base::Scale, h*base::Scale);
+
+        DrawObjSurface->scale(tmp, base::Scale);
+        delete DrawObjSurface;
+        DrawObjSurface = tmp;
+    }
+
     // update grid
     Grid->grid_from_object (ety->getLocation() ? *ety->getLocation() : ci, area->x(), area->y());
     Grid->set_visible (true);
@@ -565,7 +634,7 @@ void GuiMapview::placeCurObj()
             // TODO: update grid, so that pressing adjust will deliver the correct offset
             
             // update screen
-            render (DrawObjPos.x(), DrawObjPos.y(), DrawObjSurface->length(), DrawObjSurface->height());
+            render (DrawObjPos.x(), DrawObjPos.y(), DrawObjSurface->length() / base::Scale, DrawObjSurface->height() / base::Scale);
             
             // update valid height range
             RenderHeight->setMapExtend(area->min().z(), area->max().z());
@@ -657,9 +726,7 @@ void GuiMapview::scroll ()
     render ();
     
     // update map coordinates of mouse pointer
-    int x, y;
-    gtk_widget_get_pointer (Screen, &x, &y);
-    GuiMapedit::window->setLocation (x + area->x(), y + area->y(), area->z());
+    updateLocation (area);
 }
 
 // highlight object under mouse, if any
