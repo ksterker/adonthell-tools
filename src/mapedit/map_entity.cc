@@ -409,8 +409,8 @@ GdkPixbuf *MapEntity::get_icon (const u_int32 & size) const
     
     // thumbnail of entity
     GdkPixbuf *pixbuf = gdk_pixbuf_get_from_drawable (NULL, pixmap, gdk_colormap_get_system (), 0, 0, 0, 0, l, h);
-    int nl = l > h ? size : ((float) l / h) * size;
-    int nh = h > l ? size : ((float) h / l) * size;
+    int nl = l > h ? size : ((float) l / h) * size + 1;
+    int nh = h > l ? size : ((float) h / l) * size + 1;
     GdkPixbuf *icon = gdk_pixbuf_scale_simple (pixbuf, nl, nh, GDK_INTERP_BILINEAR);
     
     // cleanup
