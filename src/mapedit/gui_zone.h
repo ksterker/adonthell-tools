@@ -55,6 +55,11 @@ public:
      */
     void set_visible (const bool & visible);
 
+    /**
+     * Update zone display
+     */
+    void update ();
+
 private:
     /// overlay onto which to draw grid
     gfx::surface *Overlay;

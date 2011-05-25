@@ -183,13 +183,13 @@ guint key_press_notify_event (GtkWidget * widget, GdkEventKey * event, gpointer 
 	        break;
 	    }
         // increase object z position
-        case GDK_KEY_plus:
+        case GDK_KEY_Page_Up:
         {
             view->updateHeight (event->state & GDK_CONTROL_MASK ? 10 : 1);
             break;
         }
         // decrease object z position
-        case GDK_KEY_minus:
+        case GDK_KEY_Page_Down:
         {
             view->updateHeight (event->state & GDK_CONTROL_MASK ? -10 : -1);
             break;

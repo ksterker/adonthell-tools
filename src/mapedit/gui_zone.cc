@@ -24,6 +24,9 @@
  * @brief Grid for aligning object placement.
  */
 
+#include <base/base.h>
+#include <gfx/gfx.h>
+
 #include "gui_zone.h"
 #include "map_data.h"
 #include "map_mgr.h"
@@ -49,23 +52,62 @@ void GuiZone::draw (const s_int32 & x, const s_int32 & y, const u_int16 & l, con
     {
         MapData *map = (MapData *) MapMgr::get_map ();
         
-        std::list<world::zone*> zones = map->zones_in_view (x + map->x(), y + map->y(), map->z(), l, h);
+        // set clipping rectangle
+        gfx::drawing_area da (x, y, l, h);
+
+        std::list<world::zone*> zones = map->zones_in_view (x / base::Scale + map->x(), y / base::Scale + map->y(), map->z(), l, h);
         for (std::list<world::zone*>::const_iterator i = zones.begin(); i != zones.end(); i++)
         {
             // get zone location
-            s_int16 sx = (*i)->min().x() - map->x() - x;
-            s_int16 sy = (*i)->min().y() - (*i)->min().z() - map->y() + map->z() - y;
+            s_int16 sx = ((*i)->min().x() - map->x()) * base::Scale;
+            s_int16 sy = ((*i)->min().y() - (*i)->min().z() - map->y() + map->z()) * base::Scale;
             
             // get zone extend
-            s_int16 ex = (*i)->max().x() - (*i)->min().x();
-            s_int16 ey = (*i)->max().y() - (*i)->min().y();
-            
-            // draw zone with 5px border
+            s_int16 ex = ((*i)->max().x() - (*i)->min().x()) * base::Scale;
+            s_int16 ey = ((*i)->max().y() - (*i)->min().y()) * base::Scale;
+            s_int16 ez = ((*i)->max().z() - (*i)->min().z()) * base::Scale;
+
+            gfx::surface *area = gfx::create_surface();
+            area->set_alpha (48);
+            area->resize (ex, ey);
+            area->fillrect(0, 0, ex, ey, area->map_color (0x88, 0xFF, 0x00));
+
+            // draw zone bottom area
+            area->draw (sx, sy, &da, Overlay);
+
+            // draw zone top area
+            area->draw (sx, sy - ez, &da, Overlay);
+
+            u_int32 col = Overlay->map_color (0x88, 0xFF, 0x00, 0xBB);
+
+            // draw bottom edges
+            Overlay->draw_line(sx, sy, sx, sy + ey, col, &da);
+            Overlay->draw_line(sx, sy, sx + ex, sy, col, &da);
+            Overlay->draw_line(sx + ex, sy, sx + ex, sy + ey, col, &da);
+            Overlay->draw_line(sx, sy + ey, sx + ex, sy + ey, col, &da);
+
+            // draw top edges
+            Overlay->draw_line(sx, sy - ez, sx, sy - ez + ey, col, &da);
+            Overlay->draw_line(sx, sy - ez, sx + ex, sy - ez, col, &da);
+            Overlay->draw_line(sx + ex, sy - ez, sx + ex, sy - ez + ey, col, &da);
+            Overlay->draw_line(sx, sy - ez + ey, sx + ex, sy - ez + ey, col, &da);
+
+            /*
+            for (int b = 0; b < 6; b++)
+            {
+                u_int32 col = Overlay->map_color (0x88, 0xFF, 0x00, 0xFF - 40 * b);
+                Overlay->fillrect (sx + b, sy + b + ez, ex - 2*b, ey - 2*b, col);
+            }
+
             for (int b = 0; b < 6; b++)
             {
                 u_int32 col = Overlay->map_color (0x88, 0xFF, 0x00, 0xFF - 40 * b);
                 Overlay->fillrect (sx + b, sy + b, ex - 2*b, ey - 2*b, col);
             }
+            */
+
+            // cleanup
+            delete area;
         }
     }
 }
@@ -77,5 +119,14 @@ void GuiZone::set_visible (const bool & visible)
     {
         Visible = visible;
         Changed = true;
+    }
+}
+
+// update zone display
+void GuiZone::update ()
+{
+    if (Visible)
+    {
+        draw (0, 0, Overlay->length(), Overlay->height());
     }
 }

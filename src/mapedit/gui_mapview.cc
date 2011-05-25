@@ -127,6 +127,9 @@ void GuiMapview::zoom ()
     // update grid
     Grid->scroll(0, 0);
 
+    // update zones, if displayed
+    Zones->update();
+
     // update paint object
     if (DrawObj != NULL)
     {
@@ -347,8 +350,9 @@ void GuiMapview::mouseMoved (const GdkPoint * point)
             GdkRegion *region = gdk_region_rectangle (&rect1);
             
             // erase at previous position
-            Overlay->fillrect (sx, sy, DrawObjSurface->length(), DrawObjSurface->height(), 0x00FFFFFF);
+            Overlay->fillrect (sx, sy, DrawObjSurface->length(), DrawObjSurface->height(), 0x0);
             Grid->draw (sx, sy, DrawObjSurface->length(), DrawObjSurface->height());
+            Zones->draw (sx, sy, DrawObjSurface->length(), DrawObjSurface->height());
 
             // store new position
             DrawObjPos = Grid->align_to_grid (world::vector3<s_int32> (scaled.x, scaled.y, oz));
@@ -523,6 +527,9 @@ void GuiMapview::selectObj (MapEntity *ety)
     Grid->set_visible (true);
     Grid->draw ();
     
+    // update zones, if displayed
+    Zones->update();
+
     // update overlap indication
     highlightObject();
 
@@ -540,6 +547,9 @@ void GuiMapview::releaseObject ()
         Grid->set_visible (false);
         Grid->draw ();
         
+        // update zones, if displayed
+        Zones->update();
+
         // update screen
         GdkRectangle rect = { 0, 0, Overlay->length(), Overlay->height() };
         gdk_window_invalidate_rect (gtk_widget_get_window (Screen), &rect, FALSE);
@@ -695,6 +705,9 @@ void GuiMapview::showZones (const bool & show)
     Zones->set_visible (show);
     Zones->draw(0, 0, Overlay->length(), Overlay->height());
     
+    // redraw grid, if visible
+    Grid->draw();
+
     // redraw
     draw();
 }
@@ -718,6 +731,9 @@ void GuiMapview::scroll ()
     // update grid
     Grid->scroll (scroll_offset.x, scroll_offset.y);
     
+    // update zones, if displayed
+    Zones->update();
+
     // rendering the whole mapview is less performant than doing
     // gdk_window_scroll (GDK_WINDOW(gtk_widget_get_window (Screen)), scroll_offset.x, scroll_offset.y);
     // but it appears to be the only way to prevent artifacts from appearing

@@ -229,12 +229,15 @@ GuiMapedit::GuiMapedit ()
     menuitem = gtk_image_menu_item_new_from_stock ("gtk-zoom-in", accel_group);
     gtk_menu_shell_append (GTK_MENU_SHELL (submenu), menuitem);
     gtk_widget_add_accelerator(menuitem, "activate", accel_group, GDK_KEY_plus, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+    gtk_widget_set_name(menuitem, "item_zoom_in");
     g_signal_connect (G_OBJECT (menuitem), "activate", G_CALLBACK (on_model_zoom_in), (gpointer) this);
 
     // Zoom out
     menuitem = gtk_image_menu_item_new_from_stock ("gtk-zoom-out", accel_group);
     gtk_menu_shell_append (GTK_MENU_SHELL (submenu), menuitem);
     gtk_widget_add_accelerator(menuitem, "activate", accel_group, GDK_KEY_minus, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+    gtk_widget_set_name(menuitem, "item_zoom_out");
+    gtk_widget_set_sensitive(menuitem, false);
     g_signal_connect (G_OBJECT (menuitem), "activate", G_CALLBACK (on_model_zoom_out), (gpointer) this);
 
     // Separator

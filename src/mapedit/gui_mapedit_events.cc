@@ -166,6 +166,22 @@ gboolean on_clear_help (GtkWidget *widget, GdkEventCrossing *event, gpointer use
 }
 */
 
+static void activate_sibling_menuitem (GtkMenuItem *item, const char *name, const bool & enable)
+{
+    GtkMenuShell *menu = GTK_MENU_SHELL (gtk_widget_get_parent (GTK_WIDGET(item)));
+    GList *siblings = gtk_container_get_children(GTK_CONTAINER(menu));
+
+    while (siblings->next != NULL)
+    {
+        if (strcmp (gtk_widget_get_name (GTK_WIDGET (siblings->data)), name) == 0)
+        {
+            gtk_widget_set_sensitive (GTK_WIDGET (siblings->data), enable);
+            return;
+        }
+        siblings = siblings->next;
+    }
+}
+
 // View Menu: Zoom In
 void on_model_zoom_in (GtkMenuItem * menuitem, gpointer user_data)
 {
@@ -175,8 +191,8 @@ void on_model_zoom_in (GtkMenuItem * menuitem, gpointer user_data)
 
         GuiMapedit *mapedit = (GuiMapedit *) user_data;
 
-        // mapedit->setActive("item_zoom_out", true);
-        // mapedit->setActive("item_zoom_in", base::Scale < 5);
+        activate_sibling_menuitem(menuitem, "item_zoom_out", true);
+        activate_sibling_menuitem(menuitem, "item_zoom_in", base::Scale < 4);
 
         mapedit->view()->zoom();
     }
@@ -191,8 +207,8 @@ void on_model_zoom_out (GtkMenuItem * menuitem, gpointer user_data)
 
         GuiMapedit *mapedit = (GuiMapedit *) user_data;
 
-        // mapedit->setActive("item_zoom_out", base::Scale > 1);
-        // mapedit->setActive("item_zoom_in", true);
+        activate_sibling_menuitem(menuitem, "item_zoom_out", base::Scale > 1);
+        activate_sibling_menuitem(menuitem, "item_zoom_in", true);
 
         mapedit->view()->zoom();
     }
@@ -207,8 +223,8 @@ void on_model_reset_zoom (GtkMenuItem * menuitem, gpointer user_data)
 
         GuiMapedit *mapedit = (GuiMapedit *) user_data;
 
-        // mapedit->setActive("item_zoom_out", false);
-        // mapedit->setActive("item_zoom_in", true);
+        activate_sibling_menuitem(menuitem, "item_zoom_out", false);
+        activate_sibling_menuitem(menuitem, "item_zoom_in", true);
 
         mapedit->view()->zoom();
     }
