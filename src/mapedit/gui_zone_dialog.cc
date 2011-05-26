@@ -27,6 +27,8 @@
 #include <gtk/gtk.h>
 
 #include "gui_mapedit.h"
+#include "gui_mapview.h"
+#include "gui_zone.h"
 #include "gui_zone_dialog.h"
 
 // Ui definition
@@ -47,29 +49,20 @@ static void on_ok_button_pressed (GtkButton * button, gpointer user_data)
 // close dialog and dismiss all changes
 static void on_cancel_button_pressed (GtkButton * button, gpointer user_data)
 {
+    GuiZoneDialog *dialog = (GuiZoneDialog *) user_data;
+    dialog->revertChanges ();
+
     // clean up
     gtk_main_quit ();
 }
 
 static void update_size (GtkSpinButton *spinbutton, gpointer user_data)
 {
-    char tmp[16];
-    GObject *widget;
-    GtkBuilder *ui = (GtkBuilder*) user_data;
     std::string name (gtk_buildable_get_name (GTK_BUILDABLE (spinbutton)));
-    
-    sprintf (tmp, "min_%c", *name.rbegin());
-    widget = gtk_builder_get_object (ui, tmp);
-    int min = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget));
+    char c = *name.rbegin();
 
-    sprintf (tmp, "max_%c", *name.rbegin());
-    widget = gtk_builder_get_object (ui, tmp);
-    int max = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget));
-
-    sprintf (tmp, "size_%c", *name.rbegin());
-    widget = gtk_builder_get_object (ui, tmp);
-    sprintf (tmp, "%i", max-min);
-    gtk_label_set_text (GTK_LABEL(widget), tmp);
+    GuiZoneDialog *dialog = (GuiZoneDialog *) user_data;
+    dialog->updateValues (c);
 }
 
 // ctor
@@ -82,7 +75,10 @@ GuiZoneDialog::GuiZoneDialog (world::zone *z, MapData *map)
     Ui = gtk_builder_new();
     Zone = z;
     Map = map;
-    
+
+    // backup for the zone, in case we cancel editing
+    OldZone = new world::zone (z->type(), z->name(), z->min(), z->max());
+
 	if (!gtk_builder_add_from_string(Ui, edit_zone_ui, -1, &err)) 
     {
         g_message ("building entity dialog failed: %s", err->message);
@@ -121,17 +117,22 @@ GuiZoneDialog::GuiZoneDialog (world::zone *z, MapData *map)
     displayValues ('z');
     
     widget = gtk_builder_get_object (Ui, "min_x");
-    g_signal_connect (widget, "value-changed", G_CALLBACK (update_size), Ui);
+    g_signal_connect (widget, "value-changed", G_CALLBACK (update_size), this);
     widget = gtk_builder_get_object (Ui, "min_y");
-    g_signal_connect (widget, "value-changed", G_CALLBACK (update_size), Ui);
+    g_signal_connect (widget, "value-changed", G_CALLBACK (update_size), this);
     widget = gtk_builder_get_object (Ui, "min_z");
-    g_signal_connect (widget, "value-changed", G_CALLBACK (update_size), Ui);
-    widget = gtk_builder_get_object (Ui, "max_x");
-    g_signal_connect (widget, "value-changed", G_CALLBACK (update_size), Ui);
-    widget = gtk_builder_get_object (Ui, "max_y");
-    g_signal_connect (widget, "value-changed", G_CALLBACK (update_size), Ui);
-    widget = gtk_builder_get_object (Ui, "max_z");
-    g_signal_connect (widget, "value-changed", G_CALLBACK (update_size), Ui);    
+    g_signal_connect (widget, "value-changed", G_CALLBACK (update_size), this);
+    widget = gtk_builder_get_object (Ui, "size_x");
+    g_signal_connect (widget, "value-changed", G_CALLBACK (update_size), this);
+    widget = gtk_builder_get_object (Ui, "size_y");
+    g_signal_connect (widget, "value-changed", G_CALLBACK (update_size), this);
+    widget = gtk_builder_get_object (Ui, "size_z");
+    g_signal_connect (widget, "value-changed", G_CALLBACK (update_size), this);
+
+    // update map view
+    GuiMapedit::window->view()->getZones()->set_active_zone(Zone);
+    GuiMapedit::window->view()->updateOverlay();
+    GuiMapedit::window->view()->draw();
 }
 
 // dtor
@@ -139,6 +140,8 @@ GuiZoneDialog::~GuiZoneDialog()
 {
     // cleanup
     g_object_unref (Ui);
+
+    delete OldZone;
 }
 
 // display values for one coordinate
@@ -181,15 +184,87 @@ void GuiZoneDialog::displayValues (const char & c)
     GtkAdjustment *adj = (GtkAdjustment *) gtk_adjustment_new (min, lower, upper, 1.0, 10.0, 0.0);
     gtk_spin_button_set_adjustment(GTK_SPIN_BUTTON(widget), adj);
 
-    sprintf (tmp, "max_%c", c);
-    widget = gtk_builder_get_object (Ui, tmp);
-    adj = (GtkAdjustment *) gtk_adjustment_new (max, lower, upper, 1.0, 10.0, 0.0);
-    gtk_spin_button_set_adjustment(GTK_SPIN_BUTTON(widget), adj);
-    
     sprintf (tmp, "size_%c", c);
     widget = gtk_builder_get_object (Ui, tmp);
-    sprintf (tmp, "%i", max-min);
+    adj = (GtkAdjustment *) gtk_adjustment_new (max-min, 0, upper-min, 1.0, 10.0, 0.0);
+    gtk_spin_button_set_adjustment(GTK_SPIN_BUTTON(widget), adj);
+    
+    sprintf (tmp, "max_%c", c);
+    widget = gtk_builder_get_object (Ui, tmp);
+    sprintf (tmp, "%i", max);
     gtk_label_set_text (GTK_LABEL(widget), tmp);
+}
+
+// update after a value has been changed
+void GuiZoneDialog::updateValues (const char & c)
+{
+    char tmp[16];
+    GObject *widget;
+
+    sprintf (tmp, "min_%c", c);
+    widget = gtk_builder_get_object (Ui, tmp);
+    int min = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget));
+
+    sprintf (tmp, "size_%c", c);
+    widget = gtk_builder_get_object (Ui, tmp);
+    int size = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget));
+
+    s_int32 upper;
+    switch (c)
+    {
+        case 'x':
+        {
+            Zone->min().set_x(min);
+            Zone->max().set_x(min + size);
+
+            upper = Map->max().x();
+            break;
+        }
+        case 'y':
+        {
+            Zone->min().set_y(min);
+            Zone->max().set_y(min + size);
+
+            upper = Map->max().y();
+            break;
+        }
+        case 'z':
+        {
+            Zone->min().set_z(min);
+            Zone->max().set_z(min + size);
+
+            upper = Map->max().z();
+            break;
+        }
+    }
+
+    GtkAdjustment *adj = gtk_spin_button_get_adjustment (GTK_SPIN_BUTTON (widget));
+    gtk_adjustment_set_upper (adj, upper - min);
+
+    sprintf (tmp, "max_%c", c);
+    widget = gtk_builder_get_object (Ui, tmp);
+    sprintf (tmp, "%i", min+size);
+    gtk_label_set_text (GTK_LABEL(widget), tmp);
+
+    // update map view
+    GuiMapedit::window->view()->updateOverlay();
+    GuiMapedit::window->view()->draw();
+}
+
+// discard changes
+void GuiZoneDialog::revertChanges()
+{
+    // update zone
+    Zone->set_name(OldZone->name());
+    Zone->set_type(OldZone->type());
+
+    Zone->min().set(OldZone->min().x(), OldZone->min().y(), OldZone->min().z());
+    Zone->max().set(OldZone->max().x(), OldZone->max().y(), OldZone->max().z());
+
+    // update map view
+    GuiMapedit::window->view()->getZones()->set_active_zone(NULL);
+    GuiMapedit::window->view()->updateOverlay();
+    GuiMapedit::window->view()->draw();
 }
 
 // "make it so!"
@@ -208,22 +283,11 @@ void GuiZoneDialog::applyChanges()
     widget = gtk_builder_get_object (Ui, "cb_render");
     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(widget))) type |= world::zone::TYPE_RENDER; 
     Zone->set_type (type);
-    
-    // update min
-    widget = gtk_builder_get_object (Ui, "min_x");
-    Zone->min().set_x(gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget)));
-    widget = gtk_builder_get_object (Ui, "min_y");
-    Zone->min().set_y(gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget)));
-    widget = gtk_builder_get_object (Ui, "min_z");
-    Zone->min().set_z(gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget)));
 
-    // update max
-    widget = gtk_builder_get_object (Ui, "max_x");
-    Zone->max().set_x(gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget)));
-    widget = gtk_builder_get_object (Ui, "max_y");
-    Zone->max().set_y(gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget)));
-    widget = gtk_builder_get_object (Ui, "max_z");
-    Zone->max().set_z(gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget)));
-    
+    // update map view
+    GuiMapedit::window->view()->getZones()->set_active_zone(NULL);
+    GuiMapedit::window->view()->updateOverlay();
+    GuiMapedit::window->view()->draw();
+
     okButtonPressed (true);
 }

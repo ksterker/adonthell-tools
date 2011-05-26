@@ -29,6 +29,7 @@
 #include <world/zone.h>
 
 #include "gui_mapedit.h"
+#include "gui_mapview.h"
 #include "gui_zone_list.h"
 #include "gui_zone_dialog.h"
 
@@ -243,14 +244,19 @@ GuiZoneList::GuiZoneList ()
 // create new zone
 void GuiZoneList::addZone()
 {    
-    world::vector3<s_int32> pos (Map->x(), Map->y(), Map->z());     
-    world::zone *z = new world::zone(world::zone::TYPE_META, "", pos, pos);
+    GtkAllocation allocation;
+    gtk_widget_get_allocation (GuiMapedit::window->view()->drawingArea(), &allocation);
 
-    GuiZoneDialog dlg (z, Map);
-    if (dlg.run())
-    {        
-        // add zone to map
-        if (Map->add_zone(z))
+    // add new tile sized zone in the center of the map
+    world::vector3<s_int32> min (Map->x() + allocation.width / 2, Map->y() + allocation.height / 2, Map->z());
+    world::vector3<s_int32> max = min + world::vector3<s_int32> (48, 36, 8);
+    world::zone *z = new world::zone(world::zone::TYPE_META, "", min, max);
+
+    // add zone to map
+    if (Map->add_zone(z))
+    {
+        GuiZoneDialog dlg (z, Map);
+        if (dlg.run())
         {
             // add zone to list
             GtkTreeIter iter;
@@ -260,10 +266,17 @@ void GuiZoneList::addZone()
             
             return;
         }
-        else
-        {
-            fprintf (stderr, "Zone '%s' already present on map!\n", z->name().c_str());
-        }
+
+        // action canceled
+        Map->remove_zone(z);
+
+        // update map view
+        GuiMapedit::window->view()->updateOverlay();
+        GuiMapedit::window->view()->draw();
+    }
+    else
+    {
+        fprintf (stderr, "Zone '%s' already present on map!\n", z->name().c_str());
     }
 
     // cleanup
@@ -289,6 +302,10 @@ void GuiZoneList::removeZone()
         // remove zone from list
         gtk_list_store_remove  (GTK_LIST_STORE(model), &iter);
         
+        // update map view
+        GuiMapedit::window->view()->updateOverlay();
+        GuiMapedit::window->view()->draw();
+
         // cleanup
         delete z;
     }        

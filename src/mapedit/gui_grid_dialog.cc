@@ -243,7 +243,7 @@ void GuiGridDialog::gridChanged ()
 void GuiGridDialog::objChanged ()
 {
     GObject *widget = gtk_builder_get_object (Ui, "btn_adjust");
-    gtk_widget_set_sensitive (GTK_WIDGET(widget), !Grid->AutoAdjust & Grid->CurObject != NULL);
+    gtk_widget_set_sensitive (GTK_WIDGET(widget), !Grid->AutoAdjust && Grid->CurObject != NULL);
 }
 
 // update the grid
@@ -304,7 +304,7 @@ void GuiGridDialog::setAutoAdjust (const bool & auto_adjust)
     Grid->AutoAdjust = auto_adjust;
     
     GObject *widget = gtk_builder_get_object (Ui, "btn_adjust");
-    gtk_widget_set_sensitive (GTK_WIDGET(widget), !auto_adjust & Grid->CurObject != NULL);
+    gtk_widget_set_sensitive (GTK_WIDGET(widget), !auto_adjust && Grid->CurObject != NULL);
     
     if (auto_adjust)
     {

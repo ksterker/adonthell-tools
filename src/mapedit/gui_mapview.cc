@@ -124,11 +124,8 @@ void GuiMapview::setMap (MapData *area)
 
 void GuiMapview::zoom ()
 {
-    // update grid
-    Grid->scroll(0, 0);
-
-    // update zones, if displayed
-    Zones->update();
+    // redraw the overlay
+    updateOverlay();
 
     // update paint object
     if (DrawObj != NULL)
@@ -236,6 +233,20 @@ void GuiMapview::renderObject (world::chunk_info *obj)
     }    
 }
 
+// redraw the overlay
+void GuiMapview::updateOverlay()
+{
+    GtkAllocation allocation;
+    gtk_widget_get_allocation (Screen, &allocation);
+
+    // clear overlay
+    Overlay->fillrect(0, 0, allocation.width, allocation.height, 0);
+    // redraw grid
+    Grid->draw();
+    // redraw zones
+    Zones->update();
+}
+
 // update size of the view
 void GuiMapview::resizeSurface (GtkWidget *widget)
 {
@@ -250,12 +261,11 @@ void GuiMapview::resizeSurface (GtkWidget *widget)
     
     // set the size of the overlay
     Overlay->resize (allocation.width, allocation.height);
-    Overlay->fillrect (0, 0, allocation.width, allocation.height, 0);
-    
-    // update grid
-    Grid->draw();
-    
-    // redraw everything
+
+    // redraw the overlay
+    updateOverlay ();
+
+    // redraw map view
     render ();
 }
 

@@ -150,6 +150,11 @@ public:
     void showZones (const bool & show);
     
     /**
+     * Update the overlay.
+     */
+    void updateOverlay();
+
+    /**
      * Update zoom level of the map view.
      */
     void zoom ();
@@ -203,7 +208,13 @@ public:
      * @return the grid.
      */
     GuiGrid *getGrid () const { return Grid; }
-    
+
+    /**
+     * Return the zones object of the mapview.
+     * @return the zones.
+     */
+    GuiZone *getZones () const { return Zones; }
+
     /**
      * @name Auto-Scrolling (TM) ;) functionality.
      */

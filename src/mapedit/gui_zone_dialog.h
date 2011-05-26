@@ -56,12 +56,25 @@ public:
      * Called when the ok button has been pressed.
      */
     void applyChanges();
-        
+
+    /**
+     * Discard all changes made by the user.
+     * Called when the cancel button has been pressed.
+     */
+    void revertChanges();
+
+    /**
+     *
+     */
+    void updateValues (const char & c);
+
 protected:
     void displayValues (const char & c);
 
     /// the zone being displayed or edited
     world::zone *Zone;
+    /// a backup of Zone in case the editing is canceled
+    world::zone *OldZone;
     /// the map the zone belongs to
     MapData *Map;
     /// the user interface

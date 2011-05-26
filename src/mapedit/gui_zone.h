@@ -28,6 +28,7 @@
 #define GUI_ZONE_H
 
 #include <gfx/surface.h>
+#include <world/zone.h>
 
 /**
  * Render zones on the mapview.
@@ -56,6 +57,12 @@ public:
     void set_visible (const bool & visible);
 
     /**
+     * Set the zone being edited, or NULL when editing is done.
+     * @param the zone being edited.
+     */
+    void set_active_zone (const world::zone * zone) { ActiveZone = zone; }
+
+    /**
      * Update zone display
      */
     void update ();
@@ -63,6 +70,9 @@ public:
 private:
     /// overlay onto which to draw grid
     gfx::surface *Overlay;
+
+    // the currently edited zone
+    const world::zone *ActiveZone;
 
     /// whether zones should be rendered
     bool Visible;
