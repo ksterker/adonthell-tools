@@ -475,7 +475,7 @@ void GuiScriptSelector::update_arg_table (std::string *arg_list, const long & le
     if (len == 0)
     {
         GtkWidget* label = gtk_label_new ("No arguments required");
-        gtk_widget_set_name (label, "lbl_args");
+        gtk_buildable_set_name (GTK_BUILDABLE (label), "lbl_args");
         gtk_misc_set_alignment (GTK_MISC(label), 0.5f, 0.5f);
         gtk_widget_set_sensitive (label, false);
         gtk_table_attach_defaults (GTK_TABLE(Arguments), label, 0, 2, rows, rows + 1);
@@ -491,14 +491,14 @@ void GuiScriptSelector::update_arg_table (std::string *arg_list, const long & le
             // add argument name
             GtkWidget* label = gtk_label_new (arg_list[i].c_str());
             sprintf (tmp, "lbl_args_%i", i);
-            gtk_widget_set_name (label, tmp);
+            gtk_buildable_set_name (GTK_BUILDABLE (label), tmp);
             gtk_misc_set_alignment (GTK_MISC(label), 1.0f, 0.5f);
             gtk_table_attach (GTK_TABLE(Arguments), label, 0, 1, i+rows, i+rows+1, fill, fill_expand, 0, 0);
             
             // add argument value entry
             GtkWidget *entry = gtk_entry_new ();
             sprintf (tmp, "entry_args_%i", i);
-            gtk_widget_set_name (entry, tmp);
+            gtk_buildable_set_name (GTK_BUILDABLE (entry), tmp);
             gtk_table_attach (GTK_TABLE(Arguments), entry, 1, 2, i+rows, i+rows+1, fill_expand, fill_expand, 0, 0);
         }
     }
