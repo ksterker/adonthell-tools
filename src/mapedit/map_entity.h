@@ -53,6 +53,11 @@ public:
     MapEntity (world::placeable *obj);
   
     /**
+     * Cleanup.
+     */
+    ~MapEntity();
+
+    /**
      * Get the entity wrapped by this object.
      * @return the enitity or NULL if object not placed on a map yet.
      */
@@ -74,6 +79,11 @@ public:
      */
     bool update_entity (const world::placeable_type & obj_type, const char & entity_type, const std::string & id);
     
+    /**
+     * Calculate tags for this map entity and updates the filter model.
+     */
+    void update_tags ();
+
     /**
      * Check whether this entity at the given position intersects with any of the given objects.
      * @param objects list of objects to compare.
@@ -213,10 +223,10 @@ public:
 
 protected:
     /**
-     * Calculate tags for this map entity.
+     * Remove this entities tags from filter.
      */
-    void update_tags ();
-    
+    void remove_tags ();
+
     /**
      * Check whether the given shape intersects with this map entity.
      * @param other_shape the shape to compare.

@@ -39,6 +39,7 @@
 #include "gui_mapview.h"
 #include "gui_entity_list.h"
 #include "gui_entity_dialog.h"
+#include "gui_filter_dialog.h"
 
 enum
 {
@@ -229,6 +230,24 @@ static void on_refresh_entities (GtkButton * button, gpointer user_data)
     list->refresh();
 }
 
+// callback for adding new zones
+static void on_filter_entities (GtkButton * button, gpointer user_data)
+{
+    GuiFilterDialog *dlg = new GuiFilterDialog (GuiFilterDialog::getFilterModel());
+    dlg->run();
+}
+
+// sort model list by model path and file name
+static gint sort_by_path (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer userdata)
+{
+    // get object at selected row
+    MapEntity *obj_a = (MapEntity*) entity_list_get_object (ENTITY_LIST (model), a);
+    MapEntity *obj_b = (MapEntity*) entity_list_get_object (ENTITY_LIST (model), b);
+
+    // compare the two
+    return strcmp (obj_a->object()->modelfile().c_str(), obj_b->object()->modelfile().c_str());
+}
+
 // ctor
 GuiEntityList::GuiEntityList ()
 {
@@ -247,8 +266,14 @@ GuiEntityList::GuiEntityList ()
     gtk_widget_set_tooltip_text (GTK_WIDGET(btnRefresh), "Reload list of available entities from file system.");
     g_signal_connect (G_OBJECT(btnRefresh), "clicked", G_CALLBACK(on_refresh_entities), this);
     
+    GtkWidget *btnFilter = gtk_button_new ();
+    gtk_button_set_image (GTK_BUTTON(btnFilter), gtk_image_new_from_stock (GTK_STOCK_FIND, GTK_ICON_SIZE_BUTTON));
+    gtk_widget_set_tooltip_text (GTK_WIDGET(btnFilter), "Filter list of available entities.");
+    g_signal_connect (G_OBJECT(btnFilter), "clicked", G_CALLBACK(on_filter_entities), this);
+
     GtkWidget *btnPnl = gtk_hbutton_box_new();
     gtk_button_box_set_layout (GTK_BUTTON_BOX(btnPnl), GTK_BUTTONBOX_END);
+    gtk_box_pack_start (GTK_BOX(btnPnl), btnFilter, FALSE, FALSE, 4);
     gtk_box_pack_start (GTK_BOX(btnPnl), btnRefresh, FALSE, FALSE, 4);
     
     gtk_box_pack_start (GTK_BOX(Panel), scrollWnd, TRUE, TRUE, 0);
@@ -269,6 +294,10 @@ GuiEntityList::GuiEntityList ()
     // create the (empty) model
     GtkListStore *model = (GtkListStore *) g_object_new (TYPE_ENTITY_LIST, NULL);
     gtk_tree_view_set_model (TreeView, (GtkTreeModel*) model);
+
+    // set custom sorting by path name
+    gtk_tree_sortable_set_default_sort_func(GTK_TREE_SORTABLE(model), sort_by_path, NULL, NULL);
+    gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(model), GTK_TREE_SORTABLE_DEFAULT_SORT_COLUMN_ID, GTK_SORT_ASCENDING);
 }
 
 // return mapedit wrapper around given entity
@@ -387,6 +416,9 @@ void GuiEntityList::setMap (MapData * map)
         // create meta data object
         MapEntity *obj = new MapEntity (*e, map->getEntityCount (*e));
         
+        // update tags of new entity
+        obj->update_tags();
+
         // get new row
         gtk_list_store_append (model, &iter);
         
@@ -467,6 +499,9 @@ void GuiEntityList::scanDir (const std::string & datadir, GtkListStore *model)
                         // create meta data object
                         MapEntity *ety = new MapEntity (obj);
                         
+                        // update tags of new entity
+                        ety->update_tags();
+
                         // get new row
                         gtk_list_store_append (model, &iter);
                         

@@ -33,6 +33,7 @@
 #include <world/character.h>
 
 #include "backend/gtk/screen_gtk.h"
+#include "gui_filter_dialog.h"
 #include "map_entity.h"
 #include "map_data.h"
 
@@ -43,8 +44,6 @@ MapEntity::MapEntity (world::entity *obj, const u_int32 & count)
     Entity = obj;
     Object = obj->get_object ();
     RefCount = count;
-    
-    update_tags ();
 }
 
 // ctor
@@ -54,8 +53,12 @@ MapEntity::MapEntity (world::placeable *obj)
     Entity = NULL;
     Object = obj;
     RefCount = 0;
-    
-    update_tags ();
+}
+
+// dtor
+MapEntity::~MapEntity()
+{
+    remove_tags ();
 }
 
 // create or update entity
@@ -275,13 +278,50 @@ void MapEntity::update_tags ()
     gchar *dir_name = g_path_get_dirname (path.c_str());
     gchar **tags = g_strsplit (dir_name, "/", -1);
 
+    GtkTreeIter row;
+    GtkListStore *filter_model = GuiFilterDialog::getFilterModel();
+
     for (gchar **iter = tags; *iter != NULL; *iter++)
     {
+        if (GuiFilterDialog::findTagInFilter(*iter, &row))
+        {
+            // tag already present? -> update count
+            guint count;
+            gtk_tree_model_get (GTK_TREE_MODEL(filter_model), &row, 2, &count, -1);
+            gtk_list_store_set (filter_model, &row, 2, count+1, -1);
+        }
+        else
+        {
+            // otherwise insert new row
+            bool enabled = strcmp(*iter, "template") != 0;
+
+            gtk_list_store_append (filter_model, &row);
+            gtk_list_store_set (filter_model, &row, 0, enabled, 1, *iter, 2, 1, -1);
+        }
+
         Tags.push_back (*iter);
     }
 
     g_strfreev (tags);
     g_free (dir_name);
+}
+
+// remove all tags this entity contained
+void MapEntity::remove_tags()
+{
+    for (std::vector<std::string>::const_iterator i = Tags.begin(); i != Tags.end(); i++)
+    {
+        GtkTreeIter row;
+        GtkListStore *filter_model = GuiFilterDialog::getFilterModel();
+
+        if (GuiFilterDialog::findTagInFilter(i->c_str(), &row))
+        {
+            // decrease tag count
+            guint count;
+            gtk_tree_model_get (GTK_TREE_MODEL(filter_model), &row, 2, &count, -1);
+            gtk_list_store_set (filter_model, &row, 2, count-1, -1);
+        }
+    }
 }
 
 // name of entity
