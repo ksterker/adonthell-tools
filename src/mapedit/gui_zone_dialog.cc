@@ -56,6 +56,13 @@ static void on_cancel_button_pressed (GtkButton * button, gpointer user_data)
     gtk_main_quit ();
 }
 
+// center view on given object's location
+static void on_center_button_pressed (GtkButton * button, gpointer user_data)
+{
+    world::zone *z = (world::zone *) user_data;
+    GuiMapedit::window->view()->gotoPosition(z->min().x(), z->min().y(), z->min().z());
+}
+
 static void update_size (GtkSpinButton *spinbutton, gpointer user_data)
 {
     std::string name (gtk_buildable_get_name (GTK_BUILDABLE (spinbutton)));
@@ -94,10 +101,8 @@ GuiZoneDialog::GuiZoneDialog (world::zone *z, MapData *map)
     g_signal_connect (widget, "clicked", G_CALLBACK (on_ok_button_pressed), this);
     widget = gtk_builder_get_object (Ui, "btn_cancel");
     g_signal_connect (widget, "clicked", G_CALLBACK (on_cancel_button_pressed), this);
-        
-    // disable goto button (until we actually have a use for it)
     widget = gtk_builder_get_object (Ui, "btn_center");
-    gtk_widget_set_sensitive (GTK_WIDGET (widget), FALSE);
+    g_signal_connect (widget, "clicked", G_CALLBACK (on_center_button_pressed), Zone);
     
     // set zone id
     widget = gtk_builder_get_object (Ui, "entry_id");
