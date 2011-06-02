@@ -29,6 +29,7 @@
 #include <world/character.h>
 
 #include "gui_mapedit.h"
+#include "gui_mapview.h"
 #include "gui_entity_dialog.h"
 #include "gui_entity_list.h"
 #include "gui_script_selector.h"
@@ -69,6 +70,14 @@ static void on_cancel_button_pressed (GtkButton * button, gpointer user_data)
 {
     // clean up
     gtk_main_quit ();
+}
+
+// center view on given object's location
+static void on_center_button_pressed (GtkButton * button, gpointer user_data)
+{
+    MapEntity *entity = (MapEntity *) user_data;
+    world::chunk_info *location = entity->getLocation();
+    GuiMapedit::window->view()->gotoPosition(location->Min.x(), location->Min.y(), location->Min.z());
 }
 
 // the entity object state has changed
@@ -190,6 +199,8 @@ GuiEntityDialog::GuiEntityDialog (MapEntity *entity, const GuiEntityDialog::Mode
     g_signal_connect (widget, "clicked", G_CALLBACK (on_ok_button_pressed), this);
     widget = gtk_builder_get_object (Ui, "btn_cancel");
     g_signal_connect (widget, "clicked", G_CALLBACK (on_cancel_button_pressed), this);
+    widget = gtk_builder_get_object (Ui, "btn_goto");
+    g_signal_connect (widget, "clicked", G_CALLBACK (on_center_button_pressed), Entity);
     
     widget = gtk_builder_get_object (Ui, "type_scenery");
     g_signal_connect (widget, "toggled", G_CALLBACK (on_type_changed), this);
@@ -212,9 +223,9 @@ GuiEntityDialog::GuiEntityDialog (MapEntity *entity, const GuiEntityDialog::Mode
     GtkTreeSelection *selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(widget));
     g_signal_connect (G_OBJECT(selection), "changed", G_CALLBACK(selected_event), this);
 
-    // disable goto button (until we actually have a use for it)
+    // disable goto button if there is no location to go to
     widget = gtk_builder_get_object (Ui, "btn_goto");
-    gtk_widget_set_sensitive (GTK_WIDGET (widget), FALSE);
+    gtk_widget_set_sensitive (GTK_WIDGET (widget), Entity->getLocation() != NULL);
     
     // set name
     gchar *str = entity->get_name();

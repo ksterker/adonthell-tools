@@ -286,9 +286,9 @@ void GuiMapview::mouseMoved (const GdkPoint * point)
         int ox = area->x();
         int oy = area->y();
         int oz = area->z();
-        
+
         // display map coordinates of mouse pointer
-        GuiMapedit::window->setLocation (scaled.x + ox, scaled.y + oy, oz);
+        updateLocation(area);
 
         if (DrawObj == NULL)
         {
@@ -429,7 +429,15 @@ void GuiMapview::updateLocation(MapData *area)
         y = y / base::Scale;
     }
 
-    GuiMapedit::window->setLocation(x + area->x(), y + area->y(), area->z());
+    // if grid is active, show position where object would be placed
+    // on the map instead of the raw cursor position.
+    world::vector3<s_int32> v (x, y, area->z());
+    if (DrawObj != NULL)
+    {
+        v = Grid->align_to_grid (v);
+    }
+
+    GuiMapedit::window->setLocation(v.x() + area->x(), v.y() + area->y(), v.z());
 }
 
 // change height
@@ -753,6 +761,27 @@ void GuiMapview::scroll ()
     
     // update map coordinates of mouse pointer
     updateLocation (area);
+}
+
+// set a new position
+void GuiMapview::gotoPosition (const s_int32 & x, const s_int32 & y, const s_int32 & z)
+{
+    // we want to display the center position
+    GtkAllocation allocation;
+    gtk_widget_get_allocation (Screen, &allocation);
+    int ox = allocation.width / (2 * base::Scale);
+    int oy = allocation.height / (2 * base::Scale);
+
+    // update z coordinate
+    MapData *area = (MapData*) MapMgr::get_map();
+    area->setZ(z);
+
+    // get x and y offset
+    scroll_offset.x = area->x() - x + ox;
+    scroll_offset.y = area->y() - y + oy;
+
+    // scroll into view
+    scroll ();
 }
 
 // highlight object under mouse, if any

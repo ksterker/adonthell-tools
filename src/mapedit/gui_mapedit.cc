@@ -251,6 +251,18 @@ GuiMapedit::GuiMapedit ()
     gtk_widget_add_accelerator(menuitem, "activate", accel_group, GDK_KEY_1, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     g_signal_connect (G_OBJECT (menuitem), "activate", G_CALLBACK (on_model_reset_zoom), (gpointer) this);
 
+    // Separator
+    menuitem = gtk_menu_item_new ();
+    gtk_menu_shell_append (GTK_MENU_SHELL (submenu), menuitem);
+    gtk_widget_set_sensitive (menuitem, FALSE);
+
+    // Goto
+    menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_GO_FORWARD, accel_group);
+    gtk_menu_item_set_label (GTK_MENU_ITEM (menuitem), "Goto");
+    gtk_menu_shell_append (GTK_MENU_SHELL (submenu), menuitem);
+    gtk_widget_add_accelerator(menuitem, "activate", accel_group, GDK_KEY_g, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+    g_signal_connect (G_OBJECT (menuitem), "activate", G_CALLBACK (on_goto_location), (gpointer) this);
+
     // Attach View Menu
     menuitem = gtk_menu_item_new_with_mnemonic ("_View");
     gtk_menu_item_set_submenu (GTK_MENU_ITEM (menuitem), submenu);

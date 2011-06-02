@@ -45,6 +45,7 @@ void on_grid_toggled (GtkToggleButton *, gpointer);
 void on_model_zoom_in (GtkMenuItem * menuitem, gpointer user_data);
 void on_model_zoom_out (GtkMenuItem * menuitem, gpointer user_data);
 void on_model_reset_zoom (GtkMenuItem * menuitem, gpointer user_data);
+void on_goto_location (GtkMenuItem * menuitem, gpointer user_data);
 
 // Main Window Callbacks
 void on_tree_switched (GtkNotebook *, gpointer, guint, gpointer);

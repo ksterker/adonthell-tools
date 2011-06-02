@@ -138,6 +138,14 @@ public:
     void updateHeight (const s_int16 & oz);
     
     /**
+     * Center the view on the given location
+     * @param x the new x coordinate
+     * @param y the new y coordinate
+     * @param z the new z coordinate
+     */
+    void gotoPosition (const s_int32 & x, const s_int32 & y, const s_int32 & z);
+
+    /**
      * Update height limit up to which objects will be rendered.
      * @param limit the new height limit.
      */

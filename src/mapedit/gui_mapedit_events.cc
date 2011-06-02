@@ -33,6 +33,7 @@
 
 #include "gui_mapedit.h"
 #include "gui_mapview.h"
+#include "gui_goto_dialog.h"
 #include "gui_grid.h"
 #include "gui_grid_dialog.h"
 #include "gui_file.h"
@@ -228,4 +229,11 @@ void on_model_reset_zoom (GtkMenuItem * menuitem, gpointer user_data)
 
         mapedit->view()->zoom();
     }
+}
+
+// View Menu: Goto
+void on_goto_location (GtkMenuItem * menuitem, gpointer user_data)
+{
+    GuiGotoDialog dlg;
+    dlg.run();
 }

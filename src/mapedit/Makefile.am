@@ -3,6 +3,7 @@
 EXTRA_DIST = \
     entity-filter.glade \
     entity-properties.glade \
+    goto.glade \
     grid-properties.glade \
     zone-properties.glade
 
@@ -11,10 +12,12 @@ noinst_PROGRAMS = mapedit
 noinst_HEADERS = \
     entity-filter.glade.h \
     entity-properties.glade.h \
+    goto.glade.h \
     grid-properties.glade.h \
     gui_entity_dialog.h \
     gui_entity_list.h \
     gui_filter_dialog.h \
+    gui_goto_dialog.h \
     gui_grid.h \
     gui_grid_dialog.h \
     gui_mapedit.h \
@@ -37,6 +40,7 @@ mapedit_SOURCES = \
     gui_entity_dialog.cc \
     gui_entity_list.cc \
     gui_filter_dialog.cc \
+    gui_goto_dialog.cc \
     gui_grid.cc \
     gui_grid_dialog.cc \
     gui_mapedit.cc \
@@ -57,6 +61,7 @@ mapedit_SOURCES = \
 # just for the dependency
 gui_filter_dialog.cc : entity-filter.glade.h
 gui_entity_dialog.cc : entity-properties.glade.h
+gui_goto_dialog.cc : goto.glade.h
 gui_grid_dialog.cc : grid-properties.glade.h
 gui_zone_dialog.cc : zone-properties.glade.h
 
