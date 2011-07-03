@@ -161,6 +161,16 @@ public:
     }
     
     /**
+     * Add a new connector the model.
+     */
+    void addConnector ();
+
+    /**
+     * Remove a connector from the model.
+     */
+    void removeConnector ();
+
+    /**
      * Enable or disable the widget with the given id.
      * @param id the widget name
      * @param sensitive true to enable, false to disable widget

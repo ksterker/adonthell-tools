@@ -7,6 +7,8 @@ noinst_HEADERS = \
     gui_modal_dialog.h \
     gui_recent_files.h \
     gui_scrollable.h \
+    mdl_connector.h \
+    uid.cc \
     util.h
 
 libcommon_a_SOURCES = \
@@ -14,6 +16,8 @@ libcommon_a_SOURCES = \
     gui_modal_dialog.cc \
     gui_recent_files.cc \
     gui_scrollable.cc \
+    mdl_connector.cc \
+    uid.cc \
     util.cc
 
 # preparation for switching to GTK+ 3.0

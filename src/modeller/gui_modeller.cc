@@ -36,10 +36,12 @@
 #include <world/placeable_model.h>
 
 #include "common/util.h"
+#include "common/mdl_connector.h"
 
 #include "mdl_cmdline.h"
 #include "mdl_bbox_editor.h"
 #include "mdl_point_editor.h"
+#include "gui_connectors.h"
 #include "gui_modeller.h"
 #include "gui_preview.h"
 #include "gui_file.h"
@@ -337,6 +339,13 @@ static void on_remove_shape_pressed (GtkButton * button, gpointer user_data)
     modeller->removeShape ();
 }
 
+// add connector to model
+static void on_add_connector_pressed (GtkButton * button, gpointer user_data)
+{
+    GuiModeller *modeller = (GuiModeller *) user_data;
+    modeller->addConnector();
+}
+
 // changed solid state of shape
 static void on_solid_state_changed (GtkToggleButton *togglebutton, gpointer user_data)
 {
@@ -451,6 +460,12 @@ GuiModeller::GuiModeller ()
     g_signal_connect (widget, "clicked", G_CALLBACK (on_paste_shape_pressed), this);
     widget = gtk_builder_get_object (Ui, "remove_shape");
     g_signal_connect (widget, "clicked", G_CALLBACK (on_remove_shape_pressed), this);
+
+    // btn_add_tag
+    // btn_remove_tag
+    widget = gtk_builder_get_object (Ui, "btn_add_connector");
+    g_signal_connect (widget, "clicked", G_CALLBACK (on_add_connector_pressed), this);
+    // btn_remove_connector
     
     widget = gtk_builder_get_object (Ui, "is_solid");    
     g_signal_connect (widget, "toggled", G_CALLBACK (on_solid_state_changed), (gpointer) this);
@@ -970,6 +985,22 @@ void GuiModeller::updateShapeList (world::placeable_model *model)
     // update solid flag
     GtkToggleButton *is_solid = GTK_TOGGLE_BUTTON(gtk_builder_get_object (Ui, "is_solid"));
     gtk_toggle_button_set_active (is_solid, shape->is_solid ());
+}
+
+// add a connector to the model
+void GuiModeller::addConnector ()
+{
+    GuiConnectors dlg(GTK_WINDOW (Window), Ui);
+    if (dlg.run())
+    {
+        MdlConnectorTemplate *tmpl = dlg.selectedTemplate();
+
+    }
+}
+
+// remove connector from the model
+void GuiModeller::removeConnector ()
+{
 }
 
 // zoom displayed model

@@ -5,6 +5,7 @@ EXTRA_DIST = modeller.glade
 noinst_PROGRAMS = modeller
 
 noinst_HEADERS = \
+    gui_connectors.h \
     gui_modeller.h \
     gui_preview.h \
     mdl_bbox_editor.h \
@@ -17,6 +18,7 @@ noinst_HEADERS = \
     mdl_renderer.h
     
 modeller_SOURCES = \
+    gui_connectors.cc \
     gui_modeller.cc \
     gui_preview.cc \
     main.cc \
