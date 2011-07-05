@@ -248,6 +248,32 @@ public:
     static bool save (const std::string & path);
     //@}
 
+    /**
+     * @name Iteration
+     */
+    //@{
+    /// iterator type for connector templates
+    typedef std::hash_map<u_int32, MdlConnectorTemplate*>::const_iterator iterator;
+
+    /**
+     * Get begin of connector template map
+     * @return beginning of connector template map.
+     */
+    static iterator begin()
+    {
+        return Templates.begin();
+    }
+
+    /**
+     * Get end of connector template map.
+     * @return end of connector template map.
+     */
+    static iterator end()
+    {
+        return Templates.end();
+    }
+    //@}
+
 private:
     /// forbid construction
     MdlConnectorManager();

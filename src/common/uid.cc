@@ -55,7 +55,7 @@ u_int32 uid::create (const u_int32 & counter)
 std::string uid::as_string(const u_int32 & uid)
 {
     std::ostringstream result;
-    result << std::setw(8) << std::setfill('0') << std::ios::right << std::ios::hex << uid;
+    result << (std::hex) << uid;
 
     return result.str();
 }
@@ -66,7 +66,7 @@ u_int32 uid::from_string(const std::string & uid)
     uint32_t result;
 
     std::istringstream iss(uid);
-    iss >> std::setbase(16) >> result;
+    iss >> (std::hex) >> result;
 
     return result;
 }

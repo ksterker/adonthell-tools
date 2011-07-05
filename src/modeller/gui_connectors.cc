@@ -24,6 +24,8 @@
  * @brief Dialog for editing connector templates.
  */
 
+#include <base/base.h>
+
 #include "gui_connectors.h"
 
 enum
@@ -304,6 +306,9 @@ static void on_ok_button_pressed (GtkButton * button, gpointer user_data)
     GuiConnectors *dialog = (GuiConnectors *) user_data;
     dialog->okButtonPressed (true);
 
+    // save
+    MdlConnectorManager::save (base::Paths().user_data_dir());
+
     // clean up
     gtk_main_quit ();
 }
@@ -320,6 +325,13 @@ static void on_update_button_pressed (GtkButton * button, gpointer user_data)
 {
     GuiConnectors *dialog = (GuiConnectors *) user_data;
     dialog->updateConnector ();
+}
+
+// callback for selection changes
+static void selected_event (GtkTreeSelection *selection, gpointer user_data)
+{
+    GuiConnectors *dialog = (GuiConnectors *) user_data;
+    dialog->setSelectedTemplate(selection);
 }
 
 // update "commit" button state
@@ -347,11 +359,13 @@ GuiConnectors::GuiConnectors(GtkWindow *parent, GtkBuilder *ui)
 : GuiModalDialog (parent)
 {
     GtkAdjustment *adj;
+    GtkTreeIter iter;
     GObject *widget;
     Ui = ui;
 
     // get reference to dialog window
     window = GTK_WIDGET (gtk_builder_get_object (Ui, "connector_dialog"));
+    Selected = NULL;
 
     // make sure the window is closed, but not deleted when pressing the close button
     // of the window border
@@ -364,9 +378,7 @@ GuiConnectors::GuiConnectors(GtkWindow *parent, GtkBuilder *ui)
     g_signal_connect (widget, "clicked", G_CALLBACK (on_cancel_button_pressed), this);
     widget = gtk_builder_get_object (Ui, "btn_update");
     g_signal_connect (widget, "clicked", G_CALLBACK (on_update_button_pressed), this);
-
-    // "add/edit" button disabled by default
-    gtk_widget_set_sensitive (GTK_WIDGET(widget), false);
+    gtk_button_set_label (GTK_BUTTON(widget), "Create");
 
     // callbacks to check for valid values in edit fields
     widget = gtk_builder_get_object (Ui, "entry_name");
@@ -386,6 +398,18 @@ GuiConnectors::GuiConnectors(GtkWindow *parent, GtkBuilder *ui)
     widget = gtk_builder_get_object (Ui, "view_available_connectors");
     GtkListStore *model = (GtkListStore *) g_object_new (TYPE_CONNECTOR_TMPL_LIST, NULL);
     gtk_tree_view_set_model (GTK_TREE_VIEW(widget), (GtkTreeModel*) model);
+
+    // add selection listener
+    GtkTreeSelection *selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(widget));
+    g_signal_connect (G_OBJECT(selection), "changed", G_CALLBACK(selected_event), this);
+
+    // load and populate model
+    MdlConnectorManager::load(base::Paths().user_data_dir());
+    for (MdlConnectorManager::iterator i = MdlConnectorManager::begin(); i != MdlConnectorManager::end(); i++)
+    {
+        gtk_list_store_append (model, &iter);
+        gtk_list_store_set (model, &iter, 0, i->second, -1);
+    }
 }
 
 // dtor
@@ -402,7 +426,7 @@ void GuiConnectors::updateConnector ()
 {
     GObject *widget;
     GtkTreeIter iter;
-    MdlConnectorTemplate *tmpl = MdlConnectorManager::create();
+    MdlConnectorTemplate *tmpl = Selected != NULL ? Selected : MdlConnectorManager::create();
 
     // name
     widget = gtk_builder_get_object (Ui, "entry_name");
@@ -419,14 +443,64 @@ void GuiConnectors::updateConnector ()
     tmpl->set_width(gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(widget)));
     gtk_spin_button_set_value (GTK_SPIN_BUTTON(widget), 0.0);
 
-    // add to connector list
     widget = gtk_builder_get_object (Ui, "view_available_connectors");
-    GtkListStore *model = GTK_LIST_STORE (gtk_tree_view_get_model (GTK_TREE_VIEW(widget)));
-    gtk_list_store_append (model, &iter);
-    gtk_list_store_set (model, &iter, 0, tmpl, -1);
+    if (Selected != NULL)
+    {
+        // clear selection
+        GtkTreeSelection *selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(widget));
+        gtk_tree_selection_get_selected (selection, NULL, &iter);
+        gtk_tree_selection_unselect_iter (selection, &iter);
+    }
+    else
+    {
+        // add to connector list
+        GtkListStore *model = GTK_LIST_STORE (gtk_tree_view_get_model (GTK_TREE_VIEW(widget)));
+        gtk_list_store_append (model, &iter);
+        gtk_list_store_set (model, &iter, 0, tmpl, -1);
+    }
 }
 
 MdlConnectorTemplate *GuiConnectors::selectedTemplate () const
 {
-    return NULL;
+    return Selected;
+}
+
+void GuiConnectors::setSelectedTemplate (GtkTreeSelection *selection)
+{
+    GtkTreeModel *model;
+    GtkTreeIter iter;
+    GObject *widget;
+
+    // anything selected at all?
+    if (gtk_tree_selection_get_selected (selection, &model, &iter))
+    {
+        // get object at selected row
+        Selected = (MdlConnectorTemplate*) connector_tmpl_list_get_object(CONNECTOR_TMPL_LIST(model), &iter);
+
+        widget = gtk_builder_get_object (Ui, "entry_name");
+        gtk_entry_set_text (GTK_ENTRY(widget), Selected->name().c_str());
+        widget = gtk_builder_get_object (Ui, "entry_length");
+        gtk_spin_button_set_value (GTK_SPIN_BUTTON(widget), Selected->length());
+        widget = gtk_builder_get_object (Ui, "entry_width");
+        gtk_spin_button_set_value (GTK_SPIN_BUTTON(widget), Selected->width());
+        widget = gtk_builder_get_object (Ui, "btn_update");
+        gtk_button_set_label (GTK_BUTTON(widget), "Update");
+        widget = gtk_builder_get_object (Ui, "btn_okay");
+        gtk_widget_set_sensitive (GTK_WIDGET(widget), true);
+    }
+    else
+    {
+        Selected = NULL;
+
+        widget = gtk_builder_get_object (Ui, "entry_name");
+        gtk_entry_set_text (GTK_ENTRY(widget), "");
+        widget = gtk_builder_get_object (Ui, "entry_length");
+        gtk_spin_button_set_value (GTK_SPIN_BUTTON(widget), 0.0);
+        widget = gtk_builder_get_object (Ui, "entry_width");
+        gtk_spin_button_set_value (GTK_SPIN_BUTTON(widget), 0.0);
+        widget = gtk_builder_get_object (Ui, "btn_update");
+        gtk_button_set_label (GTK_BUTTON(widget), "Create");
+        widget = gtk_builder_get_object (Ui, "btn_okay");
+        gtk_widget_set_sensitive (GTK_WIDGET(widget), false);
+    }
 }

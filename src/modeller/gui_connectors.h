@@ -99,6 +99,12 @@ public:
     virtual ~GuiConnectors();
 
     /**
+     * Update selected template.
+     * @param selection the tree selection.
+     */
+    void setSelectedTemplate (GtkTreeSelection *selection);
+
+    /**
      * Return the selected template.
      */
     MdlConnectorTemplate *selectedTemplate () const;
@@ -111,6 +117,8 @@ public:
 private:
     /// the user interface
     GtkBuilder *Ui;
+    /// the selected template
+    MdlConnectorTemplate *Selected;
 };
 
 #endif /* GUI_CONNECTORS_H_ */

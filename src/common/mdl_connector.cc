@@ -151,8 +151,8 @@ bool MdlConnectorManager::save (const std::string & path)
     static sort_connector_templates sorter;
 
     // make sure model connector file entries stay sorted ... makes it easier when committing changes
-    std::vector<const MdlConnectorTemplate*> sortedTemplates(Templates.size());
-    for (std::hash_map<u_int32, MdlConnectorTemplate*>::const_iterator i = Templates.begin(); i != Templates.end(); i++)
+    std::vector<const MdlConnectorTemplate*> sortedTemplates;
+    for (iterator i = Templates.begin(); i != Templates.end(); i++)
     {
         sortedTemplates.push_back(i->second);
     }
