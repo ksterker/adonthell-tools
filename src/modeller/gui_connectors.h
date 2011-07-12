@@ -33,28 +33,6 @@
 
 G_BEGIN_DECLS
 
-#define TYPE_CONNECTOR_LIST    (connector_list_get_type ())
-#define CONNECTOR_LIST(obj)    (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_CONNECTOR_LIST, ConnectorList))
-#define CONNECTOR_LIST_CLASS(obj)  (G_TYPE_CHECK_CLASS_CAST ((obj), TYPE_CONNECTOR_LIST, ConnectorListClass))
-#define IS_CONNECTOR_LIST(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_CONNECTOR_LIST))
-#define IS_CONNECTOR_LIST_CLASS(obj)   (G_TYPE_CHECK_CLASS_TYPE ((obj), TYPE_CONNECTOR_LIST))
-#define CONNECTOR_LIST_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), TYPE_CONNECTOR_LIST, ConnectorListClass))
-
-typedef struct _ConnectorList ConnectorList;
-typedef struct _ConnectorListClass ConnectorListClass;
-
-struct _ConnectorList
-{
-    GtkListStore parent;
-};
-
-struct _ConnectorListClass
-{
-    GtkListStoreClass parent_class;
-};
-
-GType connector_list_get_type (void);
-
 #define TYPE_CONNECTOR_TMPL_LIST    (connector_tmpl_list_get_type ())
 #define CONNECTOR_TMPL_LIST(obj)    (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_CONNECTOR_TMPL_LIST, ConnectorTmplList))
 #define CONNECTOR_TMPL_LIST_CLASS(obj)  (G_TYPE_CHECK_CLASS_CAST ((obj), TYPE_CONNECTOR_TMPL_LIST, ConnectorTmplListClass))

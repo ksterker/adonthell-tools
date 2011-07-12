@@ -36,7 +36,6 @@
 #include <world/placeable_model.h>
 
 #include "common/util.h"
-#include "common/mdl_connector.h"
 
 #include "mdl_cmdline.h"
 #include "mdl_bbox_editor.h"
@@ -50,6 +49,150 @@
 static char modeller_ui[] =
 #include "modeller.glade.h"
 ;
+
+enum
+{
+    NAME_COLUMN,
+    FACE_COLUMN,
+    POS_COLUMN,
+    NUM_COLUMNS
+};
+
+static void connector_list_tree_model_iface_init (GtkTreeModelIface *iface);
+static int connector_list_get_n_columns (GtkTreeModel *self);
+static GType connector_list_get_column_type (GtkTreeModel *self, int column);
+static void connector_list_get_value (GtkTreeModel *self, GtkTreeIter *iter, int column, GValue *value);
+
+// ConnectorList inherits from GtkListStore, and implements the GtkTreeStore interface
+G_DEFINE_TYPE_EXTENDED (ConnectorList, connector_list, GTK_TYPE_LIST_STORE, 0,
+                        G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_MODEL, connector_list_tree_model_iface_init));
+
+// our parent's model iface
+static GtkTreeModelIface parent_iface = { 0, };
+
+// this method is called once to set up the class
+static void connector_list_class_init (ConnectorListClass *klass)
+{
+}
+
+// this method is called once to set up the interface
+static void connector_list_tree_model_iface_init (GtkTreeModelIface *iface)
+{
+    // this is where we override the interface methods
+    // first make a copy of our parent's interface to call later
+    parent_iface = *iface;
+
+    // now put in our own overriding methods
+    iface->get_n_columns = connector_list_get_n_columns;
+    iface->get_column_type = connector_list_get_column_type;
+    iface->get_value = connector_list_get_value;
+}
+
+// this method is called every time an instance of the class is created
+static void connector_list_init (ConnectorList *self)
+{
+    // initialise the underlying storage for the GtkListStore
+    GType types[] = { G_TYPE_POINTER };
+
+    gtk_list_store_set_column_types (GTK_LIST_STORE (self), 1, types);
+}
+
+// retrieve an object from our parent's data storage
+static MdlConnector *connector_list_get_object (ConnectorList *self, GtkTreeIter *iter)
+{
+    GValue value = { 0, };
+    MdlConnector *obj = NULL;
+
+    // validate our parameters
+    g_return_val_if_fail (IS_CONNECTOR_LIST (self), NULL);
+    g_return_val_if_fail (iter != NULL, NULL);
+
+    // retreive the object using our parent's interface, take our own reference to it
+    parent_iface.get_value (GTK_TREE_MODEL (self), iter, 0, &value);
+    obj = (MdlConnector*) g_value_get_pointer (&value);
+
+    // cleanup
+    g_value_unset (&value);
+
+    return obj;
+}
+
+// this method returns the number of columns in our tree model
+static int connector_list_get_n_columns (GtkTreeModel *self)
+{
+    return NUM_COLUMNS;
+}
+
+// this method returns the type of each column in our tree model
+static GType connector_list_get_column_type (GtkTreeModel *self, int column)
+{
+    static GType types[] = {
+        G_TYPE_STRING, G_TYPE_STRING, G_TYPE_INT
+    };
+
+    // validate our parameters
+    g_return_val_if_fail (IS_CONNECTOR_LIST (self), G_TYPE_INVALID);
+    g_return_val_if_fail (column >= 0 && column < NUM_COLUMNS, G_TYPE_INVALID);
+
+    return types[column];
+}
+
+// this method retrieves the value for a particular column
+static void connector_list_get_value (GtkTreeModel *self, GtkTreeIter *iter, int column, GValue *value)
+{
+    // validate our parameters
+    g_return_if_fail (IS_CONNECTOR_LIST (self));
+    g_return_if_fail (iter != NULL);
+    g_return_if_fail (column >= 0 && column < NUM_COLUMNS);
+    g_return_if_fail (value != NULL);
+
+    // get the object from our parent's storage
+    MdlConnector *obj = (MdlConnector*) connector_list_get_object (CONNECTOR_LIST (self), iter);
+
+    // initialise our GValue to the required type
+    g_value_init (value, connector_list_get_column_type (GTK_TREE_MODEL (self), column));
+
+    switch (column)
+    {
+        case NAME_COLUMN:
+        {
+            const gchar *name = obj->name().c_str();
+            g_value_set_string (value, name);
+            break;
+        }
+        case FACE_COLUMN:
+        {
+            switch (obj->side())
+            {
+                case MdlConnector::FRONT:
+                    g_value_set_string (value, "Front");
+                    break;
+                case MdlConnector::BACK:
+                    g_value_set_string (value, "Back");
+                    break;
+                case MdlConnector::LEFT:
+                    g_value_set_string (value, "Left");
+                    break;
+                case MdlConnector::RIGHT:
+                    g_value_set_string (value, "Right");
+                    break;
+                default:
+                    g_assert_not_reached ();
+            }
+
+            break;
+        }
+        case POS_COLUMN:
+        {
+            g_value_set_int (value, obj->pos ());
+            break;
+        }
+        default:
+        {
+            g_assert_not_reached ();
+        }
+    }
+}
 
 /** supported editing modes */
 enum
@@ -290,6 +433,15 @@ static void shape_selected_event (GtkTreeSelection *selection, gpointer user_dat
     }
 }
 
+// entry selected in the connector list
+static void connector_selected_event (GtkTreeSelection *selection, gpointer user_data)
+{
+    GtkBuilder *ui = (GtkBuilder *) user_data;
+
+    GObject *widget = gtk_builder_get_object (ui, "btn_remove_connector");
+    gtk_widget_set_sensitive (GTK_WIDGET(widget), gtk_tree_selection_count_selected_rows (selection));
+}
+
 // load sprite from file
 static void on_add_sprite_pressed (GtkButton * button, gpointer user_data)
 {
@@ -344,6 +496,60 @@ static void on_add_connector_pressed (GtkButton * button, gpointer user_data)
 {
     GuiModeller *modeller = (GuiModeller *) user_data;
     modeller->addConnector();
+}
+
+// add connector to model
+static void on_remove_connector_pressed (GtkButton * button, gpointer user_data)
+{
+    GuiModeller *modeller = (GuiModeller *) user_data;
+    modeller->removeConnector();
+}
+
+// connector edited
+static void connector_edited_event (GtkCellRendererText *cell, gchar *path, gchar *new_val, gpointer user_data)
+{
+    GtkTreeIter iter;
+    GuiModeller *modeller = (GuiModeller *) user_data;
+    GtkTreeModel *model = modeller->getConnectors();
+
+    if (gtk_tree_model_get_iter_from_string (model, &iter, path))
+    {
+        MdlConnector *connector = connector_list_get_object(CONNECTOR_LIST(model), &iter);
+
+        guint col = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(cell), "column_index"));
+        switch (col)
+        {
+            case FACE_COLUMN:
+            {
+                MdlConnector::face side;
+                switch (new_val[0])
+                {
+                    case 'B':
+                        side = MdlConnector::BACK;
+                        break;
+                    case 'F':
+                        side = MdlConnector::FRONT;
+                        break;
+                    case 'R':
+                        side = MdlConnector::RIGHT;
+                        break;
+                    default:
+                        side = MdlConnector::LEFT;
+                        break;
+                }
+
+                modeller->updateConnectorFace(connector, side);
+                break;
+            }
+            case POS_COLUMN:
+            {
+                s_int16 pos = (s_int16) atoi(new_val);
+
+                modeller->updateConnectorPos(connector, pos);
+                break;
+            }
+        }
+    }
 }
 
 // changed solid state of shape
@@ -465,7 +671,9 @@ GuiModeller::GuiModeller ()
     // btn_remove_tag
     widget = gtk_builder_get_object (Ui, "btn_add_connector");
     g_signal_connect (widget, "clicked", G_CALLBACK (on_add_connector_pressed), this);
-    // btn_remove_connector
+    widget = gtk_builder_get_object (Ui, "btn_remove_connector");
+    g_signal_connect (widget, "clicked", G_CALLBACK (on_remove_connector_pressed), this);
+    //
     
     widget = gtk_builder_get_object (Ui, "is_solid");    
     g_signal_connect (widget, "toggled", G_CALLBACK (on_solid_state_changed), (gpointer) this);
@@ -485,6 +693,23 @@ GuiModeller::GuiModeller ()
     selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(widget));
     g_signal_connect (G_OBJECT(selection), "changed", G_CALLBACK(shape_selected_event), this);
 
+    // create the connector  model
+    widget = gtk_builder_get_object (Ui, "view_connectors");
+    GtkListStore *model = (GtkListStore *) g_object_new (TYPE_CONNECTOR_LIST, NULL);
+    gtk_tree_view_set_model (GTK_TREE_VIEW(widget), (GtkTreeModel*) model);
+
+    // add selection listener
+    selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(widget));
+    g_signal_connect (G_OBJECT(selection), "changed", G_CALLBACK(connector_selected_event), Ui);
+
+    // add cell edit listeners
+    widget = gtk_builder_get_object (Ui, "rnd_connector_face");
+    g_object_set_data (widget, "column_index", GUINT_TO_POINTER(FACE_COLUMN));
+    g_signal_connect (G_OBJECT(widget), "edited", G_CALLBACK(connector_edited_event), this);
+    widget = gtk_builder_get_object (Ui, "rnd_connector_pos");
+    g_object_set_data (widget, "column_index", GUINT_TO_POINTER(POS_COLUMN));
+    g_signal_connect (G_OBJECT(widget), "edited", G_CALLBACK(connector_edited_event), this);
+    class MdlConnector;
     // can't zoom less than 1
     setActive("item_zoom_out", false);
 
@@ -994,13 +1219,54 @@ void GuiModeller::addConnector ()
     if (dlg.run())
     {
         MdlConnectorTemplate *tmpl = dlg.selectedTemplate();
+        MdlConnector *ctor = new MdlConnector (tmpl);
 
+        GtkTreeIter iter;
+        GtkTreeView *tree_view = GTK_TREE_VIEW(gtk_builder_get_object (Ui, "view_connectors"));
+        GtkTreeModel *model = gtk_tree_view_get_model (tree_view);
+
+        gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+        gtk_list_store_set (GTK_LIST_STORE(model), &iter, 0, ctor, -1);
     }
 }
 
 // remove connector from the model
 void GuiModeller::removeConnector ()
 {
+    GtkTreeIter iter;
+    GtkTreeModel *model;
+    GtkTreeView *tree_view = GTK_TREE_VIEW(gtk_builder_get_object (Ui, "view_connectors"));
+    GtkTreeSelection *selection = gtk_tree_view_get_selection (tree_view);
+
+    if (gtk_tree_selection_get_selected (selection, &model, &iter))
+    {
+        MdlConnector *connector = NULL;
+        gtk_tree_model_get (model, &iter, 0, &connector, -1);
+        if (connector != NULL)
+        {
+            gtk_list_store_remove (GTK_LIST_STORE(model), &iter);
+            delete connector;
+        }
+    }
+}
+
+// update side connector is attached to
+void GuiModeller::updateConnectorFace (MdlConnector *connector, MdlConnector::face side)
+{
+    connector->set_side(side);
+}
+
+// update position of connector
+void GuiModeller::updateConnectorPos (MdlConnector *connector, const s_int16 & pos)
+{
+    connector->set_pos(pos);
+}
+
+// get list of connectors
+GtkTreeModel* GuiModeller::getConnectors() const
+{
+    GtkTreeView *tree_view = GTK_TREE_VIEW(gtk_builder_get_object (Ui, "view_connectors"));
+    return gtk_tree_view_get_model (tree_view);
 }
 
 // zoom displayed model

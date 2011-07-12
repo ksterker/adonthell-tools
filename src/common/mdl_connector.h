@@ -199,7 +199,7 @@ public:
      * Set the position of the connector.
      * @param the connectors position.
      */
-    void pos ( s_int16 & pos ) { Pos = pos; }
+    void set_pos ( const s_int16 & pos ) { Pos = pos; }
     //@}
 
 private:

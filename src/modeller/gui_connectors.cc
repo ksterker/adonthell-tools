@@ -31,147 +31,10 @@
 enum
 {
     NAME_COLUMN,
-    FACE_COLUMN,
-    SIZE_COLUMN,
+    LENGTH_COLUMN,
+    WIDTH_COLUMN,
     NUM_COLUMNS
 };
-
-static void connector_list_tree_model_iface_init (GtkTreeModelIface *iface);
-static int connector_list_get_n_columns (GtkTreeModel *self);
-static GType connector_list_get_column_type (GtkTreeModel *self, int column);
-static void connector_list_get_value (GtkTreeModel *self, GtkTreeIter *iter, int column, GValue *value);
-
-// ConnectorList inherits from GtkListStore, and implements the GtkTreeStore interface
-G_DEFINE_TYPE_EXTENDED (ConnectorList, connector_list, GTK_TYPE_LIST_STORE, 0,
-                        G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_MODEL, connector_list_tree_model_iface_init));
-
-// our parent's model iface
-static GtkTreeModelIface parent_iface = { 0, };
-
-// this method is called once to set up the class
-static void connector_list_class_init (ConnectorListClass *klass)
-{
-}
-
-// this method is called once to set up the interface
-static void connector_list_tree_model_iface_init (GtkTreeModelIface *iface)
-{
-    // this is where we override the interface methods
-    // first make a copy of our parent's interface to call later
-    parent_iface = *iface;
-
-    // now put in our own overriding methods
-    iface->get_n_columns = connector_list_get_n_columns;
-    iface->get_column_type = connector_list_get_column_type;
-    iface->get_value = connector_list_get_value;
-}
-
-// this method is called every time an instance of the class is created
-static void connector_list_init (ConnectorList *self)
-{
-    // initialise the underlying storage for the GtkListStore
-    GType types[] = { G_TYPE_POINTER };
-
-    gtk_list_store_set_column_types (GTK_LIST_STORE (self), 1, types);
-}
-
-// retrieve an object from our parent's data storage
-static MdlConnector *connector_list_get_object (ConnectorList *self, GtkTreeIter *iter)
-{
-    GValue value = { 0, };
-    MdlConnector *obj = NULL;
-
-    // validate our parameters
-    g_return_val_if_fail (IS_CONNECTOR_LIST (self), NULL);
-    g_return_val_if_fail (iter != NULL, NULL);
-
-    // retreive the object using our parent's interface, take our own reference to it
-    parent_iface.get_value (GTK_TREE_MODEL (self), iter, 0, &value);
-    obj = (MdlConnector*) g_value_get_pointer (&value);
-
-    // cleanup
-    g_value_unset (&value);
-
-    return obj;
-}
-
-// this method returns the number of columns in our tree model
-static int connector_list_get_n_columns (GtkTreeModel *self)
-{
-    return NUM_COLUMNS;
-}
-
-// this method returns the type of each column in our tree model
-static GType connector_list_get_column_type (GtkTreeModel *self, int column)
-{
-    static GType types[] = {
-        G_TYPE_STRING, G_TYPE_STRING, G_TYPE_INT
-    };
-
-    // validate our parameters
-    g_return_val_if_fail (IS_CONNECTOR_LIST (self), G_TYPE_INVALID);
-    g_return_val_if_fail (column >= 0 && column < NUM_COLUMNS, G_TYPE_INVALID);
-
-    return types[column];
-}
-
-// this method retrieves the value for a particular column
-static void connector_list_get_value (GtkTreeModel *self, GtkTreeIter *iter, int column, GValue *value)
-{
-    // validate our parameters
-    g_return_if_fail (IS_CONNECTOR_LIST (self));
-    g_return_if_fail (iter != NULL);
-    g_return_if_fail (column >= 0 && column < NUM_COLUMNS);
-    g_return_if_fail (value != NULL);
-
-    // get the object from our parent's storage
-    MdlConnector *obj = (MdlConnector*) connector_list_get_object (CONNECTOR_LIST (self), iter);
-
-    // initialise our GValue to the required type
-    g_value_init (value, connector_list_get_column_type (GTK_TREE_MODEL (self), column));
-
-    switch (column)
-    {
-        case NAME_COLUMN:
-        {
-            const gchar *name = obj->name().c_str();
-            g_value_set_string (value, name);
-            break;
-        }
-        case FACE_COLUMN:
-        {
-            switch (obj->side())
-            {
-                case MdlConnector::FRONT:
-                    g_value_set_string (value, "Front");
-                    break;
-                case MdlConnector::BACK:
-                    g_value_set_string (value, "Back");
-                    break;
-                case MdlConnector::LEFT:
-                    g_value_set_string (value, "Left");
-                    break;
-                case MdlConnector::RIGHT:
-                    g_value_set_string (value, "Right");
-                    break;
-                default:
-                    g_assert_not_reached ();
-            }
-
-            break;
-        }
-        case SIZE_COLUMN:
-        {
-            g_value_set_int (value, obj->pos ());
-            break;
-        }
-        default:
-        {
-            g_assert_not_reached ();
-        }
-    }
-}
-
 
 static void connector_tmpl_list_tree_model_iface_init (GtkTreeModelIface *iface);
 static int connector_tmpl_list_get_n_columns (GtkTreeModel *self);
@@ -275,12 +138,12 @@ static void connector_tmpl_list_get_value (GtkTreeModel *self, GtkTreeIter *iter
             g_value_set_string (value, name);
             break;
         }
-        case FACE_COLUMN:
+        case LENGTH_COLUMN:
         {
             g_value_set_int (value, obj->length());
             break;
         }
-        case SIZE_COLUMN:
+        case WIDTH_COLUMN:
         {
             g_value_set_int (value, obj->width());
             break;

@@ -30,6 +30,34 @@
 #ifndef GUI_MODELLER_H
 #define GUI_MODELLER_H
 
+#include "common/mdl_connector.h"
+
+G_BEGIN_DECLS
+
+#define TYPE_CONNECTOR_LIST    (connector_list_get_type ())
+#define CONNECTOR_LIST(obj)    (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_CONNECTOR_LIST, ConnectorList))
+#define CONNECTOR_LIST_CLASS(obj)  (G_TYPE_CHECK_CLASS_CAST ((obj), TYPE_CONNECTOR_LIST, ConnectorListClass))
+#define IS_CONNECTOR_LIST(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_CONNECTOR_LIST))
+#define IS_CONNECTOR_LIST_CLASS(obj)   (G_TYPE_CHECK_CLASS_TYPE ((obj), TYPE_CONNECTOR_LIST))
+#define CONNECTOR_LIST_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), TYPE_CONNECTOR_LIST, ConnectorListClass))
+
+typedef struct _ConnectorList ConnectorList;
+typedef struct _ConnectorListClass ConnectorListClass;
+
+struct _ConnectorList
+{
+    GtkListStore parent;
+};
+
+struct _ConnectorListClass
+{
+    GtkListStoreClass parent_class;
+};
+
+GType connector_list_get_type (void);
+
+G_END_DECLS
+
 namespace world
 {
     class placeable_shape;
@@ -61,6 +89,12 @@ public:
      */
     GuiPreview *getPreview () const { return Preview; }
     
+    /**
+     * Get the tree model containing all connectors of the current model.
+     * @return the connectors of the current model
+     */
+    GtkTreeModel *getConnectors () const;
+
     /**
      * Return the directory used for loading sprites.
      * @return the directory the last sprite was picked from.
@@ -169,6 +203,20 @@ public:
      * Remove a connector from the model.
      */
     void removeConnector ();
+
+    /**
+     * Change the side the connector is attached to.
+     * @param connector the model connector
+     * @param side the new side the connector is attached to.
+     */
+    void updateConnectorFace (MdlConnector *connector, MdlConnector::face side);
+
+    /**
+     * Change the position of the connector.
+     * @param connector the model connector.
+     * @param pos the new position of the connector.
+     */
+    void updateConnectorPos (MdlConnector *connector, const s_int16 & pos);
 
     /**
      * Enable or disable the widget with the given id.
