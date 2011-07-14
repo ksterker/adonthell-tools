@@ -47,6 +47,8 @@ public:
      */
     static bool parse (int argc, char* argv[]);
 
+    static bool setProjectFromPath(char *file);
+
     /**
      * The directory where modeller searches for projects.
      */

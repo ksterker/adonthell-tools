@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Adonthell Modeller
+Comment=The Adonthell Model Editor.
+Exec=adonthell-modeller
+Terminal=false
+Type=Application
+Categories=Development;RolePlaying;
+StartupNotify=false
+MimeType=application/x-adonthell-mdl;

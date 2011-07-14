@@ -48,6 +48,11 @@ int main (int argc, char *argv[])
     if (!MdlCmdline::parse (argc, argv))
         return 1;
     
+    // most likely opened by double clicking a model
+    if (argc == 2 && MdlCmdline::sources == 1)
+       if (!MdlCmdline::setProjectFromPath(argv[MdlCmdline::sources]))
+            return 1;
+
     // init game directory
     base::init (MdlCmdline::project, MdlCmdline::datadir);
     

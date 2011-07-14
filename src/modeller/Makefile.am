@@ -2,7 +2,7 @@
 
 EXTRA_DIST = modeller.glade
 
-noinst_PROGRAMS = modeller
+bin_PROGRAMS = adonthell-modeller
 
 noinst_HEADERS = \
     gui_connectors.h \
@@ -17,7 +17,7 @@ noinst_HEADERS = \
     mdl_point_handles.h \
     mdl_renderer.h
     
-modeller_SOURCES = \
+adonthell_modeller_SOURCES = \
     gui_connectors.cc \
     gui_modeller.cc \
     gui_preview.cc \
@@ -40,5 +40,5 @@ $(srcdir)/modeller.glade.h : modeller.glade
 GTK_3_0_FLAGS = -DGDK_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED -DGSEAL_ENABLE
 
 INCLUDES = -I@top_srcdir@/src/common -I@top_srcdir@/src
-modeller_CXXFLAGS = -D_VERSION_=\"0.1\" $(GTK_CFLAGS) ${GTK_3_0_FLAGS} $(PY_CFLAGS) $(ADONTHELL_CFLAGS) ${IGE_MAC_CFLAGS}
-modeller_LDADD = ../common/libcommon.a $(GTK_LIBS) $(ADONTHELL_LIBS) ${IGE_MAC_LIBS}
+adonthell_modeller_CXXFLAGS = -D_VERSION_=\"0.1\" $(GTK_CFLAGS) ${GTK_3_0_FLAGS} $(PY_CFLAGS) $(ADONTHELL_CFLAGS) ${IGE_MAC_CFLAGS}
+adonthell_modeller_LDADD = ../common/libcommon.a $(GTK_LIBS) $(ADONTHELL_LIBS) ${IGE_MAC_LIBS}

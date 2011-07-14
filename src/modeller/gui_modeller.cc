@@ -230,7 +230,7 @@ static void on_file_load (GtkMenuItem * menuitem, gpointer user_data)
     
     // open file chooser
     GuiFile fs (parent, GTK_FILE_CHOOSER_ACTION_OPEN, "Open Model", directory + "/");
-    fs.add_filter ("*.xml", "Adonthell Model");
+    fs.add_filter ("*.amdl|*.xml", "Adonthell Model");
     fs.add_shortcut (base::Paths().user_data_dir() + "/models/");
     
     // File selection closed with OK
@@ -260,15 +260,22 @@ static void on_file_save_as_activate (GtkMenuItem * menuitem, gpointer user_data
         filename = modeller->spritename();
         
         // filename might end in .png if we loaded a 'default' sprite
-        if (filename.find (".png", filename.size() - 4) != std::string::npos)
+        if (filename.find (".png", filename.size() - 4) != std::string::npos ||
+            filename.find (".xml", filename.size() - 4) != std::string::npos)
         {
-            filename = filename.replace (filename.size() - 3, 3, "xml");
+            filename = filename.replace (filename.size() - 3, 3, "amdl");
         }
     }
     // otherwise save to directory the model came from
     else
     {
         saveDir = modeller->modelDirectory ();
+
+        // encourage use of new-style model extension
+        if (filename.find (".xml", filename.size() - 4) != std::string::npos)
+        {
+            filename = filename.replace (filename.size() - 3, 3, "amdl");
+        }
     }
     
     // try to create directory, if it doesn't exist
@@ -276,7 +283,7 @@ static void on_file_save_as_activate (GtkMenuItem * menuitem, gpointer user_data
     g_mkdir_with_parents (saveDir.c_str(), 0755);
         
     GuiFile fs (parent, GTK_FILE_CHOOSER_ACTION_SAVE, "Save Model", saveDir + "/" + filename);
-    fs.add_filter ("*.xml", "Adonthell Model");
+    fs.add_filter ("*.amdl", "Adonthell Model");
     fs.add_shortcut (base::Paths().user_data_dir() + "/models/");
 
     // File selection closed with OK
@@ -586,7 +593,7 @@ GuiModeller::GuiModeller ()
     GObject *widget;
     
     Ui = gtk_builder_new();
-    Filename = "untitled.xml";
+    Filename = "untitled.amdl";
     SpriteDir = MdlCmdline::datadir + "/" + MdlCmdline::project;
     Spritename = "";
 
@@ -809,7 +816,7 @@ void GuiModeller::saveModel (const std::string & name)
     g_free (model_file);
     
     world::placeable_model *model = NULL;
-    base::diskio placeable (base::diskio::BY_EXTENSION);
+    base::diskio placeable (base::diskio::XML_FILE);
 
     GtkTreeIter iter;
     GtkTreeModel *tree_model = GTK_TREE_MODEL(gtk_builder_get_object (Ui, "sprite_list"));

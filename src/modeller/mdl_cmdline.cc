@@ -26,6 +26,9 @@
  * @brief Methods to parse the modeller command line.
  */
  
+#include <libgen.h>
+#include <string.h>
+#include <stdlib.h>
 #include <iostream> 
 #include <dirent.h>
 #include <unistd.h>
@@ -98,6 +101,46 @@ bool MdlCmdline::parse (int argc, char* argv[])
     }
     
     sources = optind;
+    return true;
+}
+
+//
+bool MdlCmdline::setProjectFromPath(char *file)
+{
+    char *cpath = strdup(file);
+
+    // try to get an absolute path first
+    if (file[0] != '/')
+    {
+        if (chdir (dirname (cpath)))
+        {
+            free (cpath);
+            return false;
+        }
+        free (cpath);
+        cpath = getcwd (NULL, 0);
+    }
+
+    // now find the model directory in the path
+    std::string strpath (cpath);
+    size_t idx = strpath.rfind ("/models");
+    if (idx == std::string::npos)
+    {
+        return false;
+    }
+    strpath = strpath.substr(0, idx);
+
+    // the directory before that is our working directory
+    idx = strpath.rfind('/');
+    if (idx == std::string::npos)
+    {
+        return false;
+    }
+
+    project = strpath.substr(idx + 1);
+    datadir = strpath.substr(0, idx);
+
+    free (cpath);
     return true;
 }
 
