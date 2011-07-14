@@ -4,7 +4,7 @@
 
 EXTRA_DIST = loadlg.l loadcfg.l
 
-noinst_PROGRAMS = dlgedit
+bin_PROGRAMS = adonthell-dlgedit
 
 noinst_HEADERS = \
     cfg_data.h \
@@ -42,7 +42,7 @@ noinst_HEADERS = \
     gui_tree.h \
     kb_traverse.h
 
-dlgedit_SOURCES = \
+adonthell_dlgedit_SOURCES = \
     cfg_data.cc \
     cfg_io.cc \
     cfg_project.cc \
@@ -80,8 +80,8 @@ dlgedit_SOURCES = \
     main.cc
 
 INCLUDES = -I@top_srcdir@/src/common
-dlgedit_CXXFLAGS = -D_VERSION_=\"0.9pre\" $(GTK_CFLAGS) $(ADONTHELL_CFLAGS) $(PY_CFLAGS) $(IGE_MAC_CFLAGS)
-dlgedit_LDADD = ../common/libcommon.a $(GTK_LIBS) $(ADONTHELL_LIBS) $(PY_LIBS) $(IGE_MAC_LIBS)
+adonthell_dlgedit_CXXFLAGS = -D_VERSION_=\"0.9pre\" $(GTK_CFLAGS) $(ADONTHELL_CFLAGS) $(PY_CFLAGS) $(IGE_MAC_CFLAGS)
+adonthell_dlgedit_LDADD = ../common/libcommon.a $(GTK_LIBS) $(ADONTHELL_LIBS) $(PY_LIBS) $(IGE_MAC_LIBS)
 
 $(srcdir)/lex.loadlg.cc: $(top_srcdir)/src/dlgedit/loadlg.l
 	flex -o$(srcdir)/lex.loadlg.cc $<

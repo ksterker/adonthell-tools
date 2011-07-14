@@ -112,13 +112,20 @@ bool MdlCmdline::setProjectFromPath(char *file)
     // try to get an absolute path first
     if (file[0] != '/')
     {
+        char *oldwd = getcwd (NULL, 0);
         if (chdir (dirname (cpath)))
         {
             free (cpath);
             return false;
         }
+
+        // get absolute pathname
         free (cpath);
         cpath = getcwd (NULL, 0);
+
+        // restore working directory
+        chdir (oldwd);
+        free (oldwd);
     }
 
     // now find the model directory in the path
