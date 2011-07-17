@@ -735,7 +735,7 @@ void GuiModeller::newModel ()
     Preview->setCurShape (NULL);
     
     // reset state
-    Filename = "untitled.xml";
+    Filename = "untitled.amdl";
     Spritename = "";
     
     // purge gfx cache, in case images changed on disk

@@ -59,7 +59,7 @@ void on_file_load_activate (GtkMenuItem * menuitem, gpointer user_data)
     GtkWindow *parent = GTK_WINDOW(mapedit->getWindow());
     
     GuiFile fs (parent, GTK_FILE_CHOOSER_ACTION_OPEN, "Load map", mapedit->directory ());
-    fs.add_filter ("*.xml", "Adonthell Map");
+    fs.add_filter ("*.amap|*.xml", "Adonthell Map");
     fs.add_shortcut (base::Paths().user_data_dir() + "/");
 
     // File selection closed with OK
@@ -85,8 +85,15 @@ void on_file_save_as_activate (GtkMenuItem * menuitem, gpointer user_data)
     GuiMapedit *mapedit = (GuiMapedit *) user_data;
     GtkWindow *parent = GTK_WINDOW(mapedit->getWindow());
 
-    GuiFile fs (parent, GTK_FILE_CHOOSER_ACTION_SAVE, "Save Map", mapedit->filename ());
-    fs.add_filter ("*.xml", "Adonthell Map");
+    // encourage use of new-style map extension
+    std::string filename = mapedit->filename ();
+    if (filename.find (".xml", filename.size() - 4) != std::string::npos)
+    {
+        filename = filename.replace (filename.size() - 3, 3, "amap");
+    }
+
+    GuiFile fs (parent, GTK_FILE_CHOOSER_ACTION_SAVE, "Save Map", filename);
+    fs.add_filter ("*.amap", "Adonthell Map");
     fs.add_shortcut (base::Paths().user_data_dir() + "/");
 
     // File selection closed with OK

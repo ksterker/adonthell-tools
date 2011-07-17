@@ -47,7 +47,12 @@ public:
      */
     static bool parse (int argc, char* argv[]);
 
-    static bool setProjectFromPath(char *file);
+    /**
+     * Detect the correct data and project directories from
+     * path of a model being loaded.
+     * @param file the model file name.
+     */
+    static bool setProjectFromPath (char *file);
 
     /**
      * The directory where modeller searches for projects.

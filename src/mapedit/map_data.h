@@ -141,6 +141,11 @@ public:
     //@}
     
     /**
+     * @return model directory.
+     */
+    std::string getModelDirectory() const;
+
+    /**
      * @name Position Data
      */
     //@{

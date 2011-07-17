@@ -410,6 +410,9 @@ void GuiEntityList::setMap (MapData * map)
     // cleanup previously set data
     gtk_list_store_clear (model);
         
+    // try to get model directory used by models of map
+    MapCmdline::modeldir = map->getModelDirectory();
+
     // fill model
     for (MapData::entity_iter e = map->firstEntity(); e != map->lastEntity(); e++)
     {
@@ -472,8 +475,10 @@ void GuiEntityList::scanDir (const std::string & datadir, GtkListStore *model)
                 // recurse
                 if (S_ISDIR (statbuf.st_mode)) scanDir (filepath, model);
                 
-                // models are .xml files
-                if (S_ISREG (statbuf.st_mode) && filepath.compare (filepath.length() - 4, 4, ".xml") == 0)
+                // models are .xml or .amdl files
+                if (S_ISREG (statbuf.st_mode) && (
+                        filepath.compare (filepath.length() - 4, 4, ".xml") == 0 ||
+                        filepath.compare (filepath.length() - 4, 4, "amdl") == 0))
                 {
                     // check if this file is already part of the map
                     if (isPresentOnMap (MK_UNIX_PATH(filepath))) continue;

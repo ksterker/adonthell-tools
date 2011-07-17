@@ -26,12 +26,13 @@
  * @brief Methods to parse the modeller command line.
  */
  
-#include <libgen.h>
-#include <string.h>
-#include <stdlib.h>
 #include <iostream> 
 #include <dirent.h>
 #include <unistd.h>
+
+#include <base/logging.h>
+
+#include "common/util.h"
 #include "mdl_cmdline.h"
 
 // the directory to look for project files
@@ -104,35 +105,17 @@ bool MdlCmdline::parse (int argc, char* argv[])
     return true;
 }
 
-//
+// determine project and data directories from file name
 bool MdlCmdline::setProjectFromPath(char *file)
 {
-    char *cpath = strdup(file);
-
     // try to get an absolute path first
-    if (file[0] != '/')
-    {
-        char *oldwd = getcwd (NULL, 0);
-        if (chdir (dirname (cpath)))
-        {
-            free (cpath);
-            return false;
-        }
-
-        // get absolute pathname
-        free (cpath);
-        cpath = getcwd (NULL, 0);
-
-        // restore working directory
-        chdir (oldwd);
-        free (oldwd);
-    }
+    std::string strpath = util::get_absolute_path(file);
 
     // now find the model directory in the path
-    std::string strpath (cpath);
     size_t idx = strpath.rfind ("/models");
     if (idx == std::string::npos)
     {
+        LOG(ERROR) << "Failed detecting data directory.";
         return false;
     }
     strpath = strpath.substr(0, idx);
@@ -141,13 +124,15 @@ bool MdlCmdline::setProjectFromPath(char *file)
     idx = strpath.rfind('/');
     if (idx == std::string::npos)
     {
+        LOG(ERROR) << "Failed detecting project.";
         return false;
     }
 
     project = strpath.substr(idx + 1);
     datadir = strpath.substr(0, idx);
 
-    free (cpath);
+    LOG(WARNING) << "Detected datadir " << datadir;
+    LOG(WARNING) << "Detected project " << project;
     return true;
 }
 

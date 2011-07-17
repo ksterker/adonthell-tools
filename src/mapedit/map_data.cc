@@ -28,6 +28,7 @@
 
 #include "map_data.h"
 #include "map_entity.h"
+#include "map_cmdline.h"
 
 // ctor
 MapData::MapData() : world::area ()
@@ -140,4 +141,25 @@ std::list<world::zone*> MapData::zones_in_view (const s_int32 & x, const s_int32
     }
 
     return result;
+}
+
+// try to determine model directory used by this map
+std::string MapData::getModelDirectory() const
+{
+    if (!Entities.empty())
+    {
+        // get file name of a random model
+        std::string file = Entities.front()->get_object()->modelfile();
+
+        // the models directory is the first directory in the file name
+        size_t idx = file.find("/");
+        if (idx != std::string::npos)
+        {
+            std::cout << "Detected Models in " << file.substr(0, idx) << std::endl;
+            return file.substr(0, idx);
+        }
+    }
+
+    // no models on map yet ... tough luck
+    return MapCmdline::modeldir;
 }

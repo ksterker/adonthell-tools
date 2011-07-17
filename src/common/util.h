@@ -53,6 +53,13 @@ public:
     static std::string get_relative_path (const std::string & path, const std::string & target_dir);
 
     /**
+     * Convert a relative path to an absolute path.
+     * @param path the path to convert.
+     * @return an absolute path pointing to the location of path.
+     */
+    static std::string get_absolute_path (const std::string & path);
+
+    /**
      * Convert windows directory names to unix directory names. All paths in
      * data files are supposed to be in unix-style notation.
      * @param path the pathname to convert.

@@ -24,6 +24,7 @@
  * @brief Keep track of recently opened files.
  */
 
+#include "util.h"
 #include "gui_recent_files.h"
 
 static void on_recent_file_selected (GtkRecentChooser *chooser, gpointer user_data)
@@ -81,6 +82,6 @@ void GuiRecentFiles::registerFile (const std::string & file, const std::string &
     info.groups = NULL;
     info.is_private = FALSE;
 
-    gchar* uri = g_filename_to_uri (file.c_str(), NULL, NULL);
+    gchar* uri = g_filename_to_uri (util::get_absolute_path(file).c_str(), NULL, NULL);
     gtk_recent_manager_add_full (Manager, uri, &info);
 }

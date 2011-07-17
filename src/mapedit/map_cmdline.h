@@ -48,6 +48,13 @@ public:
     static bool parse (int argc, char* argv[]);
 
     /**
+     * Detect the correct data and project directories from
+     * path of a model being loaded.
+     * @param file the model file name.
+     */
+    static bool setProjectFromPath (char *file);
+
+    /**
      * The directory where mapedit searches for projects.
      */
     static std::string datadir;

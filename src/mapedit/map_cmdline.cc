@@ -26,9 +26,15 @@
  * @brief Methods to parse the mapedit command line.
  */
  
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <iostream> 
 #include <dirent.h>
 #include <unistd.h>
+
+#include "base/logging.h"
+
+#include "common/util.h"
 #include "map_cmdline.h"
 
 // the directory to look for project files
@@ -111,6 +117,43 @@ bool MapCmdline::parse (int argc, char* argv[])
     }
     
     sources = optind;
+    return true;
+}
+
+// determine project and data directories from file name
+bool MapCmdline::setProjectFromPath (char *file)
+{
+    // try to get an absolute path first
+    std::string strpath = util::get_absolute_path(file);
+
+    // now find the project directory in the path
+    size_t idx;
+    struct stat statbuf;
+    while (stat ((strpath + "/maps").c_str (), &statbuf))
+    {
+        idx = strpath.rfind ("/");
+        if (idx == std::string::npos)
+        {
+            LOG(ERROR) << "Failed detecting data directory.";
+            return false;
+        }
+
+        strpath = strpath.substr(0, idx);
+    }
+
+    // the directory before that is our working directory
+    idx = strpath.rfind('/');
+    if (idx == std::string::npos)
+    {
+        LOG(ERROR) << "Failed detecting project.";
+        return false;
+    }
+
+    project = strpath.substr(idx + 1);
+    datadir = strpath.substr(0, idx);
+
+    LOG(WARNING) << "Detected datadir " << datadir;
+    LOG(WARNING) << "Detected project " << project;
     return true;
 }
 

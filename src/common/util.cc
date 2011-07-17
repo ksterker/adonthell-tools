@@ -26,6 +26,9 @@
 
 #include <sys/param.h>
 #include <stdlib.h>
+#include <string.h>
+#include <stdlib.h>
+#include <libgen.h>
 
 #ifdef WIN32
 #define realpath(N,R) _fullpath((R),(N),_MAX_PATH)
@@ -102,4 +105,32 @@ std::string util::to_unix_path (const std::string & path)
 		if (*i == '\\') *i = '/';
 	}
 	return result;
+}
+
+// convert relative path to absolute path
+std::string util::get_absolute_path (const std::string & path)
+{
+    std::string result = path;
+
+    if (result[0] != '/')
+    {
+        char *oldwd = getcwd (NULL, 0);
+        if (chdir (dirname ((char*) result.c_str())))
+        {
+            return path;
+        }
+
+        // get absolute pathname
+        char *cpath = getcwd (NULL, 0);
+        result = cpath;
+
+        // restore working directory
+        chdir (oldwd);
+
+        // cleanup
+        free (oldwd);
+        free (cpath);
+    }
+
+    return result;
 }

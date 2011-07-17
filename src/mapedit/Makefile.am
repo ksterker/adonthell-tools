@@ -7,7 +7,7 @@ EXTRA_DIST = \
     grid-properties.glade \
     zone-properties.glade
 
-noinst_PROGRAMS = mapedit
+bin_PROGRAMS = adonthell-mapedit
 
 noinst_HEADERS = \
     entity-filter.glade.h \
@@ -36,7 +36,7 @@ noinst_HEADERS = \
     map_renderer.h \
     zone-properties.glade.h
     
-mapedit_SOURCES = \
+adonthell_mapedit_SOURCES = \
     gui_entity_dialog.cc \
     gui_entity_list.cc \
     gui_filter_dialog.cc \
@@ -73,5 +73,5 @@ gui_zone_dialog.cc : zone-properties.glade.h
 GTK_3_0_FLAGS = -DGDK_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED -DGSEAL_ENABLE
 
 INCLUDES = -I@top_srcdir@/src/common -I@top_srcdir@/src
-mapedit_CXXFLAGS = -D_VERSION_=\"0.1\" $(GTK_CFLAGS) $(GTK_3_0_FLAGS) $(PY_CFLAGS) $(ADONTHELL_CFLAGS) ${IGE_MAC_CFLAGS}
-mapedit_LDADD = ../common/libcommon.a $(GTK_LIBS) $(ADONTHELL_LIBS) $(PY_LIBS) ${IGE_MAC_LIBS}
+adonthell_mapedit_CXXFLAGS = -D_VERSION_=\"0.1\" $(GTK_CFLAGS) $(GTK_3_0_FLAGS) $(PY_CFLAGS) $(ADONTHELL_CFLAGS) ${IGE_MAC_CFLAGS}
+adonthell_mapedit_LDADD = ../common/libcommon.a $(GTK_LIBS) $(ADONTHELL_LIBS) $(PY_LIBS) ${IGE_MAC_LIBS}

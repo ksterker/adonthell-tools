@@ -401,20 +401,18 @@ void GuiMapedit::loadMap (const std::string & fname)
         // TODO: display warning
     }
     
-    RecentFiles->registerFile(fname, MIME_TYPE);
-
     ActiveMap = LoadedMaps.size();
     LoadedMaps.push_back (area);
-    
+
+    RecentFiles->registerFile(filename(), MIME_TYPE);
+
     initTitle ();
 
     View->setMap (area);
     EntityList->setMap (area);
     ZoneList->setMap (area);
     
-    gchar *datadir = g_path_get_dirname (fname.c_str());
-    EntityList->setDataDir (std::string (datadir) + "/" + MapCmdline::modeldir);
-    g_free (datadir);
+    EntityList->setDataDir (MapCmdline::datadir + "/" + MapCmdline::project + "/" + MapCmdline::modeldir);
 }
 
 // save map to disk
@@ -485,7 +483,7 @@ std::string GuiMapedit::filename () const
     
     if (fname.size() == 0)
     {
-        fname = Directory + "/untitled.xml";
+        fname = Directory + "/untitled.amap";
     }
     
     return fname;

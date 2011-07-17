@@ -49,6 +49,11 @@ int main (int argc, char *argv[])
     // parse command line
     if (!MapCmdline::parse (argc, argv))
         return 1;
+
+    // most likely opened by double clicking a model
+    if (argc == 2 && MapCmdline::sources == 1)
+       if (!MapCmdline::setProjectFromPath(argv[MapCmdline::sources]))
+            return 1;
   
     // init game directory
     base::init (MapCmdline::project, MapCmdline::datadir);

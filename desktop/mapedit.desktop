@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Adonthell Mapedit
+Comment=The Adonthell World Editor.
+Exec=adonthell-mapedit
+Terminal=false
+Type=Application
+Categories=Development;RolePlaying;
+StartupNotify=false
+MimeType=application/x-adonthell-map;
