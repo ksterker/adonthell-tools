@@ -3,14 +3,14 @@
 ## -- .desktop files
 
 desktopdir = $(datadir)/applications
-desktop_DATA = dlgedit.desktop
+dist_desktop_DATA = dlgedit.desktop mapedit.desktop modeller.desktop
 
 
 ## -- mime types
 
 mimedir = $(datadir)/mime
 mimepackagesdir = $(mimedir)/packages
-dist_mimepackages_DATA = dlgedit.xml
+dist_mimepackages_DATA = dlgedit.xml mapedit.xml modeller.xml
 
 
 ## -- make install

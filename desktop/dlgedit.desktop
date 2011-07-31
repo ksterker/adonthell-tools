@@ -1,9 +1,9 @@
 [Desktop Entry]
-Name=Dlgedit
+Name=Adonthell Dlgedit
 Comment=The Adonthell Dialogue Editor.
-Exec=dlgedit
+Exec=adonthell-dlgedit
 Terminal=false
 Type=Application
-Categories=Development;Game;GTK;RolePlaying;
+Categories=Development;RolePlaying;
 StartupNotify=false
 MimeType=application/x-adonthell-dlg;

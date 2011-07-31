@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
-  <mime-type type="application/x-adonthell-dlg">
-    <comment xml:lang="en">Adonthell Dialogue Source</comment>
-      <magic priority="50">
-        <match type="string" value="# Dlg" offset="0"/>
-      </magic>
-    <glob pattern="*.adlg"/>
+  <mime-type type="application/x-adonthell-mdl">
+    <comment xml:lang="en">Adonthell Model</comment>
+    <glob pattern="*.amdl"/>
   </mime-type>
 </mime-info>
 

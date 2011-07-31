@@ -48,6 +48,11 @@ public:
     GuiScriptSelector (GtkComboBox *scrpt, GtkComboBox *met, GtkContainer *args);
     
     /**
+     * Destroys a script selector instance.
+     */
+    ~GuiScriptSelector ();
+
+    /**
      * @name Customize selector behaviour.
      */
     //@{
@@ -163,6 +168,10 @@ private:
     std::string CurMethod;
     /// number of fixed arguments past to the method
     int ArgOffset;
+    /// event handler id for script combobox changes
+    long ScriptChangedHandler;
+    /// event handler id for method combobox changes
+    long MethodChangedHandler;
 };
 
 #endif

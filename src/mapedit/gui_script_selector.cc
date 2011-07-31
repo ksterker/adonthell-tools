@@ -84,10 +84,20 @@ GuiScriptSelector::GuiScriptSelector (GtkComboBox *scrpt, GtkComboBox *met, GtkC
     CurMethod = "";
     ArgOffset = 0;
     
-    g_signal_connect (G_OBJECT(scrpt), "changed", G_CALLBACK (on_script_changed), this);
+    ScriptChangedHandler = g_signal_connect (G_OBJECT(scrpt), "changed", G_CALLBACK (on_script_changed), this);
     if (met != NULL)
     {
-        g_signal_connect (G_OBJECT(met), "changed", G_CALLBACK (on_method_changed), this);    
+        MethodChangedHandler = g_signal_connect (G_OBJECT(met), "changed", G_CALLBACK (on_method_changed), this);
+    }
+}
+
+// dtor
+GuiScriptSelector::~GuiScriptSelector ()
+{
+    g_signal_handler_disconnect (G_OBJECT(Script), ScriptChangedHandler);
+    if (Method != NULL)
+    {
+        g_signal_handler_disconnect (G_OBJECT(Method), MethodChangedHandler);
     }
 }
 
