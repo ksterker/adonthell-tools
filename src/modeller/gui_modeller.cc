@@ -287,7 +287,11 @@ static void on_file_save_as_activate (GtkMenuItem * menuitem, gpointer user_data
     fs.add_shortcut (base::Paths().user_data_dir() + "/models/");
 
     // File selection closed with OK
-    if (fs.run ()) modeller->saveModel (fs.getSelection ());
+    if (fs.run ())
+    {
+        modeller->saveModel (fs.getSelection ());
+        modeller->saveMeta (fs.getSelection ());
+    }
 }
 
 // File Menu: Save
@@ -302,6 +306,7 @@ static void on_file_save_activate (GtkMenuItem * menuitem, gpointer user_data)
         // only save models that aren't 'untitled'
         std::string dirname = modeller->modelDirectory ();
         modeller->saveModel (dirname + "/" + filename);
+        modeller->saveMeta (dirname + "/" + filename);
     }
     else
     {
@@ -449,6 +454,15 @@ static void connector_selected_event (GtkTreeSelection *selection, gpointer user
     gtk_widget_set_sensitive (GTK_WIDGET(widget), gtk_tree_selection_count_selected_rows (selection));
 }
 
+// entry selected in the tag list
+static void tag_selected_event (GtkTreeSelection *selection, gpointer user_data)
+{
+    GtkBuilder *ui = (GtkBuilder *) user_data;
+
+    GObject *widget = gtk_builder_get_object (ui, "btn_remove_tag");
+    gtk_widget_set_sensitive (GTK_WIDGET(widget), gtk_tree_selection_count_selected_rows (selection));
+}
+
 // load sprite from file
 static void on_add_sprite_pressed (GtkButton * button, gpointer user_data)
 {
@@ -505,11 +519,25 @@ static void on_add_connector_pressed (GtkButton * button, gpointer user_data)
     modeller->addConnector();
 }
 
-// add connector to model
+// remove connector from model
 static void on_remove_connector_pressed (GtkButton * button, gpointer user_data)
 {
     GuiModeller *modeller = (GuiModeller *) user_data;
     modeller->removeConnector();
+}
+
+// add tag to model
+static void on_add_tag_pressed (GtkButton * button, gpointer user_data)
+{
+    GuiModeller *modeller = (GuiModeller *) user_data;
+    modeller->addTag();
+}
+
+// remove tag from model
+static void on_remove_tag_pressed (GtkButton * button, gpointer user_data)
+{
+    GuiModeller *modeller = (GuiModeller *) user_data;
+    modeller->removeTag();
 }
 
 // connector edited
@@ -564,6 +592,21 @@ static void on_solid_state_changed (GtkToggleButton *togglebutton, gpointer user
 {
     GuiModeller *modeller = (GuiModeller *) user_data;
     modeller->setSolid (gtk_toggle_button_get_active (togglebutton));
+}
+
+// update "add_tag" button state
+static void on_tag_entry_changed (GtkEditable *editable, gpointer user_data)
+{
+    GObject *widget;
+    GtkBuilder *ui = (GtkBuilder*) user_data;
+
+    // check for valid tag (TODO: prevent duplicates)
+    widget = gtk_builder_get_object (ui, "entry_new_tag");
+    bool enable = gtk_entry_get_text_length (GTK_ENTRY(widget)) > 0;
+
+    // enable or disable "add tag" button
+    widget = gtk_builder_get_object (ui, "btn_add_tag");
+    gtk_widget_set_sensitive (GTK_WIDGET(widget), enable);
 }
 
 // changed edit mode
@@ -660,7 +703,7 @@ GuiModeller::GuiModeller ()
     widget = gtk_builder_get_object (Ui, "item_zoom_normal");
     g_signal_connect (widget, "activate", G_CALLBACK (on_model_reset_zoom), (gpointer) this);
 
-    // connect button signals
+    // connect button signals on appearance pane
     widget = gtk_builder_get_object (Ui, "add_sprite");
     g_signal_connect (widget, "clicked", G_CALLBACK (on_add_sprite_pressed), this);
     widget = gtk_builder_get_object (Ui, "remove_sprite");
@@ -674,18 +717,24 @@ GuiModeller::GuiModeller ()
     widget = gtk_builder_get_object (Ui, "remove_shape");
     g_signal_connect (widget, "clicked", G_CALLBACK (on_remove_shape_pressed), this);
 
-    // btn_add_tag
-    // btn_remove_tag
+    widget = gtk_builder_get_object (Ui, "is_solid");
+    g_signal_connect (widget, "toggled", G_CALLBACK (on_solid_state_changed), (gpointer) this);
+    widget = gtk_builder_get_object (Ui, "btn_edit_mode");
+    g_signal_connect (widget, "toggled", G_CALLBACK (on_edit_mode_changed), (gpointer) this);
+
+    // buttons on meta data pane
+    widget = gtk_builder_get_object (Ui, "btn_add_tag");
+    g_signal_connect (widget, "clicked", G_CALLBACK (on_add_tag_pressed), this);
+    widget = gtk_builder_get_object (Ui, "btn_remove_tag");
+    g_signal_connect (widget, "clicked", G_CALLBACK (on_remove_tag_pressed), this);
     widget = gtk_builder_get_object (Ui, "btn_add_connector");
     g_signal_connect (widget, "clicked", G_CALLBACK (on_add_connector_pressed), this);
     widget = gtk_builder_get_object (Ui, "btn_remove_connector");
     g_signal_connect (widget, "clicked", G_CALLBACK (on_remove_connector_pressed), this);
-    //
-    
-    widget = gtk_builder_get_object (Ui, "is_solid");    
-    g_signal_connect (widget, "toggled", G_CALLBACK (on_solid_state_changed), (gpointer) this);
-    widget = gtk_builder_get_object (Ui, "btn_edit_mode");
-    g_signal_connect (widget, "toggled", G_CALLBACK (on_edit_mode_changed), (gpointer) this);
+
+    // callbacks to check for valid values in edit fields
+    widget = gtk_builder_get_object (Ui, "entry_new_tag");
+    g_signal_connect (widget, "changed", G_CALLBACK (on_tag_entry_changed), Ui);
 
     // set tree columns and signals
     // FIXME: this could be done in the ui description, but my glade appears buggy in that area.
@@ -699,6 +748,10 @@ GuiModeller::GuiModeller ()
     gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW(widget), -1, "Shapes", renderer, "text", 0, NULL);
     selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(widget));
     g_signal_connect (G_OBJECT(selection), "changed", G_CALLBACK(shape_selected_event), this);
+
+    widget = gtk_builder_get_object (Ui, "view_tags");
+    selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(widget));
+    g_signal_connect (G_OBJECT(selection), "changed", G_CALLBACK(tag_selected_event), Ui);
 
     // create the connector  model
     widget = gtk_builder_get_object (Ui, "view_connectors");
@@ -730,6 +783,13 @@ void GuiModeller::newModel ()
     // cleanup any previous stuff
     gtk_tree_store_clear (GTK_TREE_STORE(gtk_builder_get_object (Ui, "sprite_list")));
     gtk_tree_store_clear (GTK_TREE_STORE(gtk_builder_get_object (Ui, "shape_list")));
+
+    gtk_list_store_clear (GTK_LIST_STORE(gtk_builder_get_object (Ui, "tag_list")));
+    gtk_list_store_clear (GTK_LIST_STORE(getConnectors()));
+
+    GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW (gtk_builder_get_object (Ui, "entry_description")));
+    gtk_text_buffer_set_text (buffer, "", 0);
+    gtk_entry_set_text (GTK_ENTRY (gtk_builder_get_object (Ui, "entry_new_tag")), "");
     
     Preview->setCurModel (NULL);
     Preview->setCurShape (NULL);
@@ -748,6 +808,9 @@ void GuiModeller::newModel ()
     setActive("copy_shape", false);
     setActive("remove_shape", false);
     setActive("remove_sprite", false);
+    setActive("btn_add_tag", false);
+    setActive("btn_remove_tag", false);
+    setActive("btn_remove_connector", false);
 
     // update title
     setTitle(false);
@@ -798,9 +861,61 @@ void GuiModeller::loadModel (const std::string & name)
         }
     }
 
+    // load model meta data (if present)
+    loadMeta (name);
+
     // update title
     setTitle(false);
 }    
+
+// load meta data
+void GuiModeller::loadMeta (const std::string & name)
+{
+    size_t idx = name.find_last_of('.');
+    if (idx == std::string::npos)
+    {
+        return;
+    }
+
+    std::string meta_file_name = name.substr(0, idx) + ".xtra";
+    base::diskio meta_data (base::diskio::BY_EXTENSION);
+    if (!meta_data.get_record (meta_file_name))
+    {
+        return;
+    }
+
+    // load description
+    GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW (gtk_builder_get_object (Ui, "entry_description")));
+    gtk_text_buffer_set_text (buffer, meta_data.get_string("dscr").c_str(), -1);
+
+    // load tags
+    void *value;
+    base::flat tags = meta_data.get_flat("tags");
+    while (tags.next(&value) != base::flat::T_UNKNOWN)
+    {
+        addTag(strdup ((gchar *) value));
+    }
+
+    // make sure the connector templates are up-to-date
+    MdlConnectorManager::load(base::Paths().user_data_dir());
+
+    // load connectors
+    u_int32 size;
+    base::flat connectors = meta_data.get_flat("ctrs");
+    while (connectors.next(&value, &size) != base::flat::T_UNKNOWN)
+    {
+        base::flat connector ((char *) value, size);
+        MdlConnectorTemplate *tmpl = MdlConnectorManager::get(connector.get_uint32("tmpl"));
+        if (tmpl != NULL)
+        {
+            MdlConnector *ctor = new MdlConnector (tmpl);
+            ctor->set_side((MdlConnector::face) connector.get_uint8 ("side"));
+            ctor->set_pos(connector.get_sint16 ("pos"));
+
+            addConnector(ctor);
+        }
+    }
+}
 
 // save model to disk
 void GuiModeller::saveModel (const std::string & name)
@@ -839,6 +954,71 @@ void GuiModeller::saveModel (const std::string & name)
 
     // update title
     setTitle(false);
+}
+
+// save model meta data
+void GuiModeller::saveMeta (const std::string & name) const
+{
+    std::string meta_file_name;
+
+    size_t idx = name.find_last_of('.');
+    if (idx != std::string::npos)
+    {
+        base::diskio meta_data (base::diskio::XML_FILE);
+
+        // save description
+        GtkTextIter start, end;
+        GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW (gtk_builder_get_object (Ui, "entry_description")));
+        gtk_text_buffer_get_bounds (buffer, &start, &end);
+        std::string description (gtk_text_buffer_get_text(buffer, &start, &end, FALSE));
+        meta_data.put_string("dscr", description);
+
+        // save tags
+        base::flat tags;
+        GtkTreeIter iter;
+        GtkTreeModel *tree_model = GTK_TREE_MODEL(gtk_builder_get_object (Ui, "tag_list"));
+        if (gtk_tree_model_get_iter_first (tree_model, &iter))
+        {
+            gchar *tag;
+            do
+            {
+                gtk_tree_model_get (tree_model, &iter, 0, &tag, -1);
+                if (tag != NULL)
+                {
+                    tags.put_string ("", tag);
+                }
+            }
+            while (gtk_tree_model_iter_next (tree_model, &iter));
+        }
+        meta_data.put_flat("tags", tags);
+
+        // save connectors
+        base::flat connectors;
+        tree_model = getConnectors ();
+        if (gtk_tree_model_get_iter_first (tree_model, &iter))
+        {
+            do
+            {
+                MdlConnector *connector = connector_list_get_object (CONNECTOR_LIST(tree_model), &iter);
+                if (connector != NULL)
+                {
+                    base::flat ctor;
+
+                    ctor.put_uint32 ("tmpl", connector->uid());
+                    ctor.put_uint8 ("side", connector->side());
+                    ctor.put_sint16 ("pos", connector->pos());
+
+                    connectors.put_flat("", ctor);
+                }
+            }
+            while (gtk_tree_model_iter_next (tree_model, &iter));
+        }
+        meta_data.put_flat("ctrs", connectors);
+
+        // save file to disk
+        meta_file_name = name.substr(0, idx) + ".xtra";
+        meta_data.put_record (meta_file_name);
+    }
 }
 
 // add a new sprite to the model
@@ -1220,17 +1400,24 @@ void GuiModeller::updateShapeList (world::placeable_model *model)
 }
 
 // add a connector to the model
-void GuiModeller::addConnector ()
+void GuiModeller::addConnector (MdlConnector *ctor)
 {
-    GuiConnectors dlg(GTK_WINDOW (Window), Ui);
-    if (dlg.run())
+    if (ctor == NULL)
     {
-        MdlConnectorTemplate *tmpl = dlg.selectedTemplate();
-        MdlConnector *ctor = new MdlConnector (tmpl);
+        GuiConnectors dlg(GTK_WINDOW (Window), Ui);
+        if (dlg.run())
+        {
+            MdlConnectorTemplate *tmpl = dlg.selectedTemplate();
+            ctor = new MdlConnector (tmpl);
 
+            setTitle (true);
+        }
+    }
+
+    if (ctor != NULL)
+    {
         GtkTreeIter iter;
-        GtkTreeView *tree_view = GTK_TREE_VIEW(gtk_builder_get_object (Ui, "view_connectors"));
-        GtkTreeModel *model = gtk_tree_view_get_model (tree_view);
+        GtkTreeModel *model = getConnectors ();
 
         gtk_list_store_append (GTK_LIST_STORE(model), &iter);
         gtk_list_store_set (GTK_LIST_STORE(model), &iter, 0, ctor, -1);
@@ -1253,6 +1440,8 @@ void GuiModeller::removeConnector ()
         {
             gtk_list_store_remove (GTK_LIST_STORE(model), &iter);
             delete connector;
+
+            setTitle (true);
         }
     }
 }
@@ -1261,12 +1450,14 @@ void GuiModeller::removeConnector ()
 void GuiModeller::updateConnectorFace (MdlConnector *connector, MdlConnector::face side)
 {
     connector->set_side(side);
+    setTitle (true);
 }
 
 // update position of connector
 void GuiModeller::updateConnectorPos (MdlConnector *connector, const s_int16 & pos)
 {
     connector->set_pos(pos);
+    setTitle (true);
 }
 
 // get list of connectors
@@ -1274,6 +1465,50 @@ GtkTreeModel* GuiModeller::getConnectors() const
 {
     GtkTreeView *tree_view = GTK_TREE_VIEW(gtk_builder_get_object (Ui, "view_connectors"));
     return gtk_tree_view_get_model (tree_view);
+}
+
+// add tag
+void GuiModeller::addTag (gchar *tag)
+{
+    if (tag == NULL)
+    {
+        GtkEntry *entry = GTK_ENTRY (gtk_builder_get_object (Ui, "entry_new_tag"));
+        tag = strdup (gtk_entry_get_text (entry));
+
+        gtk_entry_set_text (entry, "");
+        gtk_widget_grab_focus(GTK_WIDGET(entry));
+
+        setTitle (true);
+    }
+
+    if (tag != NULL)
+    {
+        GtkTreeIter iter;
+        GtkTreeModel *model = GTK_TREE_MODEL(gtk_builder_get_object (Ui, "tag_list"));
+
+        gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+        gtk_list_store_set (GTK_LIST_STORE(model), &iter, 0, tag, -1);
+    }
+}
+
+// remove tag
+void GuiModeller::removeTag()
+{
+    GtkTreeIter iter;
+    GtkTreeModel *model;
+    GtkTreeView *tree_view = GTK_TREE_VIEW(gtk_builder_get_object (Ui, "view_tags"));
+    GtkTreeSelection *selection = gtk_tree_view_get_selection (tree_view);
+
+    if (gtk_tree_selection_get_selected (selection, &model, &iter))
+    {
+        gchar *tag = NULL;
+        gtk_tree_model_get (model, &iter, 0, &tag, -1);
+        if (tag != NULL)
+        {
+            gtk_list_store_remove (GTK_LIST_STORE(model), &iter);
+            setTitle (true);
+        }
+    }
 }
 
 // zoom displayed model

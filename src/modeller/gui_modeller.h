@@ -131,11 +131,23 @@ public:
     void loadModel (const std::string & name);    
     
     /**
+     * Load the model meta data from the given file.
+     * @param name file to load the meta data from.
+     */
+    void loadMeta (const std::string & name);
+
+    /**
      * Save the model to the given file.
      * @param name file to save the model to.
      */
     void saveModel (const std::string & name);
     
+    /**
+     * Save the model meta data to the given file.
+     * @param name file to save the meta data to.
+     */
+    void saveMeta (const std::string & name) const;
+
     /**
      * Add the given sprite to the model.
      * @param name filename of the sprite.
@@ -195,9 +207,21 @@ public:
     }
     
     /**
-     * Add a new connector the model.
+     * Add a new tag to the model.
+     * @param tag the tag to add.
      */
-    void addConnector ();
+    void addTag (gchar *tag = NULL);
+
+    /**
+     * Remove a tag from the model.
+     */
+    void removeTag ();
+
+    /**
+     * Add a new connector to the model.
+     * @param ctor the connector to add.
+     */
+    void addConnector (MdlConnector *ctor = NULL);
 
     /**
      * Remove a connector from the model.

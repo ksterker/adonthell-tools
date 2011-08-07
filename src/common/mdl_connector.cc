@@ -96,7 +96,7 @@ MdlConnectorTemplate *MdlConnectorManager::get (const u_int32 & uid)
         return Templates[uid];
     }
 
-    fprintf (stderr, "*** MdlConnectorManager::get: template with id %i not found.\n", uid);
+    fprintf (stderr, "*** MdlConnectorManager::get: template with id %u not found.\n", uid);
     return NULL;
 }
 
@@ -124,7 +124,7 @@ bool MdlConnectorManager::load (const std::string & path)
 
         if (Templates.count (tmpl->uid()))
         {
-            fprintf (stderr, "*** MdlConnectorManager::load: duplicate template id %i found.\n", tmpl->uid());
+            fprintf (stderr, "*** MdlConnectorManager::load: duplicate template id %u found.\n", tmpl->uid());
 
             result = false;
             delete tmpl;
