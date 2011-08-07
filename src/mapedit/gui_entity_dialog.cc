@@ -28,6 +28,7 @@
 
 #include <world/character.h>
 
+#include "map_cmdline.h"
 #include "gui_mapedit.h"
 #include "gui_mapview.h"
 #include "gui_entity_dialog.h"
@@ -78,6 +79,28 @@ static void on_center_button_pressed (GtkButton * button, gpointer user_data)
     MapEntity *entity = (MapEntity *) user_data;
     world::chunk_info *location = entity->getLocation();
     GuiMapedit::window->view()->gotoPosition(location->Min.x(), location->Min.y(), location->Min.z());
+}
+
+// edit object
+static void on_edit_button_pressed (GtkButton * button, gpointer user_data)
+{
+    GError *error = NULL;
+    MapEntity *entity = (MapEntity *) user_data;
+    std::string path = MapCmdline::datadir + "/" + MapCmdline::project + "/" + entity->object()->modelfile();
+    GdkScreen *screen = gtk_widget_get_screen (GTK_WIDGET(button));
+    gchar *uri = g_filename_to_uri (path.c_str(), NULL, &error);
+
+    if (uri != NULL)
+    {
+        if (gtk_show_uri (screen, uri, GDK_CURRENT_TIME, &error))
+        {
+            g_free (uri);
+            return;
+        }
+    }
+
+    g_message ("Opening model %s failed: %s", path.c_str(), error->message);
+    g_error_free (error);
 }
 
 // the entity object state has changed
@@ -201,6 +224,8 @@ GuiEntityDialog::GuiEntityDialog (MapEntity *entity, const GuiEntityDialog::Mode
     g_signal_connect (widget, "clicked", G_CALLBACK (on_cancel_button_pressed), this);
     widget = gtk_builder_get_object (Ui, "btn_goto");
     g_signal_connect (widget, "clicked", G_CALLBACK (on_center_button_pressed), Entity);
+    widget = gtk_builder_get_object (Ui, "btn_edit_model");
+    g_signal_connect (widget, "clicked", G_CALLBACK (on_edit_button_pressed), Entity);
     
     widget = gtk_builder_get_object (Ui, "type_scenery");
     g_signal_connect (widget, "toggled", G_CALLBACK (on_type_changed), this);
