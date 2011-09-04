@@ -31,6 +31,7 @@
 #include <gdk/gdk.h>
 #include <world/renderer.h>
 
+#include "common/mdl_connector.h"
 #include "mdl_handle.h"
 
 #define X_AXIS_POS 80
@@ -52,7 +53,7 @@ public:
     virtual ~ModelRenderer () {}
     
     void render (std::list <world::render_info> & objectlist, const gfx::drawing_area & da, gfx::surface * target) const;
-    
+
     void draw (const s_int16 & x, const s_int16 & y, const world::render_info & obj, const gfx::drawing_area & da, gfx::surface * target) const;
 
     /**
@@ -64,6 +65,8 @@ public:
      * @param target surface to draw on.
      */
     void render (const GdkPoint & offset, world::placeable_model *model, ModelHandles *handles, const gfx::drawing_area & da, gfx::surface *target);
+
+    void render (const GdkPoint & offset, std::list <world::render_info> & objectlist, MdlConnector *connector, const gfx::drawing_area & da, gfx::surface *target);
 
     /**
      * Draw the handle at given index.

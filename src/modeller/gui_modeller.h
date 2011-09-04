@@ -88,6 +88,15 @@ public:
      * @return the preview area.
      */
     GuiPreview *getPreview () const { return Preview; }
+
+    /**
+     * Get pointer to a widget of the given name.
+     * @return widget of the given name.
+     */
+    GObject *getWidget (const std::string & name) const
+    {
+        gtk_builder_get_object (Ui, name.c_str());
+    }
     
     /**
      * Get the tree model containing all connectors of the current model.

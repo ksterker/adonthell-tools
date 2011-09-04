@@ -448,10 +448,26 @@ static void shape_selected_event (GtkTreeSelection *selection, gpointer user_dat
 // entry selected in the connector list
 static void connector_selected_event (GtkTreeSelection *selection, gpointer user_data)
 {
-    GtkBuilder *ui = (GtkBuilder *) user_data;
+    GuiModeller *modeller = (GuiModeller *) user_data;
 
-    GObject *widget = gtk_builder_get_object (ui, "btn_remove_connector");
+    GObject *widget = modeller->getWidget("btn_remove_connector");
     gtk_widget_set_sensitive (GTK_WIDGET(widget), gtk_tree_selection_count_selected_rows (selection));
+
+    GtkTreeModel *tree_model;
+    GtkTreeIter iter;
+
+    // anything selected at all?
+    if (gtk_tree_selection_get_selected (selection, &tree_model, &iter))
+    {
+        // display it in editor
+        MdlConnector *connector = connector_list_get_object (CONNECTOR_LIST(tree_model), &iter);
+        modeller->getPreview ()->setCurConnector (connector);
+    }
+    else
+    {
+        // clear previous connector, if any
+        modeller->getPreview ()->setCurConnector (NULL);
+    }
 }
 
 // entry selected in the tag list
@@ -629,6 +645,33 @@ static void on_edit_mode_changed (GtkToggleButton *togglebutton, gpointer user_d
     }
 }
 
+//
+static void on_tab_switched (GtkNotebook *nb, gpointer page, guint page_num, gpointer user_data)
+{
+    GuiModeller *modeller = (GuiModeller *) user_data;
+    switch (page_num)
+    {
+        // appearance
+        case 0:
+        {
+            GtkTreeView *sprite_view = GTK_TREE_VIEW (modeller->getWidget("sprite_view"));
+            anim_selected_event (gtk_tree_view_get_selection (sprite_view), user_data);
+            break;
+        }
+        // meta-data
+        case 1:
+        {
+            modeller->getPreview()->setCurShape(NULL);
+            modeller->getPreview()->setCurModel(NULL);
+
+            GtkTreeView *connector_view = GTK_TREE_VIEW (modeller->getWidget("view_connectors"));
+            connector_selected_event (gtk_tree_view_get_selection (connector_view), user_data);
+
+            break;
+        }
+    }
+}
+
 // ctor
 GuiModeller::GuiModeller ()
 {
@@ -639,6 +682,7 @@ GuiModeller::GuiModeller ()
     Filename = "untitled.amdl";
     SpriteDir = MdlCmdline::datadir + "/" + MdlCmdline::project;
     Spritename = "";
+    ShapeToPaste = NULL;
 
 	if (!gtk_builder_add_from_string(Ui, modeller_ui, -1, &err)) 
     {
@@ -736,6 +780,10 @@ GuiModeller::GuiModeller ()
     widget = gtk_builder_get_object (Ui, "entry_new_tag");
     g_signal_connect (widget, "changed", G_CALLBACK (on_tag_entry_changed), Ui);
 
+    // callback when toggling between appearance and meta tab
+    widget = gtk_builder_get_object (Ui, "notebook1");
+    g_signal_connect (widget, "switch-page", G_CALLBACK (on_tab_switched), (gpointer) this);
+
     // set tree columns and signals
     // FIXME: this could be done in the ui description, but my glade appears buggy in that area.
     GtkCellRenderer *renderer = gtk_cell_renderer_text_new ();
@@ -760,7 +808,7 @@ GuiModeller::GuiModeller ()
 
     // add selection listener
     selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(widget));
-    g_signal_connect (G_OBJECT(selection), "changed", G_CALLBACK(connector_selected_event), Ui);
+    g_signal_connect (G_OBJECT(selection), "changed", G_CALLBACK(connector_selected_event), this);
 
     // add cell edit listeners
     widget = gtk_builder_get_object (Ui, "rnd_connector_face");
@@ -1450,6 +1498,7 @@ void GuiModeller::removeConnector ()
 void GuiModeller::updateConnectorFace (MdlConnector *connector, MdlConnector::face side)
 {
     connector->set_side(side);
+    Preview->render();
     setTitle (true);
 }
 
@@ -1457,6 +1506,7 @@ void GuiModeller::updateConnectorFace (MdlConnector *connector, MdlConnector::fa
 void GuiModeller::updateConnectorPos (MdlConnector *connector, const s_int16 & pos)
 {
     connector->set_pos(pos);
+    Preview->render();
     setTitle (true);
 }
 

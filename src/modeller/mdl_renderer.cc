@@ -80,22 +80,98 @@ void ModelRenderer::render (const GdkPoint & offset, world::placeable_model *mod
     }
 }
 
+// render map object ground square and connector
+void ModelRenderer::render (const GdkPoint & offset, std::list <world::render_info> & objectlist, MdlConnector *connector, const gfx::drawing_area & da, gfx::surface *target)
+{
+    if (objectlist.empty()) return;
+
+    // get "footprint" of object
+    std::list <world::render_info>::iterator i = objectlist.begin();
+
+    s_int32 min_x = i->min_x();
+    s_int32 min_y = i->min_yz() + i->Shape->height();
+    s_int32 max_x = i->max_x();
+    s_int32 max_y = i->max_yz();
+
+    for (i++; i != objectlist.end(); i++)
+    {
+        min_x = std::min(min_x, i->min_x());
+        min_y = std::min(min_y, i->min_yz() + i->Shape->height());
+        max_x = std::max(max_x, i->max_x());
+        max_y = std::max(max_y, i->max_yz());
+    }
+
+    // center on screen
+    s_int16 x = offset.x + X_AXIS_POS;
+    s_int16 y = offset.y + target->height() / 2;
+
+    // scale to zoom level
+    min_x *= base::Scale;
+    min_y *= base::Scale;
+    max_x *= base::Scale;
+    max_y *= base::Scale;
+
+    // draw "footprint"
+    u_int32 color = target->map_color (0xD8, 0x77, 0x2D);
+    drawRect (x + min_x, y + min_y, max_x - min_x, max_y - min_y, color, da, target);
+
+    // draw selected connector, if any
+    if (connector)
+    {
+        color = target->map_color (0xFF, 0xA7, 0x6D);
+
+        switch(connector->side())
+        {
+            case MdlConnector::LEFT:
+            {
+                drawRect (x + min_x - 1, y + min_y - 1 + connector->pos() * base::Scale, 2, connector->width() * base::Scale + 2, color, da, target);
+                break;
+            }
+            case MdlConnector::RIGHT:
+            {
+                drawRect (x + max_x - 1, y + min_y - 1 + connector->pos() * base::Scale, 2, connector->width() * base::Scale + 2, color, da, target);
+                break;
+            }
+            case MdlConnector::BACK:
+            {
+                drawRect (x + min_x - 1 + connector->pos() * base::Scale, y + min_y - 1, connector->length() * base::Scale + 2, 2, color, da, target);
+                break;
+            }
+            case MdlConnector::FRONT:
+            {
+                drawRect (x + min_x - 1 + connector->pos() * base::Scale, y + max_y - 1, connector->length() * base::Scale + 2, 2, color, da, target);
+                break;
+            }
+        }
+    }
+}
+
 // draw with translucency
 void ModelRenderer::draw (const s_int16 & x, const s_int16 & y, const world::render_info & obj, const gfx::drawing_area & da, gfx::surface * target) const
 {
-    if (ActiveModel != NULL && obj.Shape == ActiveModel->current_shape())
+    // sprite selected for editing?
+    if (ActiveModel != NULL)
     {
-        // draw everything behind the currently selected sprite
-        Overlay->draw (0, 0, &da, target);
-        // clear overlay
-        Overlay->fillrect (0, 0, Overlay->length(), Overlay->height(), 0);
-        // draw currently selected sprite
-        renderer_base::draw (x, y, obj, da, target);        
+        // --> draw all other mostly transparent
+        if (obj.Shape == ActiveModel->current_shape())
+        {
+            // draw everything behind the currently selected sprite
+            Overlay->draw (0, 0, &da, target);
+            // clear overlay
+            Overlay->fillrect (0, 0, Overlay->length(), Overlay->height(), 0);
+            // draw currently selected sprite
+            renderer_base::draw (x, y, obj, da, target);
+        }
+        else
+        {
+            // render unselected sprites onto translucent overlay
+            renderer_base::draw (x, y, obj, da, Overlay);
+        }
     }
     else
     {
-        // render unselected sprites onto translucent overlay
-        renderer_base::draw (x, y, obj, da, Overlay);        
+        // --> draw the model as it will appear in the game
+        renderer_base::draw (x, y, obj, da, target);
     }
 }
 

@@ -28,6 +28,7 @@
 #ifndef GUI_PREVIEW_H
 #define GUI_PREVIEW_H
 
+#include "common/mdl_connector.h"
 #include "gui_scrollable.h"
 #include "mdl_editor.h"
 #include "mdl_renderer.h"
@@ -137,6 +138,12 @@ public:
     void setCurShape (world::cube3 *shape);
 
     /**
+     * Set the connector being displayed/edited.
+     * @param connector the connector being displayed/edited.
+     */
+    void setCurConnector (MdlConnector *connector);
+
+    /**
      * Indicate that the model is modified.
      */
     void setModified();
@@ -203,6 +210,8 @@ private:
     world::cube3 *Shape;
     /// the model currently being edited
     world::placeable_model *Model;
+    /// the connector currently being edited
+    MdlConnector *Connector;
     /// previous position when dragging
     GdkPoint *PrevPos;
     /// the scroll offset

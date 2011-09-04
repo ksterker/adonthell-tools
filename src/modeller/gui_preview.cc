@@ -154,6 +154,7 @@ GuiPreview::GuiPreview (GtkWidget *drawing_area, GtkEntry** shape_data, GtkTreeM
     Editor = NULL;
     Model = NULL;
     Shape = NULL;
+    Connector = NULL;
 }
 
 // redraw the given part of the screen
@@ -217,49 +218,59 @@ void GuiPreview::render (const int & sx, const int & sy, const int & l, const in
     Target->fillrect (sx, sy, l, h, 0xFF000000);
     Overlay->fillrect (sx, sy, l, h, 0x00000000);
 
-    if (Model != NULL)
+    // set clipping rectangle
+    gfx::drawing_area da (sx, sy, l, h);
+
+    // render x and y axis
+    u_int32 color = Overlay->map_color (0x40, 0x40, 0x40);
+    Overlay->draw_line (0, Offset.y + Overlay->height()/2, Overlay->length(), Offset.y + Overlay->height()/2, color, &da);
+    Overlay->draw_line (Offset.x + X_AXIS_POS, 0, Offset.x + X_AXIS_POS, Overlay->height(), color, &da);
+
+    // collect all the sprites we have for rendering
+    GtkTreeIter iter;
+    std::list<world::render_info> models;
+
+    if (gtk_tree_model_get_iter_first (ModelList, &iter))
     {
-        // set clipping rectangle
-        gfx::drawing_area da (sx, sy, l, h);
-        
-        // render x and y axis
-        u_int32 color = Overlay->map_color (0x40, 0x40, 0x40);
-        Overlay->draw_line (0, Offset.y + Overlay->height()/2, Overlay->length(), Offset.y + Overlay->height()/2, color, &da);
-        Overlay->draw_line (Offset.x + X_AXIS_POS, 0, Offset.x + X_AXIS_POS, Overlay->height(), color, &da);
+        world::placeable_model *model = NULL;
+        std::vector<world::shadow_info> shadow;
 
-        // collect all the sprites we have for rendering
-        GtkTreeIter iter;
-        std::list<world::render_info> models;
-        if (gtk_tree_model_get_iter_first (ModelList, &iter))
+        do
         {
-            world::placeable_model *model = NULL;
-            std::vector<world::shadow_info> shadow;
-
-            do
+            gtk_tree_model_get (ModelList, &iter, 1, &model, -1);
+            if (model != NULL)
             {
-                gtk_tree_model_get (ModelList, &iter, 1, &model, -1);
-                if (model != NULL)
+                model->set_shape(Model ? Model->current_shape_name() : "");
+
+                gfx::sprite *sprt = model->get_sprite();
+                if (sprt != NULL)
                 {
-                    model->set_shape(Model->current_shape_name());
-                    gfx::sprite *sprt = model->get_sprite();
-                    if (sprt != NULL)
-                    {
-                        // information required for rendering
-                        world::render_info ri (model->current_shape(), sprt, world::vector3<s_int32>(), &shadow);
-                        models.push_back (ri);
-                    }
+                    // information required for rendering
+                    world::render_info ri (model->current_shape(), sprt, world::vector3<s_int32>(), &shadow);
+                    models.push_back (ri);
                 }
             }
-            while (gtk_tree_model_iter_next (ModelList, &iter));
         }
-        
-        // draw models
-        Renderer.render (models, da, Target);
-        
+        while (gtk_tree_model_iter_next (ModelList, &iter));
+    }
+
+    if (Model == NULL)
+    {
+        // draw ground rectangle and selected connector
+        // needs to happen before drawing the models, because that
+        // will change the list of models.
+        Renderer.render (Offset, models, Connector, da, Overlay);
+    }
+
+    // draw models
+    Renderer.render (models, da, Target);
+
+    if (Model != NULL)
+    {
         // draw handles
         Renderer.render (Offset, Model, Editor->getHandles(), da, Overlay);
     }
-        
+
     // schedule screen update
     GdkRectangle rect = { sx, sy, l, h };
     gdk_window_invalidate_rect (gtk_widget_get_window (DrawingArea), &rect, FALSE);
@@ -305,6 +316,15 @@ void GuiPreview::setCurShape (world::cube3 *shape)
     
     // no handle selected, initially
     Editor->getHandles()->clearSelection();
+
+    // update screen
+    render ();
+}
+
+// set connector being edited
+void GuiPreview::setCurConnector(MdlConnector *connector)
+{
+    Connector = connector;
 
     // update screen
     render ();
