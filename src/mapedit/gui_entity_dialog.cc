@@ -28,6 +28,7 @@
 
 #include <world/character.h>
 
+#include "common/util.h"
 #include "map_cmdline.h"
 #include "gui_mapedit.h"
 #include "gui_mapview.h"
@@ -88,7 +89,7 @@ static void on_edit_button_pressed (GtkButton * button, gpointer user_data)
     MapEntity *entity = (MapEntity *) user_data;
     std::string path = MapCmdline::datadir + "/" + MapCmdline::project + "/" + entity->object()->modelfile();
     GdkScreen *screen = gtk_widget_get_screen (GTK_WIDGET(button));
-    gchar *uri = g_filename_to_uri (path.c_str(), NULL, &error);
+    gchar *uri = g_filename_to_uri (util::get_absolute_path (path).c_str(), NULL, &error);
 
     if (uri != NULL)
     {
@@ -408,6 +409,7 @@ void GuiEntityDialog::applyChanges()
             if (currentType[0] == 'A')
             {
                 objToUpdate = new MapEntity (Entity->entity());
+                objToUpdate->loadMetaData();
                 result = objToUpdate->update_entity (ObjType, EntityType, id);
                 
                 // try to replace currently highlighted object
