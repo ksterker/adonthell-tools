@@ -926,6 +926,11 @@ void GuiModeller::loadMeta (const std::string & name)
     }
 
     std::string meta_file_name = name.substr(0, idx) + ".xtra";
+    if (!base::Paths().find_in_path(meta_file_name, false))
+    {
+        return;
+    }
+
     base::diskio meta_data (base::diskio::BY_EXTENSION);
     if (!meta_data.get_record (meta_file_name))
     {
