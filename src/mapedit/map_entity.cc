@@ -61,6 +61,58 @@ MapEntity::~MapEntity()
     remove_tags ();
 }
 
+void MapEntity::loadMetaData ()
+{
+    update_tags();
+
+    std::string name = Object->modelfile();
+    size_t idx = name.find_last_of('.');
+    if (idx == std::string::npos)
+    {
+        return;
+    }
+
+    std::string meta_file_name = name.substr(0, idx) + ".xtra";
+    if (!base::Paths().find_in_path(meta_file_name, false))
+    {
+        return;
+    }
+
+    base::diskio meta_data (base::diskio::BY_EXTENSION);
+    if (!meta_data.get_record (meta_file_name))
+    {
+        return;
+    }
+
+    // load description
+    Comment = meta_data.get_string("dscr");
+
+    // load tags
+    void *value;
+    base::flat tags = meta_data.get_flat("tags");
+    while (tags.next(&value) != base::flat::T_UNKNOWN)
+    {
+        add_tag(strdup ((gchar *) value));
+    }
+
+    // load connectors
+    u_int32 size;
+    base::flat connectors = meta_data.get_flat("ctrs");
+    while (connectors.next(&value, &size) != base::flat::T_UNKNOWN)
+    {
+        base::flat connector ((char *) value, size);
+        MdlConnectorTemplate *tmpl = MdlConnectorManager::get(connector.get_uint32("tmpl"));
+        if (tmpl != NULL)
+        {
+            MdlConnector *ctor = new MdlConnector (tmpl);
+            ctor->set_side((MdlConnector::face) connector.get_uint8 ("side"));
+            ctor->set_pos(connector.get_sint16 ("pos"));
+
+            Connectors.push_back(ctor);
+        }
+    }
+}
+
 // create or update entity
 bool MapEntity::update_entity (const world::placeable_type & obj_type, const char & entity_type, const std::string & id)
 {
@@ -269,6 +321,32 @@ bool MapEntity::intersects (const world::placeable_shape *other_shape, const wor
     return false;
 }
 
+void MapEntity::add_tag(const gchar *tag)
+{
+    // TODO: check for duplicate tag
+
+    GtkTreeIter row;
+    GtkListStore *filter_model = GuiFilterDialog::getFilterModel();
+
+    if (GuiFilterDialog::findTagInFilter(tag, &row))
+    {
+        // tag already present? -> update count
+        guint count;
+        gtk_tree_model_get (GTK_TREE_MODEL(filter_model), &row, 2, &count, -1);
+        gtk_list_store_set (filter_model, &row, 2, count+1, -1);
+    }
+    else
+    {
+        // otherwise insert new row
+        bool enabled = strcmp(tag, "template") != 0;
+
+        gtk_list_store_append (filter_model, &row);
+        gtk_list_store_set (filter_model, &row, 0, enabled, 1, tag, 2, 1, -1);
+    }
+
+    Tags.push_back(tag);
+}
+
 // update tags
 void MapEntity::update_tags ()
 {
@@ -278,28 +356,9 @@ void MapEntity::update_tags ()
     gchar *dir_name = g_path_get_dirname (path.c_str());
     gchar **tags = g_strsplit (dir_name, "/", -1);
 
-    GtkTreeIter row;
-    GtkListStore *filter_model = GuiFilterDialog::getFilterModel();
-
-    for (gchar **iter = tags; *iter != NULL; *iter++)
+    for (gchar **iter = tags; *iter != NULL; iter++)
     {
-        if (GuiFilterDialog::findTagInFilter(*iter, &row))
-        {
-            // tag already present? -> update count
-            guint count;
-            gtk_tree_model_get (GTK_TREE_MODEL(filter_model), &row, 2, &count, -1);
-            gtk_list_store_set (filter_model, &row, 2, count+1, -1);
-        }
-        else
-        {
-            // otherwise insert new row
-            bool enabled = strcmp(*iter, "template") != 0;
-
-            gtk_list_store_append (filter_model, &row);
-            gtk_list_store_set (filter_model, &row, 0, enabled, 1, *iter, 2, 1, -1);
-        }
-
-        Tags.push_back (*iter);
+        add_tag(*iter);
     }
 
     g_strfreev (tags);

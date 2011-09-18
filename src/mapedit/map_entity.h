@@ -31,6 +31,8 @@
 #include <base/hash_map.h>
 #include <world/chunk_info.h>
 
+#include "common/mdl_connector.h"
+
 /**
  * Wrapper around an entity on the map, for storage in a
  * GtkListStore.
@@ -58,6 +60,11 @@ public:
     ~MapEntity();
 
     /**
+     * Load meta data for the contained object.
+     */
+    void loadMetaData ();
+
+    /**
      * Get the entity wrapped by this object.
      * @return the enitity or NULL if object not placed on a map yet.
      */
@@ -78,11 +85,6 @@ public:
      * @return true on success, false otherwise.
      */
     bool update_entity (const world::placeable_type & obj_type, const char & entity_type, const std::string & id);
-    
-    /**
-     * Calculate tags for this map entity and updates the filter model.
-     */
-    void update_tags ();
 
     /**
      * Check whether this entity at the given position intersects with any of the given objects.
@@ -218,7 +220,13 @@ public:
      * @param size size of the rendered image.
      * @return rendering of the object at given size.
      */
-    GdkPixbuf *get_icon (const u_int32 & size = 32) const;  
+    GdkPixbuf *get_icon (const u_int32 & size = 32) const;
+
+    /**
+     * Get the comment associated with this object.
+     * @return The comment associated with this object.
+     */
+    std::string get_comment () const { return Comment; }
     //@}
 
 protected:
@@ -226,6 +234,17 @@ protected:
      * Remove this entities tags from filter.
      */
     void remove_tags ();
+
+    /**
+     * Calculate tags for this map entity and updates the filter model.
+     */
+    void update_tags ();
+
+    /**
+     * Add new tag to the entity
+     * @param tag the tag to add.
+     */
+    void add_tag(const gchar *tag);
 
     /**
      * Check whether the given shape intersects with this map entity.
@@ -247,8 +266,18 @@ private:
     world::entity *Entity;
     /// position of entity on map (for named entities only)
     world::chunk_info *Location;
+
+    /**
+     * @name Meta-Data
+     */
+    //@{
+    /// comment
+    std::string Comment;
     /// list of tags associated with this entity
     std::vector<std::string> Tags;
+    /// list of connectors for this entity
+    std::vector<MdlConnector*> Connectors;
+    //@}
 };
 
 #endif

@@ -30,6 +30,7 @@
 #include <sys/stat.h>
 
 #include <gtk/gtk.h>
+#include <base/base.h>
 #include <world/object.h>
 
 #include "common/util.h"
@@ -47,6 +48,7 @@ enum
     TYPE_COLUMN,
     ICON_COLUMN,
     COLOR_COLUMN,
+    TOOLTIP_COLUMN,
     NUM_COLUMNS
 };
 
@@ -119,7 +121,7 @@ static int entity_list_get_n_columns (GtkTreeModel *self)
 static GType entity_list_get_column_type (GtkTreeModel *self, int column)
 {
 	static GType types[] = {
-        G_TYPE_STRING, G_TYPE_STRING, GDK_TYPE_PIXBUF, G_TYPE_STRING
+        G_TYPE_STRING, G_TYPE_STRING, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING
 	};
     
 	// validate our parameters 
@@ -178,6 +180,11 @@ static void entity_list_get_value (GtkTreeModel *self, GtkTreeIter *iter, int co
             const gchar *color = obj->isOnMap () ? (obj->getRefCount() ? "#FFFFFF" : "#80C8FE") : "#FEB380";
 			g_value_set_string (value, color);
 			break;
+        }
+        case TOOLTIP_COLUMN:
+        {
+            g_value_set_string (value, obj->get_comment().c_str());
+            break;
         }
 		default:
         {
@@ -287,6 +294,9 @@ GuiEntityList::GuiEntityList ()
     renderer = gtk_cell_renderer_pixbuf_new ();
     gtk_tree_view_insert_column_with_attributes (TreeView, -1, "Icon", renderer, "pixbuf", ICON_COLUMN, NULL);
     
+    // tooltips
+    gtk_tree_view_set_tooltip_column(TreeView, TOOLTIP_COLUMN);
+
     // selection listener
     GtkTreeSelection *selection = gtk_tree_view_get_selection (TreeView);
     g_signal_connect (G_OBJECT(selection), "changed", G_CALLBACK(selected_event), this);
@@ -420,7 +430,7 @@ void GuiEntityList::setMap (MapData * map)
         MapEntity *obj = new MapEntity (*e, map->getEntityCount (*e));
         
         // update tags of new entity
-        obj->update_tags();
+        obj->loadMetaData();
 
         // get new row
         gtk_list_store_append (model, &iter);
@@ -505,7 +515,7 @@ void GuiEntityList::scanDir (const std::string & datadir, GtkListStore *model)
                         MapEntity *ety = new MapEntity (obj);
                         
                         // update tags of new entity
-                        ety->update_tags();
+                        ety->loadMetaData();
 
                         // get new row
                         gtk_list_store_append (model, &iter);
@@ -531,6 +541,9 @@ void GuiEntityList::refresh()
     if (Map == NULL) return;
     
     GtkTreeIter iter;
+
+    // make sure the connector templates are up-to-date
+    MdlConnectorManager::load(base::Paths().user_data_dir());
 
     // get model
     GtkListStore *model = GTK_LIST_STORE (gtk_tree_view_get_model (TreeView));

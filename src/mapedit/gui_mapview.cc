@@ -639,6 +639,9 @@ void GuiMapview::placeCurObj()
                 return;
             }
 
+            // update meta data
+            newObj->loadMetaData();
+
             // update draw object
             DrawObj = newObj;
             ety = newObj->entity();
