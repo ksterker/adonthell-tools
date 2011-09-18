@@ -122,7 +122,8 @@ std::string util::get_absolute_path (const std::string & path)
 
         // get absolute pathname
         char *cpath = getcwd (NULL, 0);
-        result = cpath;
+        char *bname = strdup (path.c_str());
+        result = std::string(cpath) + "/" + basename (bname);
 
         // restore working directory
         chdir (oldwd);
@@ -130,6 +131,7 @@ std::string util::get_absolute_path (const std::string & path)
         // cleanup
         free (oldwd);
         free (cpath);
+        free (bname);
     }
 
     return result;
