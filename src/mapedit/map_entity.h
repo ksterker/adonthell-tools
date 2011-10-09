@@ -95,6 +95,13 @@ public:
     bool intersects (const std::list<world::chunk_info*> & objects, const world::vector3<s_int32> & pos);
 
     /**
+     * Check whether this entity contains the given tag.
+     * @param tag the tag to search for.
+     * @return true if the tag is found, false otherwise.
+     */
+    bool hasTag (const std::string & tag) const;
+
+    /**
      * @name Reference count
      *
      * Keeps track of how many instances of this object

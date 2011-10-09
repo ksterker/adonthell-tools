@@ -196,13 +196,19 @@ static void entity_list_get_value (GtkTreeModel *self, GtkTreeIter *iter, int co
 // callback for selection changes
 static void selected_event (GtkTreeSelection *selection, gpointer user_data)
 {
+    GtkTreeModel *filterModel;
+    GtkTreeIter filterIter;
     GtkTreeModel *model;
     GtkTreeIter iter;
     
     // anything selected at all? 
-    if (gtk_tree_selection_get_selected (selection, &model, &iter))
+    if (gtk_tree_selection_get_selected (selection, &filterModel, &filterIter))
     {
+        // get actual model
+        model = gtk_tree_model_filter_get_model(GTK_TREE_MODEL_FILTER(filterModel));
+
         // get object at selected row
+        gtk_tree_model_filter_convert_iter_to_child_iter (GTK_TREE_MODEL_FILTER(filterModel), &iter, &filterIter);
         MapEntity *obj = (MapEntity*) entity_list_get_object (ENTITY_LIST (model), &iter);
 
         // check if object needs to be added to map
@@ -212,14 +218,14 @@ static void selected_event (GtkTreeSelection *selection, gpointer user_data)
             GuiEntityDialog dlg (obj, GuiEntityDialog::ADD_ENTITY_TO_MAP);
             if (!dlg.run())
             {
-                // user cancelled and object has not been added to map
-                gtk_tree_selection_unselect_iter (selection, &iter);                    
+                // user canceled and object has not been added to map
+                gtk_tree_selection_unselect_iter (selection, &filterIter);
                 return;
             }
             
             // notify tree view of the change
-            GtkTreePath *path = gtk_tree_model_get_path (model, &iter);
-            gtk_tree_model_row_changed (model, path, &iter);
+            GtkTreePath *path = gtk_tree_model_get_path (filterModel, &filterIter);
+            gtk_tree_model_row_changed (filterModel, path, &filterIter);
             gtk_tree_path_free (path);
         }
         
@@ -242,6 +248,18 @@ static void on_filter_entities (GtkButton * button, gpointer user_data)
 {
     GuiFilterDialog *dlg = new GuiFilterDialog (GuiFilterDialog::getFilterModel());
     dlg->run();
+}
+
+// check if given model should be filtered from entity list
+static gboolean is_entity_filtered (GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
+{
+    MapEntity *obj = (MapEntity*) entity_list_get_object (ENTITY_LIST (model), iter);
+    if (obj != NULL)
+    {
+        return !obj->hasTag ("template");
+    }
+
+    return true;
 }
 
 // sort model list by model path and file name
@@ -303,25 +321,35 @@ GuiEntityList::GuiEntityList ()
     
     // create the (empty) model
     GtkListStore *model = (GtkListStore *) g_object_new (TYPE_ENTITY_LIST, NULL);
-    gtk_tree_view_set_model (TreeView, (GtkTreeModel*) model);
+    GtkTreeModel *filterModel = gtk_tree_model_filter_new (GTK_TREE_MODEL (model), NULL);
+
+    // set filter function
+    gtk_tree_model_filter_set_visible_func (GTK_TREE_MODEL_FILTER (filterModel), is_entity_filtered, NULL, NULL);
+
+    // set tree model
+    gtk_tree_view_set_model (TreeView, filterModel);
 
     // set custom sorting by path name
-    gtk_tree_sortable_set_default_sort_func(GTK_TREE_SORTABLE(model), sort_by_path, NULL, NULL);
-    gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(model), GTK_TREE_SORTABLE_DEFAULT_SORT_COLUMN_ID, GTK_SORT_ASCENDING);
+    gtk_tree_sortable_set_default_sort_func(GTK_TREE_SORTABLE (model), sort_by_path, NULL, NULL);
+    gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE (model), GTK_TREE_SORTABLE_DEFAULT_SORT_COLUMN_ID, GTK_SORT_ASCENDING);
 }
 
 // return mapedit wrapper around given entity
 MapEntity *GuiEntityList::findEntity (const world::entity *etyToFind) const
 {
+    GtkTreeIter filterIter;
     GtkTreeIter iter;
     MapEntity *ety;
     
     // iterate over all entities in model
-    GtkTreeModel *model = GTK_TREE_MODEL (gtk_tree_view_get_model (TreeView));
-    if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (model), &iter))
+    GtkTreeModelFilter *filterModel = GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (TreeView));
+    GtkTreeModel *model = gtk_tree_model_filter_get_model(filterModel);
+
+    if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (filterModel), &filterIter))
     {
         do
         {
+            gtk_tree_model_filter_convert_iter_to_child_iter (filterModel, &iter, &filterIter);
             ety = entity_list_get_object (ENTITY_LIST(model), &iter);
             
             // found the right entity?
@@ -330,7 +358,7 @@ MapEntity *GuiEntityList::findEntity (const world::entity *etyToFind) const
                 return ety;
             }
         }
-        while (gtk_tree_model_iter_next (model, &iter));
+        while (gtk_tree_model_iter_next (GTK_TREE_MODEL (filterModel), &filterIter));
     }
     
     return NULL;
@@ -342,7 +370,8 @@ void GuiEntityList::addEntity (MapEntity *ety)
     GtkTreeIter iter;
     
     // get model
-    GtkListStore *model = GTK_LIST_STORE (gtk_tree_view_get_model (TreeView));
+    GtkTreeModelFilter *filter = GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (TreeView));
+    GtkListStore *model = GTK_LIST_STORE (gtk_tree_model_filter_get_model (filter));
     
     // get new row
     gtk_list_store_append (model, &iter);
@@ -355,23 +384,34 @@ void GuiEntityList::addEntity (MapEntity *ety)
     gtk_tree_selection_select_iter (selection, &iter);
     
     // and scroll it into view
-    GtkTreePath *path = gtk_tree_model_get_path (GTK_TREE_MODEL (model), &iter);
-    gtk_tree_view_scroll_to_cell (TreeView, path, NULL, TRUE, 0.5f, 0.0f);
-    gtk_tree_path_free (path);    
+    GtkTreePath *child_path = gtk_tree_model_get_path (GTK_TREE_MODEL (model), &iter);
+    GtkTreePath *path = gtk_tree_model_filter_convert_child_path_to_path (filter, child_path);
+
+    if (path != NULL)
+    {
+        gtk_tree_view_scroll_to_cell (TreeView, path, NULL, TRUE, 0.5f, 0.0f);
+        gtk_tree_path_free (path);
+    }
+
+    gtk_tree_path_free (child_path);
 }
 
 // select given entity
 bool GuiEntityList::setSelected (MapEntity *etyToSelect, const bool & select)
 {
+    GtkTreeIter filterIter;
     GtkTreeIter iter;
     MapEntity *ety;
     
     // iterate over all entities in model
-    GtkTreeModel *model = GTK_TREE_MODEL (gtk_tree_view_get_model (TreeView));
-    if (gtk_tree_model_get_iter_first (model, &iter))
+    GtkTreeModel *filterModel = GTK_TREE_MODEL (gtk_tree_view_get_model (TreeView));
+    GtkTreeModel *model = gtk_tree_model_filter_get_model(GTK_TREE_MODEL_FILTER (filterModel));
+
+    if (gtk_tree_model_get_iter_first (filterModel, &filterIter))
     {
         do
         {
+            gtk_tree_model_filter_convert_iter_to_child_iter (GTK_TREE_MODEL_FILTER (filterModel), &iter, &filterIter);
             ety = entity_list_get_object (ENTITY_LIST(model), &iter);
             
             // found the right entity?
@@ -381,23 +421,23 @@ bool GuiEntityList::setSelected (MapEntity *etyToSelect, const bool & select)
                 if (select)
                 {
                     // select it
-                    gtk_tree_selection_select_iter (selection, &iter);
+                    gtk_tree_selection_select_iter (selection, &filterIter);
                     
                     // and scroll it into view
-                    GtkTreePath *path = gtk_tree_model_get_path (model, &iter);
+                    GtkTreePath *path = gtk_tree_model_get_path (filterModel, &filterIter);
                     gtk_tree_view_scroll_to_cell (TreeView, path, NULL, TRUE, 0.5f, 0.0f);
                     gtk_tree_path_free (path);
                 }
                 else
                 {
                     // clear selection
-                    gtk_tree_selection_unselect_iter (selection, &iter);                    
+                    gtk_tree_selection_unselect_iter (selection, &filterIter);                    
                 }
                 
                 return true;
             }
         }
-        while (gtk_tree_model_iter_next (model, &iter));
+        while (gtk_tree_model_iter_next (filterModel, &filterIter));
     }
     
     return false;
@@ -412,7 +452,8 @@ void GuiEntityList::setMap (MapData * map)
     GtkTreeIter iter;
     
     // get model
-    GtkListStore *model = GTK_LIST_STORE (gtk_tree_view_get_model (TreeView));
+    GtkTreeModelFilter *filter = GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (TreeView));
+    GtkListStore *model = GTK_LIST_STORE (gtk_tree_model_filter_get_model (filter));
     
     // avoid tree updates while adding rows
     gtk_tree_view_set_model (TreeView, (GtkTreeModel*) NULL);
@@ -440,7 +481,7 @@ void GuiEntityList::setMap (MapData * map)
     }
     
     // set the model again 
-    gtk_tree_view_set_model (TreeView, (GtkTreeModel*) model);
+    gtk_tree_view_set_model (TreeView, (GtkTreeModel*) filter);
 }
 
 void GuiEntityList::setDataDir (const std::string & datadir)
@@ -448,7 +489,8 @@ void GuiEntityList::setDataDir (const std::string & datadir)
     DataDir = datadir;
     
     // get model
-    GtkListStore *model = GTK_LIST_STORE (gtk_tree_view_get_model (TreeView));
+    GtkTreeModelFilter *filter = GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (TreeView));
+    GtkListStore *model = GTK_LIST_STORE (gtk_tree_model_filter_get_model (filter));
     
     // avoid tree updates while adding rows
     gtk_tree_view_set_model (TreeView, (GtkTreeModel*) NULL);
@@ -457,7 +499,7 @@ void GuiEntityList::setDataDir (const std::string & datadir)
     scanDir (datadir, model);
     
     // set the model again 
-    gtk_tree_view_set_model (TreeView, (GtkTreeModel*) model);
+    gtk_tree_view_set_model (TreeView, (GtkTreeModel*) filter);
 }
 
 // recursively scan given directory for models
@@ -546,7 +588,8 @@ void GuiEntityList::refresh()
     MdlConnectorManager::load(base::Paths().user_data_dir());
 
     // get model
-    GtkListStore *model = GTK_LIST_STORE (gtk_tree_view_get_model (TreeView));
+    GtkTreeModelFilter *filter = GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (TreeView));
+    GtkListStore *model = GTK_LIST_STORE (gtk_tree_model_filter_get_model (filter));
     
     // avoid tree updates while adding rows
     gtk_tree_view_set_model (TreeView, (GtkTreeModel*) NULL);
@@ -571,13 +614,20 @@ void GuiEntityList::refresh()
     scanDir (DataDir, model);
     
     // set the model again 
-    gtk_tree_view_set_model (TreeView, (GtkTreeModel*) model);    
+    gtk_tree_view_set_model (TreeView, (GtkTreeModel*) filter);
 }
 
 // check if object with given name is already placed on map
 bool GuiEntityList::isPresentOnMap (const std::string & filename) const
 {
     if (Map == NULL) return false;
+
+    // convert windows to unix directory separators
+    std::string unix_filename = filename;
+    for (unsigned long i = 0; i < unix_filename.length(); i++)
+    {
+        if (unix_filename[i] == '\\') unix_filename[i] = '/';
+    }
 
     for (MapData::entity_iter e = Map->firstEntity(); e != Map->lastEntity(); e++)
     {
@@ -586,10 +636,14 @@ bool GuiEntityList::isPresentOnMap (const std::string & filename) const
 
         if (objname.size() <= filename.size())
         {
-            // FIXME: Win32 '\' --> '/'
+            // convert windows to unix directory separators
+            for (unsigned long i = 0; i < objname.length(); i++)
+            {
+                if (objname[i] == '\\') objname[i] = '/';
+            }
             
             // files should be equal if they are equal except for a prefix
-            if (filename.compare (filename.size() - objname.size(), objname.size(), objname) == 0)
+            if (unix_filename.compare (unix_filename.size() - objname.size(), objname.size(), objname) == 0)
             {
                 return true;
             }

@@ -54,7 +54,7 @@
 /**
  * Icon of the main window
  */
-static char * icon_xpm[] = {
+static const char * icon_xpm[] = {
 "16 16 13 1",
 " 	c None",
 ".	c #888888",

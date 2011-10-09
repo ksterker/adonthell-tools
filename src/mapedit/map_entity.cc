@@ -383,6 +383,12 @@ void MapEntity::remove_tags()
     }
 }
 
+// check entity for given tag
+bool MapEntity::hasTag (const std::string & tag) const
+{
+    return std::find (Tags.begin(), Tags.end(), tag) != Tags.end();
+}
+
 // name of entity
 gchar* MapEntity::get_name () const
 {
