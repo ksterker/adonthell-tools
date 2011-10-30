@@ -88,17 +88,17 @@ void ModelRenderer::render (const GdkPoint & offset, std::list <world::render_in
     // get "footprint" of object
     std::list <world::render_info>::iterator i = objectlist.begin();
 
-    s_int32 min_x = i->min_x();
-    s_int32 min_y = i->min_yz() + i->Shape->height();
+    s_int32 min_x = i->x();
+    s_int32 min_y = i->y();
     s_int32 max_x = i->max_x();
-    s_int32 max_y = i->max_yz();
+    s_int32 max_y = i->y() + i->Shape->width();
 
     for (i++; i != objectlist.end(); i++)
     {
-        min_x = std::min(min_x, i->min_x());
-        min_y = std::min(min_y, i->min_yz() + i->Shape->height());
+        min_x = std::min(min_x, i->x());
+        min_y = std::min(min_y, i->y());
         max_x = std::max(max_x, i->max_x());
-        max_y = std::max(max_y, i->max_yz());
+        max_y = std::max(max_y, i->y() + i->Shape->width());
     }
 
     // center on screen
