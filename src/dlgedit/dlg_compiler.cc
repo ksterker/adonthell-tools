@@ -159,7 +159,6 @@ void DlgCompiler::writeText ()
     std::vector<DlgNode*> nodes = dialogue->getNodes ();
     std::vector<DlgNode*>::iterator i;
     DlgCircleEntry *entry;
-    DlgArrow *arrow;
     unsigned int j = 0;
     
     // the array with the dialogue text
@@ -175,7 +174,7 @@ void DlgCompiler::writeText ()
         
         // see whether this is a start-node
         if ((*i)->prev (FIRST) == NULL)
-            arrow = new DlgArrow (&start, *i);
+            new DlgArrow (&start, *i);
                 
         // set index of this node for later use
         (*i)->setIndex (++j);

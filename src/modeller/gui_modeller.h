@@ -95,7 +95,7 @@ public:
      */
     GObject *getWidget (const std::string & name) const
     {
-        gtk_builder_get_object (Ui, name.c_str());
+        return gtk_builder_get_object (Ui, name.c_str());
     }
     
     /**

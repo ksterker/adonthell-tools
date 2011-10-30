@@ -46,7 +46,7 @@ G_DEFINE_TYPE_EXTENDED (ConnectorTmplList, connector_tmpl_list, GTK_TYPE_LIST_ST
                         G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_MODEL, connector_tmpl_list_tree_model_iface_init));
 
 // our parent's model iface
-static GtkTreeModelIface parent_tmpl_iface = { 0, };
+static GtkTreeModelIface parent_tmpl_iface = { { 0 }, };
 
 // this method is called once to set up the class
 static void connector_tmpl_list_class_init (ConnectorTmplListClass *klass)

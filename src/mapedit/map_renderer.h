@@ -94,4 +94,4 @@ private:
     world::chunk_info *SelectedObject;
 };
 
-#endif MAP_RENDERER_H
+#endif // MAP_RENDERER_H

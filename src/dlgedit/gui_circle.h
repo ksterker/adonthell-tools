@@ -61,7 +61,7 @@ public:
     void applyChanges ();
 
 private:
-    gchar *getOption (GtkComboBox * cbox);
+    const gchar *getOption (GtkComboBox * cbox);
     void setOption (GtkOptionMenu *o, const gchar *label);
 
     GuiEdit *cond_edit;             // Text entry for conditions

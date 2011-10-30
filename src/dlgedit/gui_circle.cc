@@ -435,7 +435,7 @@ void GuiCircle::applyChanges ()
 }
 
 // returns selected option
-gchar *GuiCircle::getOption (GtkComboBox * cbox)
+const gchar *GuiCircle::getOption (GtkComboBox * cbox)
 {
     GtkTreeIter iter;
     gchar *option = NULL;
@@ -445,7 +445,7 @@ gchar *GuiCircle::getOption (GtkComboBox * cbox)
         gtk_tree_model_get (model, &iter, 0, &option, -1);
     }
     
-    return option ? option : option = "Default";
+    return option ? option : "Default";
 }
 
 // sets a default option

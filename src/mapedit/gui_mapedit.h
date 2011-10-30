@@ -44,7 +44,7 @@ class MapData;
  * well as pointers to the other widgets. The main window is created at
  * program startup, and closed on termination of the program. There can
  * be only one main window at a time, but several maps may be open
- * simultanously.
+ * simultaneously.
  */
 class GuiMapedit : public GuiRecentFileListener
 {

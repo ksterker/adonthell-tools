@@ -50,7 +50,7 @@ G_DEFINE_TYPE_EXTENDED (ZoneList, zone_list, GTK_TYPE_LIST_STORE, 0,
                         G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_MODEL, zone_list_tree_model_iface_init));
 
 // our parent's model iface 
-static GtkTreeModelIface parent_iface = { 0, };
+static GtkTreeModelIface parent_iface = { { 0 }, };
 
 // this method is called once to set up the class 
 static void zone_list_class_init (ZoneListClass *klass)

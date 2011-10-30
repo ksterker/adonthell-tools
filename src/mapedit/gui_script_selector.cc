@@ -278,7 +278,7 @@ PyObject *GuiScriptSelector::get_arguments () const
 
                     // try cast to int first
                     PyObject *py_val = PyInt_FromString((char*) val, &pend, 0);
-                    if (py_val == NULL || *pend != NULL)
+                    if (py_val == NULL || *pend != '\0')
                     {
                         // fallback to string on error
                         py_val = PyString_FromString(val);
