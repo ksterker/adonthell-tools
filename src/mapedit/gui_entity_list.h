@@ -80,6 +80,16 @@ public:
     bool setSelected (MapEntity *etyToSelect, const bool & select = true);        
 
     /**
+     * Pick the previous object from entity list for map editing.
+     */
+    void selectPrev ();
+
+    /**
+     * Pick the next object from entity list for map editing.
+     */
+    void selectNext ();
+
+    /**
      * Find the given entity in the entity list.
      * @param etyToFind an entity present on the map.
      * @return the editor's wrapper around the entity or NULL.

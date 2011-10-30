@@ -62,7 +62,7 @@ G_DEFINE_TYPE_EXTENDED (EntityList, entity_list, GTK_TYPE_LIST_STORE, 0,
                         G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_MODEL, entity_list_tree_model_iface_init));
 
 // our parent's model iface 
-static GtkTreeModelIface parent_iface = { 0, };
+static GtkTreeModelIface parent_iface = { { 0 }, };
 
 // this method is called once to set up the class 
 static void entity_list_class_init (EntityListClass *klass)
@@ -441,6 +441,104 @@ bool GuiEntityList::setSelected (MapEntity *etyToSelect, const bool & select)
     }
     
     return false;
+}
+
+// pick previous object in entity list for drawing
+void GuiEntityList::selectPrev()
+{
+    GtkTreeIter filterIter;
+    GtkTreeIter iter;
+
+    MapEntity *ety = NULL;
+
+    GtkTreeModel *filterModel = GTK_TREE_MODEL (gtk_tree_view_get_model (TreeView));
+    GtkTreeModel *model = gtk_tree_model_filter_get_model(GTK_TREE_MODEL_FILTER (filterModel));
+
+    // get selected entity
+    GtkTreeSelection *selection = gtk_tree_view_get_selection (TreeView);
+
+    // there's something selected
+    if (gtk_tree_selection_get_selected (selection, &filterModel, &filterIter))
+    {
+        GtkTreePath *path = gtk_tree_model_get_path (filterModel, &filterIter);
+        if (gtk_tree_path_prev (path))
+        {
+            gtk_tree_model_get_iter (filterModel, &filterIter, path);
+            gtk_tree_model_filter_convert_iter_to_child_iter (GTK_TREE_MODEL_FILTER (filterModel), &iter, &filterIter);
+            ety = entity_list_get_object (ENTITY_LIST(model), &iter);
+        }
+        gtk_tree_path_free (path);
+    }
+
+    // otherwise select last in list
+    if (ety == NULL)
+    {
+        int num_rows = gtk_tree_model_iter_n_children (filterModel, NULL);
+        if (num_rows > 0)
+        {
+            char str[16];
+            sprintf(str, "%i", num_rows - 1);
+
+            GtkTreePath *path = gtk_tree_path_new_from_string (str);
+            if (gtk_tree_model_get_iter (filterModel, &filterIter, path))
+            {
+                gtk_tree_model_filter_convert_iter_to_child_iter (GTK_TREE_MODEL_FILTER (filterModel), &iter, &filterIter);
+                ety = entity_list_get_object (ENTITY_LIST(model), &iter);
+            }
+            gtk_tree_path_free (path);
+        }
+    }
+
+    if (ety != NULL)
+    {
+        // select it
+        gtk_tree_selection_select_iter (selection, &filterIter);
+
+        // and scroll it into view
+        GtkTreePath *path = gtk_tree_model_get_path (filterModel, &filterIter);
+        gtk_tree_view_scroll_to_cell (TreeView, path, NULL, TRUE, 0.5f, 0.0f);
+        gtk_tree_path_free (path);
+    }
+}
+
+// pick next object in entity list for drawing
+void GuiEntityList::selectNext()
+{
+    GtkTreeIter filterIter;
+    GtkTreeIter iter;
+
+    MapEntity *ety = NULL;
+
+    GtkTreeModel *filterModel = GTK_TREE_MODEL (gtk_tree_view_get_model (TreeView));
+    GtkTreeModel *model = gtk_tree_model_filter_get_model(GTK_TREE_MODEL_FILTER (filterModel));
+
+    // get selected entity
+    GtkTreeSelection *selection = gtk_tree_view_get_selection (TreeView);
+
+    // there's something selected and another row following
+    if (gtk_tree_selection_get_selected (selection, &filterModel, &filterIter) &&
+        gtk_tree_model_iter_next (filterModel, &filterIter))
+    {
+        gtk_tree_model_filter_convert_iter_to_child_iter (GTK_TREE_MODEL_FILTER (filterModel), &iter, &filterIter);
+        ety = entity_list_get_object (ENTITY_LIST(model), &iter);
+    }
+    // otherwise select first in list
+    else if (gtk_tree_model_get_iter_first (filterModel, &filterIter))
+    {
+        gtk_tree_model_filter_convert_iter_to_child_iter (GTK_TREE_MODEL_FILTER (filterModel), &iter, &filterIter);
+        ety = entity_list_get_object (ENTITY_LIST(model), &iter);
+    }
+
+    if (ety != NULL)
+    {
+        // select it
+        gtk_tree_selection_select_iter (selection, &filterIter);
+
+        // and scroll it into view
+        GtkTreePath *path = gtk_tree_model_get_path (filterModel, &filterIter);
+        gtk_tree_view_scroll_to_cell (TreeView, path, NULL, TRUE, 0.5f, 0.0f);
+        gtk_tree_path_free (path);
+    }
 }
 
 // set map being displayed

@@ -30,7 +30,9 @@
 #include <gtk/gtk.h>
 #include <gdk/gdk.h>
 #include <gdk/gdkkeysyms.h>
+#include "gui_mapedit.h"
 #include "gui_mapview.h"
+#include "gui_entity_list.h"
 
 // Window resized
 gint configure_event (GtkWidget *widget, GdkEventConfigure *event, gpointer data)
@@ -206,11 +208,24 @@ guint key_press_notify_event (GtkWidget * widget, GdkEventKey * event, gpointer 
             view->releaseObject ();
             break;
         }
-        // delete highlighted node
+        // delete highlighted object
         case GDK_KEY_BackSpace: // fall through
         case GDK_KEY_Delete:
         {
             view->deleteCurObj ();
+            break;
+        }
+        // select another object
+        case GDK_KEY_Tab:
+        {
+            if ((event->state & GDK_CONTROL_MASK) == GDK_CONTROL_MASK)
+            {
+                GuiMapedit::window->entityList()->selectPrev();
+            }
+            else
+            {
+                GuiMapedit::window->entityList()->selectNext();
+            }
             break;
         }
         // key not consumed
