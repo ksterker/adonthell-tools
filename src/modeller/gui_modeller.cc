@@ -1409,6 +1409,14 @@ void GuiModeller::updateShapeList (world::placeable_model *model)
     // set model in preview
     Preview->setCurModel (model);
 
+    world::placeable_shape *shape = model->current_shape ();
+    if (shape == NULL)
+    {
+        // TODO: message to statusbar
+        fprintf (stderr, "*** error: no current shape set in selected model!\n");
+        return;
+    }
+
     GtkTreeIter anim_iter;
     GtkTreeIter shape_iter;
 
@@ -1418,19 +1426,11 @@ void GuiModeller::updateShapeList (world::placeable_model *model)
     // remove previous contents
     gtk_tree_store_clear (shape_store);
 
-    world::placeable_shape *shape = model->current_shape ();
-    if (shape == NULL)
-    {
-        // TODO: message to statusbar
-        fprintf (stderr, "*** error: no current shape set in selected model!\n");
-        return;
-    }
-
     // set animation name as root of shape list
     std::string cur_anim = model->current_shape_name();
     gtk_tree_store_append (shape_store, &anim_iter, NULL);
     gtk_tree_store_set (shape_store, &anim_iter, 0, cur_anim.c_str(), 1, (gpointer) shape, -1);
-    
+
     // add all existing shapes (if any)
     for (std::vector<world::cube3*>::const_iterator i = shape->begin(); i != shape->end(); i++)
     {
@@ -1441,6 +1441,14 @@ void GuiModeller::updateShapeList (world::placeable_model *model)
     // expand list
     GtkTreeView *tree_view = GTK_TREE_VIEW(gtk_builder_get_object (Ui, "shape_view"));
     gtk_tree_view_expand_all (tree_view);
+
+    // select first shape
+    if (gtk_tree_model_iter_n_children (GTK_TREE_MODEL(shape_store), &anim_iter) > 0)
+    {
+        GtkTreeSelection *selection = gtk_tree_view_get_selection (tree_view);
+        gtk_tree_model_iter_nth_child (GTK_TREE_MODEL(shape_store), &shape_iter, &anim_iter, 0);
+        gtk_tree_selection_select_iter (selection, &shape_iter);
+    }
 
     // enable add shape button
     setActive ("copy_shape", true);
