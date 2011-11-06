@@ -36,6 +36,8 @@ ModelRenderer::ModelRenderer () : world::default_renderer ()
     ActiveModel = NULL;
     Overlay = gfx::create_surface();
     Overlay->set_alpha(96, true);
+    Length = 0;
+    Width = 0;
 }
 
 void ModelRenderer::render (std::list <world::render_info> & objectlist, const gfx::drawing_area & da, gfx::surface * target) const
@@ -100,6 +102,10 @@ void ModelRenderer::render (const GdkPoint & offset, std::list <world::render_in
         max_x = std::max(max_x, i->max_x());
         max_y = std::max(max_y, i->y() + i->Shape->width());
     }
+
+    // store length and width
+    Length = max_x - min_x;
+    Width = max_y - min_y;
 
     // center on screen
     s_int16 x = offset.x + X_AXIS_POS;

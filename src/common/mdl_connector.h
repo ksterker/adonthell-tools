@@ -230,6 +230,11 @@ public:
     static MdlConnectorTemplate *get(const u_int32 & uid);
 
     /**
+     * Delete an existing connector template with the given id.
+     */
+    static void remove(const u_int32 & uid);
+
+    /**
      * @name Loading/Saving
      */
     //@{

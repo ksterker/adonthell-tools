@@ -817,7 +817,7 @@ GuiModeller::GuiModeller ()
     widget = gtk_builder_get_object (Ui, "rnd_connector_pos");
     g_object_set_data (widget, "column_index", GUINT_TO_POINTER(POS_COLUMN));
     g_signal_connect (G_OBJECT(widget), "edited", G_CALLBACK(connector_edited_event), this);
-    class MdlConnector;
+
     // can't zoom less than 1
     setActive("item_zoom_out", false);
 
@@ -1465,7 +1465,7 @@ void GuiModeller::addConnector (MdlConnector *ctor)
 {
     if (ctor == NULL)
     {
-        GuiConnectors dlg(GTK_WINDOW (Window), Ui);
+        GuiConnectors dlg(GTK_WINDOW (Window), Ui, Preview->modelLength(), Preview->modelWidth());
         if (dlg.run())
         {
             MdlConnectorTemplate *tmpl = dlg.selectedTemplate();

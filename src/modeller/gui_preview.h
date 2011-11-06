@@ -164,6 +164,18 @@ public:
     }
 
     /**
+     * Get length of the model, as calculated during rendering.
+     * @return model length.
+     */
+    u_int16 modelLength () const { return Renderer.modelLength(); }
+
+    /**
+     * Get width of the model, as calculated during rendering.
+     * @return model width.
+     */
+    u_int16 modelWidth () const { return Renderer.modelWidth(); }
+
+    /**
      * Scrolling.
      */
     //@{

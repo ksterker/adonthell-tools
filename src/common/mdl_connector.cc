@@ -100,6 +100,12 @@ MdlConnectorTemplate *MdlConnectorManager::get (const u_int32 & uid)
     return NULL;
 }
 
+// delete existing template by its id
+void MdlConnectorManager::remove (const u_int32 & uid)
+{
+    Templates.erase(uid);
+}
+
 // load connector templates
 bool MdlConnectorManager::load (const std::string & path)
 {

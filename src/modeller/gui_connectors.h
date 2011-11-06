@@ -68,8 +68,10 @@ public:
      * Create the dialog.
      * @param the parent window
      * @param ui the user interface builder
+     * @param length the length of the model
+     * @param width the width of the model
      */
-    GuiConnectors (GtkWindow *parent, GtkBuilder *ui);
+    GuiConnectors (GtkWindow *parent, GtkBuilder *ui, const u_int16 & length, const u_int16 & width);
 
     /**
      * Destroy the dialog.
@@ -88,9 +90,21 @@ public:
     MdlConnectorTemplate *selectedTemplate () const;
 
     /**
-     * Update connector from values specified by user
+     * Add new connector template to list.
      */
-    void updateConnector ();
+    void addConnector ();
+
+    /**
+     * Remove connector template from list.
+     */
+    void removeConnector ();
+
+    /**
+     * Filter list to matching connectors, i.e. connectors
+     * that have the same length and width as the model.
+     * @param filter whether to enable or disable the filter.
+     */
+    void filterConnectors (const bool & filter);
 
 private:
     /// the user interface

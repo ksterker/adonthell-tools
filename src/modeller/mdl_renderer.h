@@ -95,6 +95,18 @@ public:
         ActiveShape = cube;
     }
     
+    /**
+     * Get length of the model, as calculated during rendering.
+     * @return model length.
+     */
+    u_int16 modelLength () const { return Length; }
+
+    /**
+     * Get width of the model, as calculated during rendering.
+     * @return model width.
+     */
+    u_int16 modelWidth () const { return Width; }
+
 protected:
     /**
      * Draw model and update handle positions.
@@ -133,6 +145,10 @@ private:
     world::cube3 *ActiveShape;
     /// additional surface for rendering with translucency
     gfx::surface *Overlay;
+    /// length of the model
+    u_int16 Length;
+    /// width of the model
+    u_int16 Width;
 };
 
 #endif
