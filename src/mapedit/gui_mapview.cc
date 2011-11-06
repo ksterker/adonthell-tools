@@ -30,13 +30,14 @@
 #include "gfx/gfx.h"
 #include "backend/gtk/screen_gtk.h"
 
+#include "gui_entity_dialog.h"
+#include "gui_entity_list.h"
+#include "gui_filter_dialog.h"
 #include "gui_grid.h"
-#include "gui_zone.h"
 #include "gui_mapedit.h"
 #include "gui_mapview.h"
 #include "gui_mapview_events.h"
-#include "gui_entity_list.h"
-#include "gui_entity_dialog.h"
+#include "gui_zone.h"
 #include "map_data.h"
 #include "map_entity.h"
 #include "map_mgr.h"
@@ -479,10 +480,22 @@ void GuiMapview::selectCurObj ()
 {
     if (CurObj != NULL)
     {
+        // try to select new object even with filter enabled
+        if (GuiMapedit::window->entityList()->setSelected (CurObj))
+        {
+            return;
+        }
+
+        // temporarily disable filter, so we can select any map object
+        GuiFilterDialog::pauseFiltering();
+
         if (!GuiMapedit::window->entityList()->setSelected (CurObj))
         {
-            fprintf (stderr, "selectCurObj: not found in entity list\n");
+            fprintf (stderr, "selectCurObj: %s not found in entity list\n", CurObj->get_name());
         }
+
+        // resume filtering
+        GuiFilterDialog::resumeFiltering();
     }
 }
 
@@ -551,6 +564,12 @@ void GuiMapview::selectObj (MapEntity *ety)
     // update overlap indication
     highlightObject();
 
+    // update entity list, if filtered by connectors
+    if (GuiFilterDialog::getActiveFilter() == GuiFilterDialog::BY_CONNECTOR)
+    {
+        GuiMapedit::window->entityList()->filterChanged();
+    }
+
     // update screen
     GdkRectangle rect = { 0, 0, Overlay->length(), Overlay->height() };
     gdk_window_invalidate_rect (gtk_widget_get_window (Screen), &rect, FALSE);
@@ -582,6 +601,12 @@ void GuiMapview::releaseObject ()
         
         // highlight new object
         highlightObject();
+
+        // update entity list, if filtered by connectors
+        if (GuiFilterDialog::getActiveFilter() == GuiFilterDialog::BY_CONNECTOR)
+        {
+            GuiMapedit::window->entityList()->filterChanged();
+        }
     }
 }
 

@@ -1,6 +1,4 @@
 /*
- $Id: gui_mapview.h,v 1.7 2009/05/24 13:40:28 ksterker Exp $
- 
  Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
  Part of the Adonthell Project http://adonthell.linuxgames.com
  
@@ -262,7 +260,6 @@ protected:
      * on the map at the current position.
      */
     void indicateOverlap ();
-
     /**
      * Display map coordinates of mouse pointer in status bar
      * @param area the current map.

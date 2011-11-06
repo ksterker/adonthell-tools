@@ -338,10 +338,11 @@ void MapEntity::add_tag(const gchar *tag)
     else
     {
         // otherwise insert new row
-        bool enabled = strcmp(tag, "template") != 0;
-
-        gtk_list_store_append (filter_model, &row);
-        gtk_list_store_set (filter_model, &row, 0, enabled, 1, tag, 2, 1, -1);
+        if (strcmp(tag, "template") != 0)
+        {
+            gtk_list_store_append (filter_model, &row);
+            gtk_list_store_set (filter_model, &row, 0, false, 1, tag, 2, 1, -1);
+        }
     }
 
     Tags.push_back(tag);
@@ -387,6 +388,31 @@ void MapEntity::remove_tags()
 bool MapEntity::hasTag (const std::string & tag) const
 {
     return std::find (Tags.begin(), Tags.end(), tag) != Tags.end();
+}
+
+// check for matching connectors
+bool MapEntity::canConnectWith (const MapEntity *entity, const bool & strict) const
+{
+    std::vector<MdlConnector*>::const_iterator i;
+    std::vector<MdlConnector*>::const_iterator j;
+
+    for (i = entity->Connectors.begin(); i != entity->Connectors.end(); i++)
+    {
+        for (j = Connectors.begin(); j != Connectors.end(); j++)
+        {
+            if ((*i)->length() == (*j)->length() && (*i)->width() == (*j)->width())
+            {
+                if (!strict) return false;
+
+                // connectors only match if they are on opposing sides
+                // and have the same name
+                if ((*i)->opposite ((*j)->side()) &&
+                    (*i)->name() == (*j)->name()) return false;
+            }
+        }
+    }
+
+    return true;
 }
 
 // name of entity

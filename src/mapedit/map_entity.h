@@ -30,6 +30,7 @@
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include <base/hash_map.h>
 #include <world/chunk_info.h>
+#include <world/coordinates.h>
 
 #include "common/mdl_connector.h"
 
@@ -100,6 +101,15 @@ public:
      * @return true if the tag is found, false otherwise.
      */
     bool hasTag (const std::string & tag) const;
+
+    /**
+     * Check whether this entity shares a connector with the given entity.
+     * @param entity the other entity
+     * @param strict if true, names of connectors must match, otherwise,
+     * only connector size is evaluated.
+     * @return true if matching connectors exist, false otherwise.
+     */
+    bool canConnectWith (const MapEntity *entity, const bool & strict) const;
 
     /**
      * @name Reference count

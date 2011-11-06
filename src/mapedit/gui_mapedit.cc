@@ -300,9 +300,7 @@ GuiMapedit::GuiMapedit ()
     
     // object trees
     GtkWidget *tab = gtk_notebook_new();
-    g_signal_connect (G_OBJECT (tab), "switch-page", G_CALLBACK (on_tree_switched), (gpointer) View);
     gtk_paned_add1 (GTK_PANED (hpaned), tab);
-    gtk_widget_show (tab);
     
     // Entity list
     EntityList = new GuiEntityList ();
@@ -311,6 +309,9 @@ GuiMapedit::GuiMapedit ()
     // Zone list
     ZoneList = new GuiZoneList ();
     gtk_notebook_append_page (GTK_NOTEBOOK(tab), ZoneList->getWidget(), gtk_label_new ("Zones"));
+
+    g_signal_connect (G_OBJECT (tab), "switch-page", G_CALLBACK (on_tree_switched), (gpointer) View);
+    gtk_widget_show (tab);
     
     // Status bars
     hbox = gtk_hbox_new (FALSE, 0);

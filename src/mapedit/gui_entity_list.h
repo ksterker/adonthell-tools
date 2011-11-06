@@ -123,6 +123,11 @@ public:
     void refresh();
     
     /**
+     * Notify the entity list that it needs to refilter.
+     */
+    void filterChanged ();
+
+    /**
      * Check whether the given entity is already present on the
      * map. To achieve this, filenames are compared.
      * @param filename the name of the entity to check.

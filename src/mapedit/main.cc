@@ -38,6 +38,7 @@
 
 #include "map_cmdline.h"
 #include "gui_mapedit.h"
+#include "mdl_connector.h"
 
 #define main main
 
@@ -79,6 +80,9 @@ int main (int argc, char *argv[])
     // load character data
     rpg::character::load ();
     
+    // load connector templates
+    MdlConnectorManager::load(base::Paths().user_data_dir());
+
     // Create the User Interface
     GuiMapedit mapedit;
         

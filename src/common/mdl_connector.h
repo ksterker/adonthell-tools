@@ -202,6 +202,24 @@ public:
     void set_pos ( const s_int16 & pos ) { Pos = pos; }
     //@}
 
+    /**
+     * Check if the given side is the opposite of this connector's side.
+     * @param side the side to check this connector against.
+     * @return true if this is the case, false otherwise.
+     */
+    bool opposite (const face & side)
+    {
+        switch (side)
+        {
+            case LEFT: return Side == RIGHT;
+            case RIGHT: return Side == LEFT;
+            case FRONT: return Side == BACK;
+            case BACK: return Side == FRONT;
+        }
+
+        return false;
+    }
+
 private:
     /// the unchangeable parts of the model connector
     const MdlConnectorTemplate *Template;
@@ -244,6 +262,14 @@ public:
      * @return \b true if loading successful, \b false otherwise.
      */
     static bool load (const std::string & path);
+
+    /**
+     * Reload existing connector templates.
+     * @param path directory to load templates from.
+     * @param merge whether to skip duplicates or update from new values.
+     * @return \b true if loading successful, \b false otherwise.
+     */
+    static bool reload (const std::string & path, const bool & merge = true);
 
     /**
      * Save all existing connector templates to given directory.

@@ -91,7 +91,7 @@ static void entity_list_init (EntityList *self)
 	gtk_list_store_set_column_types (GTK_LIST_STORE (self), 1, types);
 }
 
-// retreive an object from our parent's data storage
+// retrieve an object from our parent's data storage
 static MapEntity *entity_list_get_object (EntityList *self, GtkTreeIter *iter)
 {
 	GValue value = { 0, };
@@ -101,7 +101,7 @@ static MapEntity *entity_list_get_object (EntityList *self, GtkTreeIter *iter)
 	g_return_val_if_fail (IS_ENTITY_LIST (self), NULL);
 	g_return_val_if_fail (iter != NULL, NULL);
     
-	// retreive the object using our parent's interface, take our own reference to it 
+	// retrieve the object using our parent's interface, take our own reference to it
 	parent_iface.get_value (GTK_TREE_MODEL (self), iter, 0, &value);
 	obj = (MapEntity*) g_value_get_pointer (&value);
     
@@ -218,8 +218,9 @@ static void selected_event (GtkTreeSelection *selection, gpointer user_data)
             GuiEntityDialog dlg (obj, GuiEntityDialog::ADD_ENTITY_TO_MAP);
             if (!dlg.run())
             {
-                // user canceled and object has not been added to map
-                gtk_tree_selection_unselect_iter (selection, &filterIter);
+                // user canceled and object has not been added to map,
+                // but keep the selection so we can TAB through the list
+                // gtk_tree_selection_unselect_iter (selection, &filterIter);
                 return;
             }
             
@@ -251,15 +252,10 @@ static void on_filter_entities (GtkButton * button, gpointer user_data)
 }
 
 // check if given model should be filtered from entity list
-static gboolean is_entity_filtered (GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
+static gboolean is_entity_visible (GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
 {
     MapEntity *obj = (MapEntity*) entity_list_get_object (ENTITY_LIST (model), iter);
-    if (obj != NULL)
-    {
-        return !obj->hasTag ("template");
-    }
-
-    return true;
+    return !GuiFilterDialog::isEntityFiltered (obj);
 }
 
 // sort model list by model path and file name
@@ -324,7 +320,7 @@ GuiEntityList::GuiEntityList ()
     GtkTreeModel *filterModel = gtk_tree_model_filter_new (GTK_TREE_MODEL (model), NULL);
 
     // set filter function
-    gtk_tree_model_filter_set_visible_func (GTK_TREE_MODEL_FILTER (filterModel), is_entity_filtered, NULL, NULL);
+    gtk_tree_model_filter_set_visible_func (GTK_TREE_MODEL_FILTER (filterModel), is_entity_visible, NULL, NULL);
 
     // set tree model
     gtk_tree_view_set_model (TreeView, filterModel);
@@ -337,7 +333,6 @@ GuiEntityList::GuiEntityList ()
 // return mapedit wrapper around given entity
 MapEntity *GuiEntityList::findEntity (const world::entity *etyToFind) const
 {
-    GtkTreeIter filterIter;
     GtkTreeIter iter;
     MapEntity *ety;
     
@@ -345,11 +340,10 @@ MapEntity *GuiEntityList::findEntity (const world::entity *etyToFind) const
     GtkTreeModelFilter *filterModel = GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (TreeView));
     GtkTreeModel *model = gtk_tree_model_filter_get_model(filterModel);
 
-    if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (filterModel), &filterIter))
+    if (gtk_tree_model_get_iter_first (model, &iter))
     {
         do
         {
-            gtk_tree_model_filter_convert_iter_to_child_iter (filterModel, &iter, &filterIter);
             ety = entity_list_get_object (ENTITY_LIST(model), &iter);
             
             // found the right entity?
@@ -358,7 +352,7 @@ MapEntity *GuiEntityList::findEntity (const world::entity *etyToFind) const
                 return ety;
             }
         }
-        while (gtk_tree_model_iter_next (GTK_TREE_MODEL (filterModel), &filterIter));
+        while (gtk_tree_model_iter_next (model, &iter));
     }
     
     return NULL;
@@ -420,13 +414,13 @@ bool GuiEntityList::setSelected (MapEntity *etyToSelect, const bool & select)
                 GtkTreeSelection *selection = gtk_tree_view_get_selection (TreeView);
                 if (select)
                 {
-                    // select it
-                    gtk_tree_selection_select_iter (selection, &filterIter);
-                    
-                    // and scroll it into view
+                    // scroll it into view
                     GtkTreePath *path = gtk_tree_model_get_path (filterModel, &filterIter);
                     gtk_tree_view_scroll_to_cell (TreeView, path, NULL, TRUE, 0.5f, 0.0f);
                     gtk_tree_path_free (path);
+
+                    // and select it
+                    gtk_tree_selection_select_iter (selection, &filterIter);
                 }
                 else
                 {
@@ -683,7 +677,7 @@ void GuiEntityList::refresh()
     GtkTreeIter iter;
 
     // make sure the connector templates are up-to-date
-    MdlConnectorManager::load(base::Paths().user_data_dir());
+    MdlConnectorManager::reload(base::Paths().user_data_dir());
 
     // get model
     GtkTreeModelFilter *filter = GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (TreeView));
@@ -749,4 +743,11 @@ bool GuiEntityList::isPresentOnMap (const std::string & filename) const
     }
     
     return false;
+}
+
+// notify the entity list that it needs to refilter
+void GuiEntityList::filterChanged ()
+{
+    GtkTreeModelFilter *filter = GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (TreeView));
+    gtk_tree_model_filter_refilter (filter);
 }

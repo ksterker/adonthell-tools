@@ -106,10 +106,16 @@ void MdlConnectorManager::remove (const u_int32 & uid)
     Templates.erase(uid);
 }
 
-// load connector templates
+// freshly load connector templates
 bool MdlConnectorManager::load (const std::string & path)
 {
     Templates.clear();
+    return reload (path, false);
+}
+
+// update connector templates from file
+bool MdlConnectorManager::reload (const std::string & path, const bool & merge)
+{
     base::diskio file;
 
     // try to load character
@@ -130,9 +136,18 @@ bool MdlConnectorManager::load (const std::string & path)
 
         if (Templates.count (tmpl->uid()))
         {
-            fprintf (stderr, "*** MdlConnectorManager::load: duplicate template id %u found.\n", tmpl->uid());
+            if (!merge)
+            {
+                fprintf (stderr, "*** MdlConnectorManager::load: duplicate template id %u found.\n", tmpl->uid());
+                result = false;
+            }
+            else
+            {
+                Templates[tmpl->uid()]->set_name(tmpl->name());
+                Templates[tmpl->uid()]->set_length(tmpl->length());
+                Templates[tmpl->uid()]->set_width(tmpl->width());
+            }
 
-            result = false;
             delete tmpl;
             continue;
         }
