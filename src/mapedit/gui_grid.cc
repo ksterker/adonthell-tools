@@ -26,6 +26,7 @@
 
 #include "base/base.h"
 #include "gui_grid.h"
+#include "map_entity.h"
 
 // ctor
 GuiGrid::GuiGrid (gfx::surface *overlay)
@@ -37,6 +38,7 @@ GuiGrid::GuiGrid (gfx::surface *overlay)
     AutoAdjust = true;
     PreventOverlap = true;
     
+    RefLocation = NULL;
     CurObject = NULL;
     Monitor = NULL;
     
@@ -48,6 +50,12 @@ GuiGrid::GuiGrid (gfx::surface *overlay)
     My = 0;
     Ix = 64;
     Iy = 48;
+}
+
+// dtor
+GuiGrid::~GuiGrid ()
+{
+    delete RefLocation;
 }
 
 // draw the grid
@@ -79,12 +87,30 @@ void GuiGrid::draw (const s_int32 & x, const s_int32 & y, const u_int16 & l, con
     }
 }
 
-// set the grid from the given object
-void GuiGrid::grid_from_object (world::chunk_info & ci, const s_int32 & ox, const s_int32 & oy)
+// set reference to which to adjust the grid
+void GuiGrid::set_reference (const world::vector3<s_int32> & pos, MapEntity *entity)
 {
-    delete CurObject;
-    CurObject = new world::chunk_info (ci.get_entity(), ci.Min, ci.Max);
-    
+    if (entity == NULL) return;
+
+    const world::placeable *p = entity->object();
+    world::vector3<s_int32> min = pos + p->entire_min();
+    world::vector3<s_int32> max = min + p->entire_max();
+
+    delete RefLocation;
+    RefLocation = new world::chunk_info (entity->entity(), min, max);
+    RefObject = entity;
+}
+
+// set the grid from the given object
+void GuiGrid::grid_from_object (MapEntity *entity, const s_int32 & ox, const s_int32 & oy)
+{
+    CurObject = entity;
+
+    if (RefLocation == NULL)
+    {
+        set_reference (world::vector3<s_int32>(), entity);
+    }
+
     if (Monitor)
     {
         Monitor->objChanged();
@@ -101,23 +127,23 @@ void GuiGrid::grid_from_cur_object (const s_int32 & ox, const s_int32 & oy)
 {
     if (CurObject == NULL) return;
 
-    if (CurObject->get_object()->length() && CurObject->get_object()->width())
+    if (CurObject->object()->length() && CurObject->object()->width())
     {
         // get location
-        s_int32 x = CurObject->Min.x() - ox;
-        s_int32 y = CurObject->Min.y() - oy;
+        s_int32 x = RefLocation->center_min().x() - ox;
+        s_int32 y = RefLocation->center_min().y() - oy;
         
         // get extend --> that will be our interval
-        Ix = CurObject->get_object()->length();
-        Iy = CurObject->get_object()->width();
+        Ix = CurObject->object()->length();
+        Iy = CurObject->object()->width();
 
         // set offset from object position
-        Ox = CurObject->Min.x() % Ix;
-        Oy = CurObject->Min.y() % Iy;
+        Ox = RefLocation->center_min().x() % Ix;
+        Oy = RefLocation->center_min().y() % Iy;
 
         // store map view offset
         Mx = x < 0 ? x % Ix + Ix : x % Ix;
-        My = y < 0 ? y % Iy + Iy : y % Iy - CurObject->get_object()->cur_y();
+        My = y < 0 ? y % Iy + Iy : y % Iy - CurObject->object()->cur_y();
         
         // make sure the changes take effect on next redraw
         Changed = true;
@@ -151,12 +177,12 @@ world::vector3<s_int32> GuiGrid::align_to_grid (const world::vector3<s_int32> & 
         else if ((Alignment & ALIGN_RIGHT) == ALIGN_RIGHT)
         {
             // align right
-            x -= Ix - CurObject->get_object()->length();
+            x -= Ix - CurObject->object()->length();
         }
         else
         {
             // center
-            x += (CurObject->get_object()->length() - Ix) / 2;
+            x += (CurObject->object()->length() - Ix) / 2;
         }
         
         if ((Alignment & ALIGN_TOP) == ALIGN_TOP)
@@ -166,12 +192,12 @@ world::vector3<s_int32> GuiGrid::align_to_grid (const world::vector3<s_int32> & 
         else if ((Alignment & ALIGN_BOTTOM) == ALIGN_BOTTOM)
         {
             // align bottom
-            y -= Iy - CurObject->get_object()->width();
+            y -= Iy - CurObject->object()->width();
         }
         else
         {
             // center
-            y += (CurObject->get_object()->width() - Iy) / 2;
+            y += (CurObject->object()->width() - Iy) / 2;
         }        
 
         // move to grid

@@ -553,8 +553,14 @@ void GuiMapview::selectObj (MapEntity *ety)
         DrawObjSurface = tmp;
     }
 
+    if (CurObj == ety)
+    {
+        // entity picked from the map? --> use as new reference for grid
+        Grid->set_reference (CurObj->getLocation()->center_min(), CurObj);
+    }
+
     // update grid
-    Grid->grid_from_object (ety->getLocation() ? *ety->getLocation() : ci, area->x(), area->y());
+    Grid->grid_from_object (ety, area->x(), area->y());
     Grid->set_visible (true);
     Grid->draw ();
     
@@ -687,7 +693,8 @@ void GuiMapview::placeCurObj()
             // cannot place same object twice at this position
             indicateOverlap();
             
-            // TODO: update grid, so that pressing adjust will deliver the correct offset
+            // update grid, so that auto-adjust will deliver the correct offset
+            Grid->set_reference (pos, DrawObj);
             
             // update screen
             render (DrawObjPos.x(), DrawObjPos.y(), DrawObjSurface->length() / base::Scale, DrawObjSurface->height() / base::Scale);

@@ -402,17 +402,17 @@ bool MapEntity::canConnectWith (const MapEntity *entity, const bool & strict) co
         {
             if ((*i)->length() == (*j)->length() && (*i)->width() == (*j)->width())
             {
-                if (!strict) return false;
+                if (!strict) return true;
 
                 // connectors only match if they are on opposing sides
                 // and have the same name
                 if ((*i)->opposite ((*j)->side()) &&
-                    (*i)->name() == (*j)->name()) return false;
+                    (*i)->name() == (*j)->name()) return true;
             }
         }
     }
 
-    return true;
+    return false;
 }
 
 // name of entity

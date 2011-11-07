@@ -30,6 +30,8 @@
 #include <gfx/surface.h>
 #include <world/chunk_info.h>
 
+class MapEntity;
+
 /**
  * Interface for classes interested in monitoring
  * changes to the grid.
@@ -75,6 +77,11 @@ public:
     GuiGrid (gfx::surface *overlay);
     
     /**
+     * Destroy the grid
+     */
+    ~GuiGrid ();
+
+    /**
      * (Re)draw the entire grid.
      */
     void draw ()
@@ -100,11 +107,11 @@ public:
 
     /**
      * Update the grid from the size of the given object.
-     * @param ci an object already placed on the map.
+     * @param entity an object selected for placing on the map.
      * @param ox x-offset of map view 
      * @param oy y-offset of map view
      */
-    void grid_from_object (world::chunk_info & ci, const s_int32 & ox, const s_int32 & sy);
+    void grid_from_object (MapEntity *entity, const s_int32 & ox, const s_int32 & oy);
 
     /**
      * Update the grid from the size of the object currently 
@@ -112,7 +119,7 @@ public:
      * @param ox x-offset of map view 
      * @param oy y-offset of map view
      */
-    void grid_from_cur_object (const s_int32 & ox, const s_int32 & sy);
+    void grid_from_cur_object (const s_int32 & ox, const s_int32 & oy);
 
     /**
      * Align the given position to the grid.
@@ -126,6 +133,13 @@ public:
      */
     void set_visible (const bool & visible);
     
+    /**
+     * Set reference object to adjust the grid to
+     * @param pos position of the entity on the map.
+     * @param entity the object acting as reference.
+     */
+    void set_reference (const world::vector3<s_int32> & pos, MapEntity *entity);
+
     /**
      * Returns whether it is forbidden to place overlapping objects.
      * @return true if overlapping forbidden, false otherwise.
@@ -159,8 +173,12 @@ protected:
     GridMonitor *Monitor;
 
 private:
-    /// last object used for painting the map
-    world::chunk_info *CurObject;
+    /// object selected for painting the map
+    MapEntity *CurObject;
+    /// object used to align the grid to
+    MapEntity *RefObject;
+    /// position of reference object on the map
+    world::chunk_info *RefLocation;
     /// overlay onto which to draw grid
     gfx::surface *Overlay;
     /// whether grid needs to be rendered
