@@ -303,5 +303,5 @@ bool GuiFilterDialog::filterByConnector (const MapEntity *entity)
     if (curObj == NULL) return false;
 
     // now check if there is at least one matching connector
-    return curObj->canConnectWith (entity, true);
+    return !curObj->canConnectWith (entity, true);
 }
