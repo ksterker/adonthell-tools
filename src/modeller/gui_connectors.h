@@ -111,6 +111,8 @@ private:
     GtkBuilder *Ui;
     /// the selected template
     MdlConnectorTemplate *Selected;
+    /// flag to prevent signals from being connected more than once
+    static bool First;
 };
 
 #endif /* GUI_CONNECTORS_H_ */

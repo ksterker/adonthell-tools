@@ -245,34 +245,21 @@ static void template_edited_event (GtkCellRendererText *cell, gchar *path, gchar
     }
 }
 
+bool GuiConnectors::First = true;
+
 // ctor
 GuiConnectors::GuiConnectors(GtkWindow *parent, GtkBuilder *ui, const u_int16 & length, const u_int16 & width)
 : GuiModalDialog (parent)
 {
     GtkTreeIter iter;
     GObject *widget;
+    GtkListStore *model = NULL;
+
     Ui = ui;
 
     // get reference to dialog window
     window = GTK_WIDGET (gtk_builder_get_object (Ui, "connector_dialog"));
     Selected = NULL;
-
-    // make sure the window is closed, but not deleted when pressing the close button
-    // of the window border
-    g_signal_connect(G_OBJECT(window), "delete-event", G_CALLBACK(on_window_closed), NULL);
-
-    // setup button callbacks
-    widget = gtk_builder_get_object (Ui, "btn_okay");
-    g_signal_connect (widget, "clicked", G_CALLBACK (on_ok_button_pressed), this);
-    widget = gtk_builder_get_object (Ui, "btn_cancel");
-    g_signal_connect (widget, "clicked", G_CALLBACK (on_cancel_button_pressed), this);
-    widget = gtk_builder_get_object (Ui, "btn_tmpl_add");
-    g_signal_connect (widget, "clicked", G_CALLBACK (on_add_button_pressed), this);
-    widget = gtk_builder_get_object (Ui, "btn_tmpl_remove");
-    g_signal_connect (widget, "clicked", G_CALLBACK (on_remove_button_pressed), this);
-    widget = gtk_builder_get_object (Ui, "btn_filter");
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON (widget), false);
-    g_signal_connect (widget, "toggled", G_CALLBACK (on_filter_button_toggled), this);
 
     // current model footprint
     char tmp[32];
@@ -285,27 +272,56 @@ GuiConnectors::GuiConnectors(GtkWindow *parent, GtkBuilder *ui, const u_int16 & 
     sprintf (tmp, "%i", width);
     gtk_label_set_text(GTK_LABEL(widget), tmp);
 
-    // create the connector template model
-    widget = gtk_builder_get_object (Ui, "view_available_connectors");
-    GtkListStore *model = (GtkListStore *) g_object_new (TYPE_CONNECTOR_TMPL_LIST, NULL);
-    gtk_tree_view_set_model (GTK_TREE_VIEW(widget), (GtkTreeModel*) model);
+    if (First)
+    {
+        // make sure the window is closed, but not deleted when pressing the close button
+        // of the window border
+        g_signal_connect(G_OBJECT(window), "delete-event", G_CALLBACK(on_window_closed), NULL);
 
-    // add selection listener
-    GtkTreeSelection *selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(widget));
-    g_signal_connect (G_OBJECT(selection), "changed", G_CALLBACK(selected_event), this);
+        // setup button callbacks
+        widget = gtk_builder_get_object (Ui, "btn_okay");
+        g_signal_connect (widget, "clicked", G_CALLBACK (on_ok_button_pressed), this);
+        widget = gtk_builder_get_object (Ui, "btn_cancel");
+        g_signal_connect (widget, "clicked", G_CALLBACK (on_cancel_button_pressed), this);
+        widget = gtk_builder_get_object (Ui, "btn_tmpl_add");
+        g_signal_connect (widget, "clicked", G_CALLBACK (on_add_button_pressed), this);
+        widget = gtk_builder_get_object (Ui, "btn_tmpl_remove");
+        g_signal_connect (widget, "clicked", G_CALLBACK (on_remove_button_pressed), this);
+        widget = gtk_builder_get_object (Ui, "btn_filter");
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON (widget), false);
+        g_signal_connect (widget, "toggled", G_CALLBACK (on_filter_button_toggled), this);
 
-    // add cell edit listeners
-    widget = gtk_builder_get_object (Ui, "rnd_name");
-    g_object_set_data (widget, "column_index", GUINT_TO_POINTER(NAME_COLUMN));
-    g_signal_connect (G_OBJECT(widget), "edited", G_CALLBACK(template_edited_event), model);
-    widget = gtk_builder_get_object (Ui, "rnd_length");
-    g_object_set_data (widget, "column_index", GUINT_TO_POINTER(LENGTH_COLUMN));
-    g_signal_connect (G_OBJECT(widget), "edited", G_CALLBACK(template_edited_event), model);
-    widget = gtk_builder_get_object (Ui, "rnd_width");
-    g_object_set_data (widget, "column_index", GUINT_TO_POINTER(WIDTH_COLUMN));
-    g_signal_connect (G_OBJECT(widget), "edited", G_CALLBACK(template_edited_event), model);
+        // create the connector template model
+        widget = gtk_builder_get_object (Ui, "view_available_connectors");
+        model = (GtkListStore *) g_object_new (TYPE_CONNECTOR_TMPL_LIST, NULL);
+        gtk_tree_view_set_model (GTK_TREE_VIEW(widget), (GtkTreeModel*) model);
+
+        // add selection listener
+        GtkTreeSelection *selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(widget));
+        g_signal_connect (G_OBJECT(selection), "changed", G_CALLBACK(selected_event), this);
+
+        // add cell edit listeners
+        widget = gtk_builder_get_object (Ui, "rnd_name");
+        g_object_set_data (widget, "column_index", GUINT_TO_POINTER(NAME_COLUMN));
+        g_signal_connect (G_OBJECT(widget), "edited", G_CALLBACK(template_edited_event), model);
+        widget = gtk_builder_get_object (Ui, "rnd_length");
+        g_object_set_data (widget, "column_index", GUINT_TO_POINTER(LENGTH_COLUMN));
+        g_signal_connect (G_OBJECT(widget), "edited", G_CALLBACK(template_edited_event), model);
+        widget = gtk_builder_get_object (Ui, "rnd_width");
+        g_object_set_data (widget, "column_index", GUINT_TO_POINTER(WIDTH_COLUMN));
+        g_signal_connect (G_OBJECT(widget), "edited", G_CALLBACK(template_edited_event), model);
+
+        First = false;
+    }
 
     // load and populate model
+    if (model == NULL)
+    {
+        widget = gtk_builder_get_object (Ui, "view_available_connectors");
+        model = GTK_LIST_STORE (gtk_tree_view_get_model (GTK_TREE_VIEW(widget)));
+        gtk_list_store_clear(model);
+    }
+
     MdlConnectorManager::load(base::Paths().user_data_dir());
     for (MdlConnectorManager::iterator i = MdlConnectorManager::begin(); i != MdlConnectorManager::end(); i++)
     {
