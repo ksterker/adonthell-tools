@@ -715,9 +715,15 @@ void GuiEntityList::refresh()
         
         if (ety->getRefCount() == 0)
         {
+            // entity not yet on map --> reload all of it
             valid = gtk_list_store_remove (model, &iter);
             delete ety;
             continue;
+        }
+        else
+        {
+            // otherwise at least update meta data
+            ety->loadMetaData();
         }
 
         valid = gtk_tree_model_iter_next (GTK_TREE_MODEL(model), &iter);
