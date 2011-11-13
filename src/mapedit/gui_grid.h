@@ -177,6 +177,8 @@ private:
     MapEntity *CurObject;
     /// object used to align the grid to
     MapEntity *RefObject;
+    /// temporary entity for RefObjects not present on map
+    world::entity *RefEntity;
     /// position of reference object on the map
     world::chunk_info *RefLocation;
     /// overlay onto which to draw grid

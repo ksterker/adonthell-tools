@@ -204,6 +204,8 @@ static void selected_event (GtkTreeSelection *selection, gpointer user_data)
     // anything selected at all? 
     if (gtk_tree_selection_get_selected (selection, &filterModel, &filterIter))
     {
+        GuiMapview *map_view = GuiMapedit::window->view();
+
         // get actual model
         model = gtk_tree_model_filter_get_model(GTK_TREE_MODEL_FILTER(filterModel));
 
@@ -219,8 +221,7 @@ static void selected_event (GtkTreeSelection *selection, gpointer user_data)
             if (!dlg.run())
             {
                 // user canceled and object has not been added to map,
-                // but keep the selection so we can TAB through the list
-                // gtk_tree_selection_unselect_iter (selection, &filterIter);
+                map_view->releaseObject();
                 return;
             }
             
@@ -230,10 +231,16 @@ static void selected_event (GtkTreeSelection *selection, gpointer user_data)
             gtk_tree_path_free (path);
         }
         
-        // object has been added to map (or already had been there in the first place)
-        GuiMapview *map_view = GuiMapedit::window->view();
-        // make it the editing object
+        // object has been added to map (or already had been there in the first place),
+        // so make it the editing object
         map_view->selectObj(obj);
+
+        // update entity list, if filtered by connectors
+        if (GuiFilterDialog::getActiveFilter() == GuiFilterDialog::BY_CONNECTOR)
+        {
+            GuiEntityList *list = (GuiEntityList*) user_data;
+            list->filterChanged();
+        }
     }
 }
 
@@ -313,7 +320,7 @@ GuiEntityList::GuiEntityList ()
 
     // selection listener
     GtkTreeSelection *selection = gtk_tree_view_get_selection (TreeView);
-    g_signal_connect (G_OBJECT(selection), "changed", G_CALLBACK(selected_event), this);
+    SelectionChanged = g_signal_connect (G_OBJECT(selection), "changed", G_CALLBACK(selected_event), this);
     
     // create the (empty) model
     GtkListStore *model = (GtkListStore *) g_object_new (TYPE_ENTITY_LIST, NULL);
@@ -419,6 +426,12 @@ bool GuiEntityList::setSelected (MapEntity *etyToSelect, const bool & select)
                     gtk_tree_view_scroll_to_cell (TreeView, path, NULL, TRUE, 0.5f, 0.0f);
                     gtk_tree_path_free (path);
 
+                    // make sure selected signal fires even if row already selected
+                    if (gtk_tree_selection_iter_is_selected(selection, &filterIter))
+                    {
+                        gtk_tree_selection_unselect_iter (selection, &filterIter);
+                    }
+
                     // and select it
                     gtk_tree_selection_select_iter (selection, &filterIter);
                 }
@@ -438,7 +451,7 @@ bool GuiEntityList::setSelected (MapEntity *etyToSelect, const bool & select)
 }
 
 // pick previous object in entity list for drawing
-void GuiEntityList::selectPrev()
+MapEntity *GuiEntityList::getPrev()
 {
     GtkTreeIter filterIter;
     GtkTreeIter iter;
@@ -485,18 +498,22 @@ void GuiEntityList::selectPrev()
 
     if (ety != NULL)
     {
-        // select it
+        // select it in list, but not for drawing
+        g_signal_handler_block (G_OBJECT(selection), SelectionChanged);
         gtk_tree_selection_select_iter (selection, &filterIter);
+        g_signal_handler_unblock (G_OBJECT(selection), SelectionChanged);
 
         // and scroll it into view
         GtkTreePath *path = gtk_tree_model_get_path (filterModel, &filterIter);
         gtk_tree_view_scroll_to_cell (TreeView, path, NULL, TRUE, 0.5f, 0.0f);
         gtk_tree_path_free (path);
     }
+
+    return ety;
 }
 
 // pick next object in entity list for drawing
-void GuiEntityList::selectNext()
+MapEntity *GuiEntityList::getNext()
 {
     GtkTreeIter filterIter;
     GtkTreeIter iter;
@@ -525,14 +542,18 @@ void GuiEntityList::selectNext()
 
     if (ety != NULL)
     {
-        // select it
+        // select it in list, but not for drawing
+        g_signal_handler_block (G_OBJECT(selection), SelectionChanged);
         gtk_tree_selection_select_iter (selection, &filterIter);
+        g_signal_handler_unblock (G_OBJECT(selection), SelectionChanged);
 
         // and scroll it into view
         GtkTreePath *path = gtk_tree_model_get_path (filterModel, &filterIter);
         gtk_tree_view_scroll_to_cell (TreeView, path, NULL, TRUE, 0.5f, 0.0f);
         gtk_tree_path_free (path);
     }
+
+    return ety;
 }
 
 // set map being displayed

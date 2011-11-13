@@ -72,10 +72,11 @@ GuiMapview::GuiMapview(GtkWidget *paned)
     g_signal_connect (G_OBJECT (Screen), "motion_notify_event", G_CALLBACK(motion_notify_event), this);
     g_signal_connect (G_OBJECT (Screen), "button_press_event", G_CALLBACK(button_press_event), this);
     g_signal_connect (G_OBJECT (GuiMapedit::window->getWindow ()), "key_press_event", G_CALLBACK(key_press_notify_event), this);
+    g_signal_connect (G_OBJECT (GuiMapedit::window->getWindow ()), "key_release_event", G_CALLBACK(key_release_notify_event), this);
     g_signal_connect (G_OBJECT (RenderHeight->widget()), "value-changed", G_CALLBACK(on_renderheight_changed), this);
     
     gtk_widget_set_events (Screen, GDK_EXPOSURE_MASK | GDK_LEAVE_NOTIFY_MASK | GDK_BUTTON_PRESS_MASK |
-                           GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK | GDK_KEY_PRESS_MASK);
+                           GDK_POINTER_MOTION_MASK | GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK);
 
     // create view
     View = world::area_manager::get_mapview ();
@@ -96,6 +97,7 @@ GuiMapview::GuiMapview(GtkWidget *paned)
     // Memeber intialization
     CurObj = NULL;
     DrawObj = NULL;
+    CandidateObj = NULL;
 }
 
 // dtor
@@ -350,7 +352,7 @@ void GuiMapview::mouseMoved (const GdkPoint * point)
         else
         {            
             // get object height
-            world::placeable *obj = DrawObj->entity()->get_object();
+            world::placeable *obj = DrawObj->object();
             int h = obj->cur_z() + obj->height();
 
             // scaled position
@@ -393,14 +395,15 @@ void GuiMapview::indicateOverlap ()
     MapData *area = (MapData*) MapMgr::get_map();        
     world::vector3<s_int32> area_pos (area->x(), area->y(), 0); // DrawObj is already located at z-position of area
     
-    const world::placeable *obj = DrawObj->entity()->get_object();
+    const world::placeable *obj = DrawObj->object();
     int h = obj->cur_z() + obj->height();
     
     world::vector3<s_int32> min = DrawObjPos + area_pos + obj->entire_min();
     min.set_y (min.y() + h); // this is the offset subtracted when creating DrawObjPos
     world::vector3<s_int32> max = min + obj->entire_max();
 
-    world::chunk_info ci (DrawObj->entity(), min + V1, max - V1);
+    world::named_entity e (DrawObj->object(), "tmp", false);
+    world::chunk_info ci (&e, min + V1, max - V1);
     
     // get all objects that possibly intersect with our object
     std::list<world::chunk_info*> objs_on_map = area->objects_in_bbox (ci.Min, ci.Max);
@@ -475,6 +478,35 @@ void GuiMapview::updateRenderHeight (const s_int32 & limit)
     render();
 }
 
+// start tabbing through the entity list
+void GuiMapview::startSelection (const bool & backwards)
+{
+    if (backwards)
+    {
+        CandidateObj = GuiMapedit::window->entityList()->getPrev();
+    }
+    else
+    {
+        CandidateObj = GuiMapedit::window->entityList()->getNext();
+    }
+
+    if (CandidateObj != NULL)
+    {
+        // preview candidate object
+        selectObj (CandidateObj);
+    }
+}
+
+// finish tabbing through the entity list
+void GuiMapview::finishSelection ()
+{
+    if (CandidateObj != NULL)
+    {
+        GuiMapedit::window->entityList()->setSelected (CandidateObj);
+        CandidateObj = NULL;
+    }
+}
+
 // pick currently highlighted object for drawing
 void GuiMapview::selectCurObj ()
 {
@@ -517,9 +549,10 @@ void GuiMapview::selectObj (MapEntity *ety)
     MapData *area = (MapData*) MapMgr::get_map();
 
     // build a fake location
-    world::placeable *obj = ety->entity()->get_object();
+    world::placeable *obj = ety->object();
+    world::named_entity e (obj, "tmp", false);
     world::vector3<s_int32> min (0, 0, 0), max (obj->length(), obj->width(), obj->height());
-    world::chunk_info ci (ety->entity(), min, max);
+    world::chunk_info ci (&e, min, max);
     
     // get object extend
     int x, y, l, h;
@@ -553,7 +586,7 @@ void GuiMapview::selectObj (MapEntity *ety)
         DrawObjSurface = tmp;
     }
 
-    if (CurObj == ety)
+    if (CandidateObj != NULL && CurObj == ety)
     {
         // entity picked from the map? --> use as new reference for grid
         Grid->set_reference (CurObj->getLocation()->center_min(), CurObj);
@@ -570,12 +603,6 @@ void GuiMapview::selectObj (MapEntity *ety)
     // update overlap indication
     highlightObject();
 
-    // update entity list, if filtered by connectors
-    if (GuiFilterDialog::getActiveFilter() == GuiFilterDialog::BY_CONNECTOR)
-    {
-        GuiMapedit::window->entityList()->filterChanged();
-    }
-
     // update screen
     GdkRectangle rect = { 0, 0, Overlay->length(), Overlay->height() };
     gdk_window_invalidate_rect (gtk_widget_get_window (Screen), &rect, FALSE);
@@ -586,6 +613,9 @@ void GuiMapview::releaseObject ()
 {
     if (DrawObj != NULL)
     {
+        // stop selection, if it is in progress
+        CandidateObj = NULL;
+
         // hide grid
         Grid->set_visible (false);
         Grid->draw ();
@@ -643,6 +673,12 @@ void GuiMapview::moveCurObject()
 // add object to map
 void GuiMapview::placeCurObj()
 {
+    if (CandidateObj != NULL)
+    {
+        // selection not finished, prevent placing
+        return;
+    }
+
     if (isScrolling())
     {
         // FIXME
@@ -665,7 +701,7 @@ void GuiMapview::placeCurObj()
             GuiEntityDialog dlg (newObj, GuiEntityDialog::DUPLICATE_NAMED_ENTITY);
             if (!dlg.run())
             {
-                // user cancelled and object has not been added to map
+                // user canceled and object has not been added to map
                 delete newObj;
                 return;
             }

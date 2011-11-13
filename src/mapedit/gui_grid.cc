@@ -39,6 +39,7 @@ GuiGrid::GuiGrid (gfx::surface *overlay)
     PreventOverlap = true;
     
     RefLocation = NULL;
+    RefEntity = NULL;
     CurObject = NULL;
     Monitor = NULL;
     
@@ -56,6 +57,7 @@ GuiGrid::GuiGrid (gfx::surface *overlay)
 GuiGrid::~GuiGrid ()
 {
     delete RefLocation;
+    delete RefEntity;
 }
 
 // draw the grid
@@ -97,7 +99,19 @@ void GuiGrid::set_reference (const world::vector3<s_int32> & pos, MapEntity *ent
     world::vector3<s_int32> max = min + p->entire_max();
 
     delete RefLocation;
-    RefLocation = new world::chunk_info (entity->entity(), min, max);
+    delete RefEntity;
+
+    if (entity->entity() != NULL)
+    {
+        RefEntity = NULL;
+        RefLocation = new world::chunk_info (entity->entity(), min, max);
+    }
+    else
+    {
+        RefEntity = new world::named_entity (entity->object(), "tmp", false);
+        RefLocation = new world::chunk_info (RefEntity, min, max);
+    }
+
     RefObject = entity;
 }
 

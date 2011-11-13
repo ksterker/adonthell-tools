@@ -80,14 +80,18 @@ public:
     bool setSelected (MapEntity *etyToSelect, const bool & select = true);        
 
     /**
-     * Pick the previous object from entity list for map editing.
+     * Select the previous object from entity list. Returns
+     * the selected object or NULL if nothing selected.
+     * @return the previous object from entity list.
      */
-    void selectPrev ();
+    MapEntity *getPrev ();
 
     /**
-     * Pick the next object from entity list for map editing.
+     * Select the next object from entity list. Returns
+     * the selected object or NULL if nothing selected.
+     * @return the next object from entity list.
      */
-    void selectNext ();
+    MapEntity *getNext ();
 
     /**
      * Find the given entity in the entity list.
@@ -159,6 +163,8 @@ private:
     GtkTreeView *TreeView;
     /// the whole zone panel
     GtkWidget *Panel;
+    /// tree selection changed signal handler
+    gulong SelectionChanged;
 };
 
 #endif

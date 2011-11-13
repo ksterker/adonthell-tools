@@ -1,6 +1,4 @@
 /*
- $Id: gui_mapview_events.h,v 1.4 2009/05/21 14:28:18 ksterker Exp $
- 
  Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
  Part of the Adonthell Project http://adonthell.linuxgames.com
  
@@ -45,10 +43,6 @@ gint expose_event (GtkWidget *, GdkEventExpose *, gpointer);
  */
 gint button_press_event (GtkWidget *, GdkEventButton *, gpointer);
 /**
- * Callback indicating that a mouse button has been released.
- */
-// gint button_release_event (GtkWidget *, GdkEventButton *, gpointer);
-/**
  * Callback indicating that the mouse has been moved.
  */
 gint motion_notify_event (GtkWidget *, GdkEventMotion *, gpointer);
@@ -57,7 +51,12 @@ gint motion_notify_event (GtkWidget *, GdkEventMotion *, gpointer);
  */
 guint key_press_notify_event (GtkWidget *, GdkEventKey *, gpointer);
 /**
+ * Callback indicating that a key has been released.
+ */
+guint key_release_notify_event (GtkWidget *, GdkEventKey *, gpointer);
+/**
  * Callback indicating that the render height was changed.
  */
 void on_renderheight_changed (GtkRange *, gpointer);
+
 #endif // GUI_MAPVIEW_EVENTS_H

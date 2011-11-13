@@ -166,6 +166,22 @@ public:
     void zoom ();
 
     /**
+     * @name Tabbing Functionality
+     */
+    //@{
+    /**
+     * Update the candidate object to the next/previous
+     * entity in the entity list.
+     * @param backwards if true pick previous entity, otherwise next.
+     */
+    void startSelection (const bool & backwards);
+    /**
+     * Select the current candidate object for drawing, if any.
+     */
+    void finishSelection ();
+    //@}
+
+    /**
      * @name Editing Functionality
      */
     //@{
@@ -289,6 +305,8 @@ private:
     MapEntity *CurObj;
     /// The object used for "drawing"
     MapEntity *DrawObj;
+    /// An object that will potentially used for "drawing"
+    MapEntity *CandidateObj;
     
     /// A rendered version of the object used for "drawing"
     gfx::surface *DrawObjSurface;
