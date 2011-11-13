@@ -1480,8 +1480,14 @@ void GuiModeller::addConnector (MdlConnector *ctor)
         GtkTreeIter iter;
         GtkTreeModel *model = getConnectors ();
 
+        // add new connector to model ...
         gtk_list_store_append (GTK_LIST_STORE(model), &iter);
         gtk_list_store_set (GTK_LIST_STORE(model), &iter, 0, ctor, -1);
+
+        // ... and select it
+        GtkTreeView *tree_view = GTK_TREE_VIEW(gtk_builder_get_object (Ui, "view_connectors"));
+        GtkTreeSelection *selection = gtk_tree_view_get_selection (tree_view);
+        gtk_tree_selection_select_iter (selection, &iter);
     }
 }
 
