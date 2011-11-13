@@ -37,10 +37,10 @@
 GtkListStore *GuiFilterDialog::FilterModel = NULL;
 
 // active filter function
-base::functor_1ret<const MapEntity*, bool> *GuiFilterDialog::FilterFunc = NULL;
+base::functor_1ret<const MapEntity*, bool> *GuiFilterDialog::FilterFunc = base::make_functor_ret (&GuiFilterDialog::filterByConnector);
 
 // active filter type
-GuiFilterDialog::filter_type GuiFilterDialog::ActiveFilter = GuiFilterDialog::NONE;
+GuiFilterDialog::filter_type GuiFilterDialog::ActiveFilter = GuiFilterDialog::BY_CONNECTOR;
 
 // whether filter is active or not
 bool GuiFilterDialog::Paused = false;
