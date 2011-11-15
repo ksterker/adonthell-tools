@@ -1,6 +1,4 @@
 /*
-   $Id: map_cmdline.cc,v 1.1 2009/03/29 12:27:27 ksterker Exp $
-   
    Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
 
@@ -160,12 +158,13 @@ bool MapCmdline::setProjectFromPath (char *file)
 // prints the help message
 void MapCmdline::help (const std::string &program)
 {
-    std::cout << "Usage: " << program << " [OPTIONS] [SOURCES]" << std::endl;
+    std::cout << "Usage: " << program << " [OPTIONS] [MAPFILE]" << std::endl;
     std::cout << std::endl;
     std::cout << "Where [OPTIONS] can be:\n";
     std::cout << "-h         print this help message and exit" << std::endl; 
-    std::cout << "-d         print the project directory and exit" << std::endl; 
+    std::cout << "-d         print the default projects directory and exit" << std::endl;
     std::cout << "-v         print version and exit" << std::endl; 
-    std::cout << "-g dir     specify a custom project directory" << std::endl;
-    std::cout << "-p project specify a default project" << std::endl;
+    std::cout << "-g path    specify path to custom projects directory (default is builtin)" << std::endl;
+    std::cout << "-p project specify project inside projects directory" << std::endl;
+    std::cout << "-m dir     specify directory to load models from (default is models)" << std::endl;
 }

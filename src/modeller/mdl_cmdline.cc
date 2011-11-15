@@ -139,12 +139,12 @@ bool MdlCmdline::setProjectFromPath(char *file)
 // prints the help message
 void MdlCmdline::help (const std::string &program)
 {
-    std::cout << "Usage: " << program << " [OPTIONS] [SOURCES]" << std::endl;
+    std::cout << "Usage: " << program << " [OPTIONS] [MODEL]" << std::endl;
     std::cout << std::endl;
     std::cout << "Where [OPTIONS] can be:\n";
     std::cout << "-h         print this help message and exit" << std::endl; 
-    std::cout << "-d         print the project directory and exit" << std::endl; 
+    std::cout << "-d         print the default projects directory and exit" << std::endl;
     std::cout << "-v         print version and exit" << std::endl; 
-    std::cout << "-g dir     specify a custom project directory" << std::endl;
-    std::cout << "-p project specify a default project" << std::endl;
+    std::cout << "-g path    specify path to custom projects directory (default is builtin)" << std::endl;
+    std::cout << "-p project specify project inside projects directory" << std::endl;
 }
