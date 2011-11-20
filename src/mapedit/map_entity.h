@@ -112,6 +112,15 @@ public:
     bool canConnectWith (const MapEntity *entity, const bool & strict) const;
 
     /**
+     * Calculate offset required to connect the two objects based on their
+     * connectors.
+     * @param entity the entity being connected
+     * @param ox on completion contains the offset in x direction
+     * @param oy on completion contains the offset in y direction
+     */
+    void connect (const MapEntity *entity, s_int32 & ox, s_int32 & oy) const;
+
+    /**
      * @name Reference count
      *
      * Keeps track of how many instances of this object

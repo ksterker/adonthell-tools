@@ -586,7 +586,7 @@ void GuiMapview::selectObj (MapEntity *ety)
         DrawObjSurface = tmp;
     }
 
-    if (CandidateObj != NULL && CurObj == ety)
+    if (CandidateObj == NULL && CurObj == ety)
     {
         // entity picked from the map? --> use as new reference for grid
         Grid->set_reference (CurObj->getLocation()->center_min(), CurObj);

@@ -122,6 +122,11 @@ public:
     void grid_from_cur_object (const s_int32 & ox, const s_int32 & oy);
 
     /**
+     * Adjust the grid based on connector data.
+     */
+    void adjust_to_connectors ();
+
+    /**
      * Align the given position to the grid.
      * @param return the position aligned to the grid.
      */

@@ -151,14 +151,17 @@ void GuiGrid::grid_from_cur_object (const s_int32 & ox, const s_int32 & oy)
         Ix = CurObject->object()->length();
         Iy = CurObject->object()->width();
 
-        // set offset from object position
-        Ox = RefLocation->center_min().x() % Ix;
-        Oy = RefLocation->center_min().y() % Iy;
-
         // store map view offset
         Mx = x < 0 ? x % Ix + Ix : x % Ix;
         My = y < 0 ? y % Iy + Iy : y % Iy - CurObject->object()->cur_y();
         
+        // adjust to reference object
+        adjust_to_connectors();
+
+        // set offset from origin
+        Ox = Mx % Ix;
+        Oy = My % Iy;
+
         // make sure the changes take effect on next redraw
         Changed = true;
         
@@ -168,6 +171,22 @@ void GuiGrid::grid_from_cur_object (const s_int32 & ox, const s_int32 & oy)
             Monitor->gridChanged();
         }
     }
+}
+
+// adjust current and reference object based on common connectors
+void GuiGrid::adjust_to_connectors ()
+{
+    if (!RefObject || !RefObject->canConnectWith(CurObject, false))
+    {
+        return;
+    }
+
+    s_int32 xo = 0;
+    s_int32 yo = 0;
+
+    RefObject->connect (CurObject, xo, yo);
+
+    scroll (xo, yo);
 }
 
 // align to grid

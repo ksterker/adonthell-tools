@@ -415,6 +415,52 @@ bool MapEntity::canConnectWith (const MapEntity *entity, const bool & strict) co
     return false;
 }
 
+void MapEntity::connect (const MapEntity *entity, s_int32 & ox, s_int32 & oy) const
+{
+    std::vector<MdlConnector*>::const_iterator i;
+    std::vector<MdlConnector*>::const_iterator j;
+
+    for (i = entity->Connectors.begin(); i != entity->Connectors.end(); i++)
+    {
+        for (j = Connectors.begin(); j != Connectors.end(); j++)
+        {
+            switch ((*i)->side())
+            {
+                case MdlConnector::FRONT:
+                case MdlConnector::BACK:
+                {
+                    // try connecting top or bottom
+                    if ((*i)->length() == (*j)->length() && (*i)->opposite ((*j)->side()))
+                    {
+                        ox = (*i)->pos() - (*j)->pos();
+                        oy = (*i)->side() == MdlConnector::FRONT ? 0 : Object->width();
+
+                        // exact match found, so stop
+                        if ((*i)->name() == (*j)->name()) return;
+                    }
+
+                    break;
+                }
+                case MdlConnector::LEFT:
+                case MdlConnector::RIGHT:
+                {
+                    // try connecting left or right
+                    if ((*i)->width() == (*j)->width() && (*i)->opposite ((*j)->side()))
+                    {
+                        ox = (*i)->side() == MdlConnector::RIGHT ? 0 : Object->length();
+                        oy = (*i)->pos() - (*j)->pos();
+
+                        // exact match found, so stop
+                        if ((*i)->name() == (*j)->name()) return;
+                    }
+
+                    break;
+                }
+            }
+        }
+    }
+}
+
 // name of entity
 gchar* MapEntity::get_name () const
 {
