@@ -158,9 +158,9 @@ void GuiGrid::grid_from_cur_object (const s_int32 & ox, const s_int32 & oy)
         // adjust to reference object
         adjust_to_connectors();
 
-        // set offset from origin
-        Ox = Mx % Ix;
-        Oy = My % Iy;
+        // set grid offset from origin
+        Ox = (Mx + ox) % Ix;
+        Oy = (My + oy) % Iy;
 
         // make sure the changes take effect on next redraw
         Changed = true;
