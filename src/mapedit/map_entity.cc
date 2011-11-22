@@ -432,7 +432,7 @@ void MapEntity::connect (const MapEntity *entity, s_int32 & ox, s_int32 & oy) co
                     // try connecting top or bottom
                     if ((*i)->length() == (*j)->length() && (*i)->opposite ((*j)->side()))
                     {
-                        ox = (*i)->pos() - (*j)->pos();
+                        ox = (*j)->pos() - (*i)->pos();
                         oy = (*i)->side() == MdlConnector::FRONT ? 0 : Object->width();
 
                         // exact match found, so stop
@@ -448,7 +448,7 @@ void MapEntity::connect (const MapEntity *entity, s_int32 & ox, s_int32 & oy) co
                     if ((*i)->width() == (*j)->width() && (*i)->opposite ((*j)->side()))
                     {
                         ox = (*i)->side() == MdlConnector::RIGHT ? 0 : Object->length();
-                        oy = (*i)->pos() - (*j)->pos();
+                        oy = (*j)->pos() - (*i)->pos();
 
                         // exact match found, so stop
                         if ((*i)->name() == (*j)->name()) return;
