@@ -278,6 +278,12 @@ static void on_file_save_as_activate (GtkMenuItem * menuitem, gpointer user_data
         }
     }
     
+    if (filename.find('.') == filename.npos)
+    {
+        // make sure file has a valid file extension
+        filename += ".amdl";
+    }
+
     // try to create directory, if it doesn't exist
     // TODO: make a program setting for that instead of doing it by default 
     g_mkdir_with_parents (saveDir.c_str(), 0755);
@@ -1622,7 +1628,16 @@ void GuiModeller::setEditingMode (const int & editing_mode)
 void GuiModeller::setTitle(const bool & modified)
 {
     std::string title = "Adonthell Modeller v"VERSION" [";
-    title += filename();
+    const std::string & fname = filename();
+
+    if (fname.find ("untitled") == fname.npos)
+    {
+        gchar *set = g_path_get_basename (modelDirectory().c_str());
+        title += std::string(set) + "/";
+        g_free(set);
+    }
+
+    title += fname;
     title += modified ? "*]" : "]";
 
     gtk_window_set_title(GTK_WINDOW(Window), title.c_str());

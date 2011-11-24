@@ -183,7 +183,21 @@ static void entity_list_get_value (GtkTreeModel *self, GtkTreeIter *iter, int co
         }
         case TOOLTIP_COLUMN:
         {
-            g_value_set_string (value, obj->get_comment().c_str());
+            std::string path = obj->object()->modelfile();
+            gchar* dir = g_path_get_dirname (path.c_str());
+            gchar* set = g_path_get_basename (dir);
+
+            const std::string &comment = obj->get_comment();
+            if (comment.length() > 0)
+            {
+                gchar *tmp = g_strconcat (set, "\n", comment.c_str(), NULL);
+                g_free (set);
+                set = tmp;
+            }
+
+            g_value_set_string (value, set);
+            g_free(set);
+            g_free(dir);
             break;
         }
 		default:
@@ -315,6 +329,10 @@ GuiEntityList::GuiEntityList ()
     renderer = gtk_cell_renderer_pixbuf_new ();
     gtk_tree_view_insert_column_with_attributes (TreeView, -1, "Icon", renderer, "pixbuf", ICON_COLUMN, NULL);
     
+    // update column attributes
+    GtkTreeViewColumn *col = gtk_tree_view_get_column (TreeView, NAME_COLUMN);
+    gtk_tree_view_column_set_expand(col, true);
+
     // tooltips
     gtk_tree_view_set_tooltip_column(TreeView, TOOLTIP_COLUMN);
 
