@@ -109,7 +109,14 @@ public:
      * @param entity_name the entity to check for.
      * @return true if found, false otherwise.
      */
-    bool exists (const std::string & entity_name);
+    bool findDuplicateId (const std::string & entity_name);
+
+    /**
+     * Checks if an object with same hash exists on the map.
+     * @param hash the hash to check for.
+     * @return true if found, false otherwise.
+     */
+    bool findDuplicateHash (const std::string & hash) const;
     //@}    
     
     /**

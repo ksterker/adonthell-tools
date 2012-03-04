@@ -33,6 +33,7 @@
 #include <world/character.h>
 
 #include "backend/gtk/screen_gtk.h"
+#include "common/uid.h"
 #include "gui_filter_dialog.h"
 #include "map_entity.h"
 #include "map_data.h"
@@ -120,7 +121,7 @@ bool MapEntity::update_entity (const world::placeable_type & obj_type, const cha
     MapData *map = (MapData*) &(Object->map());    
 
     // do we have a shared entity? Object of different type?
-    if (entity_type != 'S' && obj_type != Object->type())
+    if (entity_type != 'S' || obj_type != Object->type())
     {
         world::placeable *obj = NULL;
         
@@ -129,12 +130,12 @@ bool MapEntity::update_entity (const world::placeable_type & obj_type, const cha
         {
             case world::OBJECT:
             {
-                obj = new world::object (*map);
+                obj = new world::object (*map, Object->hash());
                 break;
             }
             case world::CHARACTER:
             {
-                obj = new world::character (*map);
+                obj = new world::character (*map, Object->hash());
                 break;
             }
             default:
@@ -509,7 +510,7 @@ gchar* MapEntity::createNewId () const
         id.str ("");
         id << base << "_" << ++i;
     }
-    while (map->exists (id.str()));
+    while (map->findDuplicateId (id.str()));
 
     // return this id as newly allocated string
     return g_strdup_printf ("%s_%i", base.c_str(), i);

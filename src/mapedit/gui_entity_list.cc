@@ -34,6 +34,7 @@
 #include <world/object.h>
 
 #include "common/util.h"
+#include "common/uid.h"
 
 #include "map_cmdline.h"
 #include "gui_mapedit.h"
@@ -678,7 +679,11 @@ void GuiEntityList::scanDir (const std::string & datadir, GtkListStore *model)
                     
                     // note: we load it as an object, as we do not yet
                     // know which type it will have later.
-                    world::object *obj = new world::object(*Map);
+
+                    // TODO: we should first create the hash and check that no object
+                    // on the map is using it yet. If it is used, it should be changed
+                    // until it is unique.
+                    world::object *obj = new world::object(*Map, uid::as_string(uid::hash(model_path)));
                     if (obj->load_model (model_path))
                     {
                         // set default state

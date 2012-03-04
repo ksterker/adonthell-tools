@@ -423,7 +423,7 @@ void GuiMapedit::saveMap (const std::string & fname)
     if (ActiveMap == -1) return;
     
     MapData *area = LoadedMaps[ActiveMap];
-    if (!area->save (fname))
+    if (!area->save (fname, base::diskio::XML_FILE))
     {
         // error
     }

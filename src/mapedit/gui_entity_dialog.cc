@@ -29,6 +29,8 @@
 #include <world/character.h>
 
 #include "common/util.h"
+#include "common/uid.h"
+
 #include "map_cmdline.h"
 #include "gui_mapedit.h"
 #include "gui_mapview.h"
@@ -452,8 +454,22 @@ void GuiEntityDialog::applyChanges()
         // set character schedule, if neccessary
         if (ObjType == world::CHARACTER)
         {
-            set_character_data ((world::character*) objToUpdate->object());
+            set_character_data ((world::character*)(objToUpdate->object()));
         }
+    }
+
+    // update object hash, in case id changed
+    std::string *hash = (std::string*)(&objToUpdate->object()->hash());
+    u_int32 int_hash = uid::hash(objToUpdate->object()->modelfile() + id);
+    std::string new_hash = uid::as_string(int_hash);
+    if(new_hash != *hash)
+    {
+        MapData *map = (MapData*)(&objToUpdate->object()->map());
+        while (map->findDuplicateHash(new_hash))
+        {
+            new_hash = uid::as_string(++int_hash);
+        }
+        hash->replace(hash->begin(), hash->end(), new_hash);
     }
 
     if (objToUpdate != Entity)
@@ -574,17 +590,13 @@ void GuiEntityDialog::set_entity_type (const char & type)
 void GuiEntityDialog::set_entity_state (const std::string & state)
 {
     EntityState = state;
-    
-    // update image
-    std::string prevState = Entity->object()->state();
     Entity->object()->set_state (state);
     
+    // update image
     GdkPixbuf *img = Entity->get_icon (64);
     GObject *widget = gtk_builder_get_object (Ui, "img_preview");
     gtk_image_set_from_pixbuf (GTK_IMAGE (widget), img);
     g_object_unref (img);
-    
-    Entity->object()->set_state (prevState);
 }
 
 // init values on scenery page
@@ -625,8 +637,12 @@ void GuiEntityDialog::set_scenery_data (world::chunk_info *location)
     // get method arguments
     PyObject *args = Selector->get_arguments();
     
+    // create hash for saving action
+    std::stringstream out (std::ios::out);
+    out << script << method << location->Min;
+
     // set selected action
-    world::action *act = location->set_action();
+    world::action *act = location->set_action(uid::as_string(uid::hash(out.str())));
     act->init (script, method, args);
     Py_DECREF(args);
 }

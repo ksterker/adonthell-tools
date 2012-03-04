@@ -57,9 +57,24 @@ public:
      */
     static u_int32 create (const u_int32 & counter);
 
+    /**
+     * Convert 32 bit hash to 8 byte hex string.
+     * @return hash in hex representation.
+     */
     static std::string as_string (const u_int32 & uid);
 
+    /**
+     * Convert 8 byte hex string to 32bit hash.
+     * @return hash in decimal representation.
+     */
     static u_int32 from_string (const std::string & uid);
+
+    /**
+     * Create a hash from the given source. For the same source
+     * the same hash is returned.
+     * @return hash for given string.
+     */
+    static u_int32 hash (const std::string & source);
 
 private:
     /**

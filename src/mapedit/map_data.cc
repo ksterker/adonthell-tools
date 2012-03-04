@@ -72,17 +72,27 @@ std::list<world::chunk_info*> MapData::getEntityLocations (world::entity *ety) c
 }
 
 // check for named entity presence
-bool MapData::exists (const std::string & entity_name)
+bool MapData::findDuplicateId (const std::string & entity_name)
 {
     std::hash_map<std::string, world::named_entity*>::const_iterator result = NamedEntities.find (entity_name);
     return (result != NamedEntities.end());
+}
+
+// check for objects with identical hash
+bool MapData::findDuplicateHash (const std::string & hash) const
+{
+    for (std::vector<world::entity*>::const_iterator i = Entities.begin(); i != Entities.end(); i++)
+    {
+        if ((*i)->get_object()->hash() == hash) return true;
+    }
+    return false;
 }
 
 // rename map entity
 world::entity* MapData::renameEntity (MapEntity *entity, const std::string & id)
 {
     // first, check if the new name is valid
-    if (exists (id))
+    if (findDuplicateId (id))
     {
         // TODO: display message in status bar
         return NULL;

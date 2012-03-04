@@ -71,6 +71,12 @@ u_int32 uid::from_string(const std::string & uid)
     return result;
 }
 
+// return simple hash
+u_int32 uid::hash (const std::string & source)
+{
+    return SuperFastHash(source.c_str(), source.length());
+}
+
 /*
  * Taken from http://www.azillionmonkeys.com/qed/hash.html
  * Licensed under LGPL 2.1
