@@ -372,15 +372,23 @@ void surface_gtk::mirror (bool x, bool y)
     
     if (x || y)
     {
-        cairo_t* cr = cairo_create (vis);
+        // create temporary surface to blit flipped image to
+        cairo_format_t format = alpha_channel_ ? CAIRO_FORMAT_ARGB32 : CAIRO_FORMAT_RGB24;
+        cairo_surface_t *tmp = cairo_image_surface_create (format, length(), height());
+
+        cairo_t* cr = cairo_create (tmp);
         cairo_pattern_t* pattern = cairo_pattern_create_for_surface (vis);
         cairo_matrix_t matrix;
-        cairo_matrix_init_scale (&matrix, mx, my);
+        cairo_matrix_init (&matrix, mx, 0, 0, my, mx == 1 ? 0 : length(), my == 1 ? 0 : height());
         cairo_pattern_set_matrix (pattern, &matrix);
         cairo_set_source (cr, pattern);
-        cairo_paint (cr);    
+        cairo_paint (cr);
         cairo_destroy (cr);
         
+        // update surface to flipped image
+        cairo_surface_destroy (vis);
+        vis = tmp;
+
         // update mask
         if (mask)
         {
