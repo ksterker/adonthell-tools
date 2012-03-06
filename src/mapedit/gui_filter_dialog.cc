@@ -215,6 +215,7 @@ bool GuiFilterDialog::isEntityFiltered (const MapEntity *entity)
     // some common filters
     if (entity == NULL) return true;
     if (entity->hasTag ("template")) return true;
+    if (entity == GuiMapedit::window->view()->getSelectedObject()) return false;
 
     if (FilterFunc != NULL) return (*FilterFunc)(entity);
 
