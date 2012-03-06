@@ -169,7 +169,7 @@ static void selected_event (GtkTreeSelection *selection, gpointer user_data)
         gtk_tree_model_get (model, &iter, 1, &loc, -1);
 
         GuiEntityDialog *dlg = (GuiEntityDialog *) user_data;
-        dlg->setLocation (loc);
+        dlg->set_location (loc);
     }
 }
 
@@ -197,7 +197,7 @@ GuiEntityDialog::GuiEntityDialog (MapEntity *entity, const GuiEntityDialog::Mode
         return;
     }
     
-    setLocations();
+    init_locations();
     
     // get reference to dialog window
     window = GTK_WIDGET (gtk_builder_get_object (Ui, "entity_properties"));
@@ -451,7 +451,7 @@ void GuiEntityDialog::applyChanges()
         {
             set_scenery_data (Entity->getLocation());
         }
-        // set character schedule, if neccessary
+        // set character schedule, if necessary
         if (ObjType == world::CHARACTER)
         {
             set_character_data ((world::character*)(objToUpdate->object()));
@@ -462,7 +462,8 @@ void GuiEntityDialog::applyChanges()
     std::string *hash = (std::string*)(&objToUpdate->object()->hash());
     u_int32 int_hash = uid::hash(objToUpdate->object()->modelfile() + id);
     std::string new_hash = uid::as_string(int_hash);
-    if(new_hash != *hash)
+
+    if(DlgMode == ADD_ENTITY_TO_MAP || new_hash != *hash)
     {
         MapData *map = (MapData*)(&objToUpdate->object()->map());
         while (map->findDuplicateHash(new_hash))
@@ -663,7 +664,7 @@ void GuiEntityDialog::set_character_data (world::character *chr)
 }
 
 // set locations of the selected object
-void GuiEntityDialog::setLocations ()
+void GuiEntityDialog::init_locations ()
 {
     GtkTreeIter iter;
     GObject *widget = gtk_builder_get_object (Ui, "location_list");
@@ -705,7 +706,7 @@ void GuiEntityDialog::setLocations ()
 }
 
 // update location of the entity being edited
-void GuiEntityDialog::setLocation (world::chunk_info *location)
+void GuiEntityDialog::set_location (world::chunk_info *location)
 {
     // update current location with selected values
     world::chunk_info *cur_loc = Entity->getLocation();

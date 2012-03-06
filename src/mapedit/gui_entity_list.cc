@@ -399,21 +399,25 @@ void GuiEntityList::addEntity (MapEntity *ety)
     // set our data
     gtk_list_store_set (model, &iter, 0, ety, -1);    
     
-    // select it
-    GtkTreeSelection *selection = gtk_tree_view_get_selection (TreeView);
-    gtk_tree_selection_select_iter (selection, &iter);
-    
-    // and scroll it into view
+    // select it and scroll it into view
     GtkTreePath *child_path = gtk_tree_model_get_path (GTK_TREE_MODEL (model), &iter);
     GtkTreePath *path = gtk_tree_model_filter_convert_child_path_to_path (filter, child_path);
 
     if (path != NULL)
     {
+        GtkTreeSelection *selection = gtk_tree_view_get_selection (TreeView);
+        g_signal_handler_block (G_OBJECT(selection), SelectionChanged);
+        gtk_tree_selection_select_path (selection, path);
+        g_signal_handler_unblock (G_OBJECT(selection), SelectionChanged);
+
         gtk_tree_view_scroll_to_cell (TreeView, path, NULL, TRUE, 0.5f, 0.0f);
         gtk_tree_path_free (path);
     }
 
     gtk_tree_path_free (child_path);
+
+    // update filter
+    filterChanged();
 }
 
 // select given entity
@@ -680,9 +684,9 @@ void GuiEntityList::scanDir (const std::string & datadir, GtkListStore *model)
                     // note: we load it as an object, as we do not yet
                     // know which type it will have later.
 
-                    // TODO: we should first create the hash and check that no object
-                    // on the map is using it yet. If it is used, it should be changed
-                    // until it is unique.
+                    // the objects created here are not yet part of the map, so the hash
+                    // is preliminary. It may be changed for named entities and will be
+                    // checked for uniqueness when placing the object on the map.
                     world::object *obj = new world::object(*Map, uid::as_string(uid::hash(model_path)));
                     if (obj->load_model (model_path))
                     {

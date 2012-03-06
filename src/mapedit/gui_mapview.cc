@@ -712,7 +712,7 @@ void GuiMapview::placeCurObj()
             // update draw object
             DrawObj = newObj;
             ety = newObj->entity();
-            
+
             // add new entity to entity list
             GuiMapedit::window->entityList()->addEntity (newObj);
         }

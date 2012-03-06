@@ -92,7 +92,11 @@ public:
      */
     void set_entity_state (const std::string & state);
     
-    void setLocation (world::chunk_info *location);
+    /**
+     * Update location of the entity being edited.
+     * @param location the newly selected location.
+     */
+    void set_location (world::chunk_info *location);
     //@}
     
 protected:
@@ -106,7 +110,7 @@ protected:
     /**
      * Populate the list of locations at which the entity exists.
      */
-    void setLocations ();
+    void init_locations ();
 
     /**
      * Initialize scenery-specific page(s).
