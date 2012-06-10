@@ -1,5 +1,18 @@
 ## Process this file with automake to produce Makefile.in
 
+## -- icons
+
+appicons64dir = $(datadir)/icons/hicolor/64x64/apps
+dist_appicons64_DATA = adonthell-dlgedit.png \
+	adonthell-mapedit.png \
+	adonthell-modeller.png
+
+mimetypeicons64dir = $(datadir)/icons/hicolor/64x64/mimetypes
+dist_mimetypeicons64_DATA = application-x-adonthell-dlg.png \ 
+	application-x-adonthell-map.png \
+	application-x-adonthell-mdl.png
+
+
 ## -- .desktop files
 
 desktopdir = $(datadir)/applications

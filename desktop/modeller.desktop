@@ -2,6 +2,7 @@
 Name=Adonthell Modeller
 Comment=The Adonthell Model Editor.
 Exec=adonthell-modeller
+Icon=adonthell-modeller
 Terminal=false
 Type=Application
 Categories=Development;RolePlaying;
