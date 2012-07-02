@@ -284,7 +284,7 @@ PyObject *GuiScriptSelector::get_arguments () const
                         py_val = PyString_FromString(val);
                     }
 
-                    PyTuple_SET_ITEM (args, index, py_val);
+                    PyTuple_SetItem (args, index, py_val);
                 }
             }
             
@@ -376,7 +376,7 @@ void GuiScriptSelector::get_class_methods (PyObject *classobj)
         PyObject *result = python::run_string (cmd, Py_file_input, globals);
         if (result != NULL)
         {
-            // get result from globals
+            // get result from globals (borrowed reference)
             PyObject *meths = PyDict_GetItemString (globals, "meths");
             if (PyList_Check(meths))
             {
@@ -398,7 +398,6 @@ void GuiScriptSelector::get_class_methods (PyObject *classobj)
             }
             
             Py_DECREF(result);
-            Py_XDECREF(meths);
         }
         
         Py_DECREF(globals);
@@ -425,7 +424,7 @@ void GuiScriptSelector::get_method_arguments (PyObject *classobj, const std::str
         PyObject *result = python::run_string (cmd, Py_file_input, globals);
         if (result != NULL)
         {
-            // get result from globals
+            // get result from globals (borrowed reference)
             PyObject *args = PyDict_GetItemString (globals, "args");
             if (PyList_Check(args))
             {
@@ -445,7 +444,6 @@ void GuiScriptSelector::get_method_arguments (PyObject *classobj, const std::str
             }
             
             Py_DECREF(result);
-            Py_XDECREF(args);
         }
         
         Py_DECREF(globals);
