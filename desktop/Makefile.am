@@ -8,7 +8,7 @@ dist_appicons64_DATA = adonthell-dlgedit.png \
 	adonthell-modeller.png
 
 mimetypeicons64dir = $(datadir)/icons/hicolor/64x64/mimetypes
-dist_mimetypeicons64_DATA = application-x-adonthell-dlg.png \ 
+dist_mimetypeicons64_DATA = application-x-adonthell-dlg.png \
 	application-x-adonthell-map.png \
 	application-x-adonthell-mdl.png
 
