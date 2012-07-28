@@ -26,7 +26,7 @@
 
 #include <glib.h>
 
-#include <base/base.h>
+#include <adonthell/base/base.h>
 
 #include "gui_connectors.h"
 

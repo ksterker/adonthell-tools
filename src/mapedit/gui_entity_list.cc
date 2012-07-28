@@ -30,8 +30,8 @@
 #include <sys/stat.h>
 
 #include <gtk/gtk.h>
-#include <base/base.h>
-#include <world/object.h>
+#include <adonthell/base/base.h>
+#include <adonthell/world/object.h>
 
 #include "common/util.h"
 #include "common/uid.h"

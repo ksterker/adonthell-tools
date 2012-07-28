@@ -28,7 +28,7 @@
 #define COMMON_UID_H
 
 #include <string>
-#include <base/types.h>
+#include <adonthell/base/types.h>
 
 /**
  * Class to create unique ids for various purposes. In general,

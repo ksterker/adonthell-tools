@@ -25,7 +25,7 @@
  */
 
 #include <gtk/gtk.h>
-#include <base/base.h>
+#include <adonthell/base/base.h>
 
 #include "map_data.h"
 #include "map_mgr.h"

@@ -28,9 +28,9 @@
 #define MAP_ENTITY_H
 
 #include <gdk-pixbuf/gdk-pixbuf.h>
-#include <base/hash_map.h>
-#include <world/chunk_info.h>
-#include <world/coordinates.h>
+#include <adonthell/base/hash_map.h>
+#include <adonthell/world/chunk_info.h>
+#include <adonthell/world/coordinates.h>
 
 #include "common/mdl_connector.h"
 

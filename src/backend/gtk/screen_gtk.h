@@ -25,7 +25,7 @@
 
 #include <gdk/gdk.h>
 
-#include "gfx/screen.h"
+#include <adonthell/gfx/screen.h>
 #include "surface_gtk.h"
 
 /// the color that appears transparent when the surface is masked

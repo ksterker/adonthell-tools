@@ -24,7 +24,7 @@
  * @brief Grid for aligning object placement.
  */
 
-#include "base/base.h"
+#include <adonthell/base/base.h>
 #include "gui_grid.h"
 #include "map_entity.h"
 

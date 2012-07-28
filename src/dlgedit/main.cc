@@ -38,7 +38,7 @@
 #include "dlg_cmdline.h"
 #include "dlg_compiler.h"
 #include "gui_dlgedit.h"
-#include "base/base.h"
+#include <adonthell/base/base.h>
 
 int main (int argc, char *argv[])
 {

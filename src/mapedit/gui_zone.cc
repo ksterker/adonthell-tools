@@ -24,8 +24,8 @@
  * @brief Grid for aligning object placement.
  */
 
-#include <base/base.h>
-#include <gfx/gfx.h>
+#include <adonthell/base/base.h>
+#include <adonthell/gfx/gfx.h>
 
 #include "gui_zone.h"
 #include "map_data.h"

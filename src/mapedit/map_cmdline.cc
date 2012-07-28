@@ -30,7 +30,7 @@
 #include <dirent.h>
 #include <unistd.h>
 
-#include "base/logging.h"
+#include <adonthell/base/logging.h>
 
 #include "common/util.h"
 #include "map_cmdline.h"

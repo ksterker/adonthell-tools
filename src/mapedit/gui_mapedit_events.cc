@@ -29,7 +29,7 @@
 #include <string>
 #include <gtk/gtk.h>
 
-#include "base/base.h"
+#include <adonthell/base/base.h>
 
 #include "gui_mapedit.h"
 #include "gui_mapview.h"

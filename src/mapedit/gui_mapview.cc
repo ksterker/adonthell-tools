@@ -27,7 +27,7 @@
 #include <gdk/gdk.h>
 #include <gtk/gtk.h>
 
-#include "gfx/gfx.h"
+#include <adonthell/gfx/gfx.h>
 #include "backend/gtk/screen_gtk.h"
 
 #include "gui_entity_dialog.h"

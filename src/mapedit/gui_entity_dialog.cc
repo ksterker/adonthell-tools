@@ -26,7 +26,7 @@
 
 #include <gtk/gtk.h>
 
-#include <world/character.h>
+#include <adonthell/world/character.h>
 
 #include "common/util.h"
 #include "common/uid.h"

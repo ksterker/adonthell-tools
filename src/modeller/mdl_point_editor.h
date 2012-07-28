@@ -28,7 +28,7 @@
 #define MDL_POINT_EDITOR_H
 
 #include <gtk/gtk.h>
-#include <world/cube3.h>
+#include <adonthell/world/cube3.h>
 
 #include "mdl_editor.h"
 #include "mdl_point_handles.h"

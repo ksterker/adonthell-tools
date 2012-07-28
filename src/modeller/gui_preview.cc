@@ -26,8 +26,8 @@
 
 #include <gtk/gtk.h>
 
-#include <gfx/gfx.h>
-#include <world/placeable_model.h>
+#include <adonthell/gfx/gfx.h>
+#include <adonthell/world/placeable_model.h>
 
 #include "backend/gtk/screen_gtk.h"
 

@@ -29,7 +29,7 @@
 
 #include <gtk/gtk.h>
 
-#include <base/callback.h>
+#include <adonthell/base/callback.h>
 
 #include "gui_modal_dialog.h"
 #include "gui_grid.h"

@@ -29,8 +29,8 @@
 #include <algorithm>
 #include "dlg_cmdline.h"
 #include "dlg_module_entry.h"
-#include "base/base.h"
-#include "rpg/quest.h"
+#include <adonthell/base/base.h>
+#include <adonthell/rpg/quest.h>
 
 // ctor
 DlgModuleEntry::DlgModuleEntry ()

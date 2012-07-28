@@ -28,7 +28,7 @@
 #define GUI_SCRIPT_SELECTOR_H
 
 #include <gtk/gtk.h>
-#include <python/script.h>
+#include <adonthell/python/script.h>
 
 /**
  * Helper class to select from a list of python scripts,

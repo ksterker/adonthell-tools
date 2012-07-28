@@ -23,7 +23,7 @@
 #define SURFACE_GTK_H
 
 #include <cairo/cairo.h>
-#include "gfx/surface.h"
+#include <adonthell/gfx/surface.h>
 
 namespace gfx
 {

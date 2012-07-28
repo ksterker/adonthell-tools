@@ -26,7 +26,7 @@
  * @brief Area manager extension for map editor.
  */
 
-#include <world/area_manager.h>
+#include <adonthell/world/area_manager.h>
 
 /**
  * Area manager that allows to directly set the 

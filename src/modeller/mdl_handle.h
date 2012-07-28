@@ -29,7 +29,7 @@
 
 #include <vector>
 #include <gdk/gdk.h>
-#include <world/cube3.h>
+#include <adonthell/world/cube3.h>
 
 /// size of handle
 #define HANDLE_SIZE 8

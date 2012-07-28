@@ -26,7 +26,7 @@
 
 #include <gtk/gtk.h>
 
-#include <world/zone.h>
+#include <adonthell/world/zone.h>
 
 #include "gui_mapedit.h"
 #include "gui_mapview.h"

@@ -29,7 +29,7 @@
 #ifndef MAP_RENDERER_H
 #define MAP_RENDERER_H
 
-#include <world/renderer.h>
+#include <adonthell/world/renderer.h>
 
 /**
  * A renderer with additional functionalities used by the map editor.

@@ -31,10 +31,10 @@
 #endif
 
 #include <gtk/gtk.h>
-#include <base/base.h>
-#include <gfx/gfx.h>
-#include <python/python.h>
-#include <rpg/character.h>
+#include <adonthell/base/base.h>
+#include <adonthell/gfx/gfx.h>
+#include <adonthell/python/python.h>
+#include <adonthell/rpg/character.h>
 
 #include "map_cmdline.h"
 #include "gui_mapedit.h"

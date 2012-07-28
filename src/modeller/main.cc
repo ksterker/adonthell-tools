@@ -31,8 +31,8 @@
 #endif
 
 #include <gtk/gtk.h>
-#include <base/base.h>
-#include <gfx/gfx.h>
+#include <adonthell/base/base.h>
+#include <adonthell/gfx/gfx.h>
 
 #include "mdl_cmdline.h"
 #include "gui_modeller.h"

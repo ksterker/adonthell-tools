@@ -27,7 +27,7 @@
 #ifndef GUI_MAPVIEW_H
 #define GUI_MAPVIEW_H
 
-#include <world/mapview.h>
+#include <adonthell/world/mapview.h>
 
 #include "gui_scrollable.h"
 #include "map_renderer.h"

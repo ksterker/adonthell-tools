@@ -28,9 +28,9 @@
 #define MDL_CONNECTOR_H
 
 #include <string>
-#include <base/types.h>
-#include <base/hash_map.h>
-#include <base/flat.h>
+#include <adonthell/base/types.h>
+#include <adonthell/base/hash_map.h>
+#include <adonthell/base/flat.h>
 
 /**
  * Common connector attributes, possibly shared by

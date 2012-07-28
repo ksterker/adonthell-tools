@@ -24,7 +24,7 @@
  * @brief Control filtering of entity list.
  */
 
-#include <world/area_manager.h>
+#include <adonthell/world/area_manager.h>
 
 #include "gui_filter_dialog.h"
 #include "gui_entity_list.h"

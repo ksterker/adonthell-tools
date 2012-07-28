@@ -24,7 +24,7 @@
  * @brief Control grid for aligning object placement.
  */
 
-#include <world/area_manager.h>
+#include <adonthell/world/area_manager.h>
 
 #include "gui_grid_dialog.h"
 #include "gui_mapedit.h"

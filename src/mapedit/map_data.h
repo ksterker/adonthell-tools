@@ -27,7 +27,7 @@
 #ifndef MAP_DATA_H
 #define MAP_DATA_H
 
-#include <world/area.h>
+#include <adonthell/world/area.h>
 
 class MapEntity;
 

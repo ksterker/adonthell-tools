@@ -28,7 +28,7 @@
 #define MDL_BBOX_MODE_H
 
 #include <gtk/gtk.h>
-#include <world/cube3.h>
+#include <adonthell/world/cube3.h>
 
 #include "mdl_editor.h"
 #include "mdl_bbox_handles.h"

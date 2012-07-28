@@ -25,8 +25,8 @@
  */
 
 
-#include <base/base.h>
-#include <world/cube3.h>
+#include <adonthell/base/base.h>
+#include <adonthell/world/cube3.h>
 
 #include "mdl_point_handles.h"
 

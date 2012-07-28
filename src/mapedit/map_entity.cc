@@ -28,9 +28,9 @@
 #include <cctype>
 #include <gtk/gtk.h>
 
-#include <world/renderer.h>
-#include <world/object.h>
-#include <world/character.h>
+#include <adonthell/world/renderer.h>
+#include <adonthell/world/object.h>
+#include <adonthell/world/character.h>
 
 #include "backend/gtk/screen_gtk.h"
 #include "common/uid.h"

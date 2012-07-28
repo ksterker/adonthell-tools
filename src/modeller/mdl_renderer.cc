@@ -24,7 +24,7 @@
  * @brief A renderer for single shapes
  */
 
-#include <gfx/gfx.h>
+#include <adonthell/gfx/gfx.h>
 
 #include "mdl_handle.h"
 #include "mdl_renderer.h"

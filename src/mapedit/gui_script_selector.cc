@@ -28,9 +28,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include <base/base.h>
-#include <world/action.h>
-#include <world/schedule.h>
+#include <adonthell/base/base.h>
+#include <adonthell/world/action.h>
+#include <adonthell/world/schedule.h>
 
 #include "gui_script_selector.h"
 

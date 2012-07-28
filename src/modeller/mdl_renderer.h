@@ -29,7 +29,7 @@
 #define MDL_RENDERER_H
 
 #include <gdk/gdk.h>
-#include <world/renderer.h>
+#include <adonthell/world/renderer.h>
 
 #include "common/mdl_connector.h"
 #include "mdl_handle.h"

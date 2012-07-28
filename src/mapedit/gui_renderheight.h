@@ -28,7 +28,7 @@
 #define GUI_RENDERHEIGHT_H
 
 #include <gtk/gtk.h>
-#include <base/types.h>
+#include <adonthell/base/types.h>
 
 /**
  * GUI element that allows the user to restrict rendering

@@ -27,8 +27,8 @@
 #ifndef GUI_GRID_H
 #define GUI_GRID_H
 
-#include <gfx/surface.h>
-#include <world/chunk_info.h>
+#include <adonthell/gfx/surface.h>
+#include <adonthell/world/chunk_info.h>
 
 class MapEntity;
 

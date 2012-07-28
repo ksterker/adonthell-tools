@@ -24,7 +24,7 @@
  * @brief Editing a models individual points.
  */
 
-#include <base/base.h>
+#include <adonthell/base/base.h>
 
 #include "mdl_point_editor.h"
 #include "mdl_point_handles.h"

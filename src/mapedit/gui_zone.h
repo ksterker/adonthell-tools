@@ -27,8 +27,8 @@
 #ifndef GUI_ZONE_H
 #define GUI_ZONE_H
 
-#include <gfx/surface.h>
-#include <world/zone.h>
+#include <adonthell/gfx/surface.h>
+#include <adonthell/world/zone.h>
 
 /**
  * Render zones on the mapview.

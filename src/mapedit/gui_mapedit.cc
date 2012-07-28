@@ -35,7 +35,7 @@
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include <gdk/gdkkeysyms.h>
 
-#include <base/base.h>
+#include <adonthell/base/base.h>
 
 #ifdef MAC_INTEGRATION
 #include <ige-mac-integration.h>

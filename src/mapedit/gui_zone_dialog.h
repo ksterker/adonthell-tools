@@ -27,7 +27,7 @@
 #ifndef GUI_ZONE_DIALOG_H
 #define GUI_ZONE_DIALOG_H
 
-#include <world/zone.h>
+#include <adonthell/world/zone.h>
 
 #include "gui_modal_dialog.h"
 #include "map_data.h"

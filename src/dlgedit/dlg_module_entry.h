@@ -32,7 +32,7 @@
 #include <string>
 #include <vector>
 
-#include <rpg/character.h>
+#include <adonthell/rpg/character.h>
 #include "dlg_types.h"
 
 /**

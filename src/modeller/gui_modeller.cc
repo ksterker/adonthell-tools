@@ -31,9 +31,9 @@
 #include <ige-mac-integration.h>
 #endif
 
-#include <base/base.h>
-#include <base/diskio.h>
-#include <world/placeable_model.h>
+#include <adonthell/base/base.h>
+#include <adonthell/base/diskio.h>
+#include <adonthell/world/placeable_model.h>
 
 #include "common/util.h"
 

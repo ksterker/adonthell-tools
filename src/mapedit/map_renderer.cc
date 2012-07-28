@@ -8,7 +8,7 @@
  */
 
 #include <gdk/gdk.h>
-#include <gfx/gfx.h>
+#include <adonthell/gfx/gfx.h>
 
 #include "map_renderer.h"
 
