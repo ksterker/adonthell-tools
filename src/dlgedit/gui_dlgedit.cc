@@ -445,11 +445,13 @@ void GuiDlgedit::loadDialogue (const std::string &f)
 {
     // make sure that file has an absolute path
     std::string file = ((f[0] == '/' || f[1] == ':') ? f : directory_ + std::string ("/") + f);
+    gchar *fname = g_path_get_basename (file.c_str ());
     
     // test if we have a valid dialogue
     if (!checkDialogue (file))
     {        
-        message->display (-2, g_basename (file.c_str ()));
+        message->display (-2, fname);
+        g_free(fname);
         return;
     }
 
@@ -457,7 +459,7 @@ void GuiDlgedit::loadDialogue (const std::string &f)
     directory_ = g_dirname (file.c_str ());
     
     // get the name to use for the dialogue
-    std::string filename = g_basename (file.c_str ());
+    std::string filename (fname);
     
     // remove file extension
     unsigned long pos = filename.rfind (FILE_EXT);
@@ -482,6 +484,8 @@ void GuiDlgedit::loadDialogue (const std::string &f)
         message->display (200);     
         showDialogue (module, true);
     }
+
+    g_free(fname);
 }
 
 // load a sub-dialogue
@@ -494,7 +498,9 @@ DlgModule* GuiDlgedit::loadSubdialogue (const std::string &file)
     directory_ = g_dirname (file.c_str ());
 
     // get the name to use for the dialogue
-    std::string filename = g_basename (file.c_str ());
+    gchar *fname = g_path_get_basename (file.c_str ());
+    std::string filename (fname);
+    g_free (fname);
 
     // remove file extension
     unsigned long pos = filename.rfind (FILE_EXT);
@@ -559,7 +565,9 @@ void GuiDlgedit::saveDialogue (const std::string &file)
     directory_ = g_dirname (file.c_str ());
     
     // get the filename
-    std::string filename = g_basename (file.c_str ());
+    gchar *fname = g_path_get_basename (file.c_str ());
+    std::string filename (fname);
+    g_free (fname);
     
     // remove file extension
     unsigned long pos = filename.rfind (FILE_EXT);
@@ -704,7 +712,9 @@ void GuiDlgedit::previewTranslation (const std::string &catalogue)
     // check if we have a proper catalogue
     if (strncmp (catalogue.substr (catalogue.length ()-3).c_str (), ".mo", 3))
     {
-        message->display (-130, g_basename (catalogue.c_str ()));
+        gchar *cname = g_path_get_basename (catalogue.c_str ());
+        message->display (-130, cname);
+        g_free (cname);
         return;
     }
     
@@ -713,7 +723,9 @@ void GuiDlgedit::previewTranslation (const std::string &catalogue)
 
     if (!exists)
     {
-        message->display (-2, g_basename (catalogue.c_str ()));
+        gchar *cname = g_path_get_basename (catalogue.c_str ());
+        message->display (-2, cname);
+        g_free (cname);
         return;
     }
     // if it does, check magic number of catalogue file
@@ -727,7 +739,9 @@ void GuiDlgedit::previewTranslation (const std::string &catalogue)
     
         if (magic != 0x950412de)
         {
-            message->display (-130, g_basename (catalogue.c_str ()));
+            gchar *cname = g_path_get_basename (catalogue.c_str ());
+            message->display (-130, cname);
+            g_free (cname);
             return;
         }
     }

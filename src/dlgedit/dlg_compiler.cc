@@ -92,21 +92,23 @@ void DlgCompiler::run ()
     }
     
     // try to open the file
-    std::string fname = dialogue->fullName ();
+    std::string full_name = dialogue->fullName ();
 
     // replace '-' by '_' as python doesn't like it
-    std::replace (fname.begin(), fname.end(), '-', '_');
+    std::replace (full_name.begin(), full_name.end(), '-', '_');
     
     // remove the file extension
-    unsigned long pos = fname.rfind (FILE_EXT);
-    if (pos != fname.npos) fname.erase (pos);
+    unsigned long pos = full_name.rfind (FILE_EXT);
+    if (pos != full_name.npos) full_name.erase (pos);
     
     // try to open the file
-    file.open ((fname + ".py").c_str ());
+    file.open ((full_name + ".py").c_str ());
     if (file.eof ()) return;
     
+    gchar *fname = g_path_get_basename (full_name.c_str ());
+
     // write the script header
-    writeHeader (g_basename (fname.c_str ()));
+    writeHeader (fname);
     
     // write the dialogue text
     writeText ();
@@ -132,6 +134,8 @@ void DlgCompiler::run ()
     // display errors if there were any
     if (DlgCmdline::compile == false && errors > 0)
         GuiError::console->display ();
+
+    g_free(fname);
 }
 
 // write the topmost part of the dialogue 
