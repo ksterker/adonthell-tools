@@ -468,6 +468,19 @@ void GuiMapview::updateHeight (const s_int16 & oz)
     }
 }
 
+// set height to object pos
+void GuiMapview::zFromCurObj (const bool & top)
+{
+    MapData *area = (MapData*) MapMgr::get_map();
+
+    if (area != NULL && CurObj != NULL)
+    {
+        world::chunk_info *pos = CurObj->getLocation();
+        s_int32 new_z = top ? pos->Max.z() : pos->Min.z();
+        updateHeight(new_z - area->z());
+    }
+}
+
 // change render limit
 void GuiMapview::updateRenderHeight (const s_int32 & limit)
 {

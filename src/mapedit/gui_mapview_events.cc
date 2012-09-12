@@ -196,6 +196,18 @@ guint key_press_notify_event (GtkWidget * widget, GdkEventKey * event, gpointer 
             view->updateHeight (event->state & GDK_CONTROL_MASK ? -10 : -1);
             break;
         }
+        // set z position to object baseline
+        case GDK_KEY_b:
+        {
+            view->zFromCurObj(false);
+            break;
+        }
+        // set z position to object top
+        case GDK_KEY_t:
+        {
+            view->zFromCurObj(true);
+            break;
+        }
         // edit highlighted object
         case GDK_KEY_Return:
         {

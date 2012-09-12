@@ -136,6 +136,12 @@ public:
     void updateHeight (const s_int16 & oz);
     
     /**
+     * Set z position to that of highlighted object
+     * @param top true to use top position of object, false to use baseline.
+     */
+    void zFromCurObj (const bool & top);
+
+    /**
      * Center the view on the given location
      * @param x the new x coordinate
      * @param y the new y coordinate
