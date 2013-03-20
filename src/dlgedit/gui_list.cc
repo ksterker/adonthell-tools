@@ -162,7 +162,7 @@ void GuiList::add (int mode, DlgCircle *circle)
     list_item = gtk_list_item_new ();
     gtk_container_add (GTK_CONTAINER(list_item), label);
     gtk_object_set_user_data (GTK_OBJECT (list_item), (gpointer) circle);
-    GTK_WIDGET_UNSET_FLAGS (list_item, GTK_CAN_FOCUS);
+    gtk_widget_set_can_focus(list_item, FALSE);
     gtk_widget_show (list_item);
     
     // add list-item to list

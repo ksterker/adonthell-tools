@@ -89,8 +89,11 @@ void GuiGraph::attachModule (DlgModule *m, bool cntr)
     // update the program state
     GuiDlgedit::window->setMode (module->state ());
 
+    GtkAllocation allocation;
+    gtk_widget_get_allocation (graph, &allocation);
+
     // set the size of the dialogue
-    drawing_area.resize (graph->allocation.width, graph->allocation.height);
+    drawing_area.resize (allocation.width, allocation.height);
 
     // tell the module that it is in view
     module->setDisplayed (true);
@@ -521,7 +524,10 @@ void GuiGraph::center ()
     
     module->extension (min_x, max_x, y);
     
-    int x_off = (graph->allocation.width - (max_x - min_x))/2 - min_x;
+    GtkAllocation allocation;
+    gtk_widget_get_allocation (graph, &allocation);
+
+    int x_off = (allocation.width - (max_x - min_x))/2 - min_x;
     int y_off = -y + 20;
     
     offset->move (x_off, y_off);
@@ -664,6 +670,7 @@ void GuiGraph::drag (DlgPoint &point)
         default:
         {
             redraw++;
+            break;
         }
     }
 }
@@ -739,18 +746,20 @@ void GuiGraph::stopDragging (DlgPoint &point)
 // resize the drawing area
 void GuiGraph::resizeSurface (GtkWidget *widget)
 {
+    GtkAllocation allocation;
+    gtk_widget_get_allocation (widget, &allocation);
+
     // delete the old surface
     if (surface) gdk_pixmap_unref (surface);
     
     // create a new one with the proper size
-    surface = gdk_pixmap_new (widget->window, widget->allocation.width,
-        widget->allocation.height, -1);
+    surface = gdk_pixmap_new (gtk_widget_get_window(widget), allocation.width, allocation.height, -1);
 
     // init the surface
     if (GuiResources::getColor (GC_GREY)) clear ();
             
     // set the size of the attached dialogues
-    drawing_area.resize (widget->allocation.width, widget->allocation.height);
+    drawing_area.resize (allocation.width, allocation.height);
 }
 
 // empty the drawing area
@@ -758,13 +767,16 @@ void GuiGraph::clear ()
 {
     GdkRectangle t;
 
+    GtkAllocation allocation;
+    gtk_widget_get_allocation (graph, &allocation);
+
     gdk_draw_rectangle (surface, GuiResources::getColor (GC_GREY), 
-        TRUE, 0, 0, graph->allocation.width, graph->allocation.height);
+        TRUE, 0, 0, allocation.width, allocation.height);
 
     t.x = 0;
     t.y = 0;
-    t.width = graph->allocation.width;
-    t.height = graph->allocation.height;
+    t.width = allocation.width;
+    t.height = allocation.height;
 
     gtk_widget_draw (graph, &t);        
 }

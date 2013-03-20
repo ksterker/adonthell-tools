@@ -99,13 +99,21 @@ void GuiTooltip::draw (GtkWidget *graph, DlgPoint &offset)
     gdk_window_get_size (window, &width, &height);
     
     gtk_widget_realize (tooltip);
+
+    GtkAllocation allocation;
+    gtk_widget_get_allocation (graph, &allocation);
     
     // calculate the position of the tooltip
-    x += width - graph->allocation.width;
-    if (node->x () < graph->allocation.width / 2) 
+    x += width - allocation.width;
+    if (node->x () < allocation.width / 2)
+    {
         x += node->x () + node->width ();
-    else 
-        x += node->x () - tooltip->allocation.width; 
+    }
+    else
+    {
+        gtk_widget_get_allocation (tooltip, &allocation);
+        x += node->x () - allocation.width;
+    }
     y += node->y () + node->height ();
     
     // position and display the tooltip

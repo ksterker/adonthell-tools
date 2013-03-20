@@ -211,13 +211,13 @@ GuiTree::GuiTree (GtkWidget *paned)
     gtk_clist_set_column_width (GTK_CLIST (tree), 0, 80);
     gtk_clist_column_titles_hide (GTK_CLIST (tree));
     gtk_clist_set_shadow_type (GTK_CLIST (tree), GTK_SHADOW_IN);
-    GTK_WIDGET_UNSET_FLAGS (tree, GTK_CAN_FOCUS);
+    gtk_widget_set_can_focus(tree, FALSE);
 
     gtk_signal_connect (GTK_OBJECT (tree), "tree_select_row",
         GTK_SIGNAL_FUNC (on_tree_select_row), this);
     
     // create pixmaps and masks
-    GdkWindow *wnd = GuiDlgedit::window->getWindow ()->window;
+    GdkWindow *wnd = gtk_widget_get_window(GuiDlgedit::window->getWindow ());
 	icon[BUBBLE] = gdk_pixmap_create_from_xpm_d (wnd, &mask[BUBBLE], NULL, (char**) dlg_xpm);
 	icon[BUBBLE_SEL] = gdk_pixmap_create_from_xpm_d (wnd, &mask[BUBBLE_SEL], NULL, (char**) sel_xpm);
 	icon[BUBBLE_MOD] = gdk_pixmap_create_from_xpm_d (wnd, &mask[BUBBLE_MOD], NULL, (char**) dlg_mod_xpm);

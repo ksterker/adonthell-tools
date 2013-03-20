@@ -137,7 +137,7 @@ GuiCode::GuiCode ()
     gtk_object_set_data_full (GTK_OBJECT (window), "button_ok", button_ok, (GtkDestroyNotify) gtk_widget_unref);
     gtk_widget_show (button_ok);
     gtk_container_add (GTK_CONTAINER (hbuttonbox), button_ok);
-    GTK_WIDGET_SET_FLAGS (button_ok, GTK_CAN_DEFAULT);
+    gtk_widget_set_can_default (button_ok, TRUE);
 
     // Cancel button
     button_cancel = gtk_button_new_with_label ("Cancel");
@@ -145,7 +145,7 @@ GuiCode::GuiCode ()
     gtk_object_set_data_full (GTK_OBJECT (window), "button_cancel", button_cancel, (GtkDestroyNotify) gtk_widget_unref);
     gtk_widget_show (button_cancel);
     gtk_container_add (GTK_CONTAINER (hbuttonbox), button_cancel);
-    GTK_WIDGET_SET_FLAGS (button_cancel, GTK_CAN_DEFAULT);
+    gtk_widget_set_can_default (button_cancel, TRUE);
 
     gtk_signal_connect (GTK_OBJECT (notebook), "switch_page", GTK_SIGNAL_FUNC (on_switch_page), window);
     gtk_signal_connect (GTK_OBJECT (button_ok), "clicked", GTK_SIGNAL_FUNC (on_button_ok_clicked), NULL);

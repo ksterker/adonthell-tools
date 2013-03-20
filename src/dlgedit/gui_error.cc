@@ -147,7 +147,7 @@ GuiError::GuiError ()
     gtk_widget_show (close);
     gtk_container_add (GTK_CONTAINER (buttonbox), close);
     gtk_container_set_border_width (GTK_CONTAINER (close), 2);
-    GTK_WIDGET_SET_FLAGS (close, GTK_CAN_DEFAULT);
+    gtk_widget_set_can_default (close, TRUE);
     gtk_tooltips_set_tip (tooltips, close, "Hide the Error Console", 0);
 
     gtk_signal_connect (GTK_OBJECT (list), "select_child", GTK_SIGNAL_FUNC (on_list_select_child), window);

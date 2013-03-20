@@ -105,7 +105,7 @@ GuiCircle::GuiCircle (GtkWindow *parent, node_type *t, DlgCircleEntry *e, DlgMod
     gtk_box_pack_start (GTK_BOX (vbox1), notebook1, TRUE, TRUE, 0);
     gtk_notebook_set_show_border (GTK_NOTEBOOK (notebook1), FALSE);
     gtk_notebook_set_tab_hborder (GTK_NOTEBOOK (notebook1), 6);
-    GTK_WIDGET_UNSET_FLAGS (notebook1, GTK_CAN_FOCUS);
+    gtk_widget_set_can_focus (notebook1, FALSE);
 
     // Page 1: Edit Text
     vbox2 = gtk_vbox_new (FALSE, 0);
@@ -130,7 +130,7 @@ GuiCircle::GuiCircle (GtkWindow *parent, node_type *t, DlgCircleEntry *e, DlgMod
     gtk_object_set_data_full (GTK_OBJECT (window), "text_view", text_view, (GtkDestroyNotify) gtk_widget_unref);
     gtk_widget_show (text_view);
     gtk_container_add (GTK_CONTAINER (scrolledwindow), text_view);
-    GTK_WIDGET_SET_FLAGS (text_view, GTK_CAN_DEFAULT);
+    gtk_widget_set_can_default (text_view, TRUE);
     gtk_tooltips_set_tip (tooltips, text_view, "Enter the Text to appear within the conversation", NULL);
     gtk_text_view_set_editable (GTK_TEXT_VIEW (text_view), TRUE);
     gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (text_view), GTK_WRAP_WORD);
@@ -160,7 +160,7 @@ GuiCircle::GuiCircle (GtkWindow *parent, node_type *t, DlgCircleEntry *e, DlgMod
     gtk_object_set_data (GTK_OBJECT (narrator_button), "type", GINT_TO_POINTER (NARRATOR));
     gtk_widget_show (narrator_button);
     gtk_box_pack_start (GTK_BOX (vbox2), narrator_button, FALSE, FALSE, 0);
-    GTK_WIDGET_UNSET_FLAGS (narrator_button, GTK_CAN_FOCUS);
+    gtk_widget_set_can_focus (narrator_button, FALSE);
 
     // activate the narrator button if neccessary
     if (*type == NARRATOR)
@@ -190,7 +190,7 @@ GuiCircle::GuiCircle (GtkWindow *parent, node_type *t, DlgCircleEntry *e, DlgMod
     gtk_object_set_data (GTK_OBJECT (player_button), "type", GINT_TO_POINTER (PLAYER));
     gtk_widget_show (player_button);
     gtk_box_pack_start (GTK_BOX (vbox2), player_button, FALSE, FALSE, 0);
-    GTK_WIDGET_UNSET_FLAGS (player_button, GTK_CAN_FOCUS);
+    gtk_widget_set_can_focus (player_button, FALSE);
 
     // activate the player button if neccessary
     if (*type == PLAYER)
@@ -213,7 +213,7 @@ GuiCircle::GuiCircle (GtkWindow *parent, node_type *t, DlgCircleEntry *e, DlgMod
     gtk_object_set_data (GTK_OBJECT (npc_button), "type", GINT_TO_POINTER (NPC));
     gtk_widget_show (npc_button);
     gtk_box_pack_start (GTK_BOX (hbox1), npc_button, FALSE, FALSE, 0);
-    GTK_WIDGET_UNSET_FLAGS (npc_button, GTK_CAN_FOCUS);
+    gtk_widget_set_can_focus (npc_button, FALSE);
 
     // activate the NPC button if neccessary
     if (*type == NPC)
@@ -382,7 +382,7 @@ GuiCircle::GuiCircle (GtkWindow *parent, node_type *t, DlgCircleEntry *e, DlgMod
     gtk_object_set_data_full (GTK_OBJECT (window), "ok_button", ok_button, (GtkDestroyNotify) gtk_widget_unref);
     gtk_widget_show (ok_button);
     gtk_container_add (GTK_CONTAINER (hbuttonbox1), ok_button);
-    GTK_WIDGET_SET_FLAGS (ok_button, GTK_CAN_DEFAULT);
+    gtk_widget_set_can_default (ok_button, TRUE);
 
     // cancel button
     cancel_button = gtk_button_new_with_label ("Cancel");
@@ -390,7 +390,7 @@ GuiCircle::GuiCircle (GtkWindow *parent, node_type *t, DlgCircleEntry *e, DlgMod
     gtk_object_set_data_full (GTK_OBJECT (window), "cancel_button", cancel_button, (GtkDestroyNotify) gtk_widget_unref);
     gtk_widget_show (cancel_button);
     gtk_container_add (GTK_CONTAINER (hbuttonbox1), cancel_button);
-    GTK_WIDGET_SET_FLAGS (cancel_button, GTK_CAN_DEFAULT);
+    gtk_widget_set_can_default (cancel_button, TRUE);
 
     // the various input handlers
     g_signal_connect (G_OBJECT (notebook1), "switch_page", G_CALLBACK (on_switch_page), window);

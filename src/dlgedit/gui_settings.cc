@@ -265,7 +265,7 @@ GuiSettings::GuiSettings ()
     gtk_object_set_data_full (GTK_OBJECT (window), "button", button, (GtkDestroyNotify) gtk_widget_unref);
     gtk_widget_show (button);
     gtk_container_add (GTK_CONTAINER (hbuttonbox), button);
-    GTK_WIDGET_SET_FLAGS (button, GTK_CAN_DEFAULT);
+    gtk_widget_set_can_default (button, TRUE);
     gtk_signal_connect (GTK_OBJECT (button), "clicked", GTK_SIGNAL_FUNC (on_apply_button_clicked), this);
 
     button = gtk_button_new_with_label ("OK");
@@ -273,7 +273,7 @@ GuiSettings::GuiSettings ()
     gtk_object_set_data_full (GTK_OBJECT (window), "button", button, (GtkDestroyNotify) gtk_widget_unref);
     gtk_widget_show (button);
     gtk_container_add (GTK_CONTAINER (hbuttonbox), button);
-    GTK_WIDGET_SET_FLAGS (button, GTK_CAN_DEFAULT);
+    gtk_widget_set_can_default (button, TRUE);
     gtk_signal_connect (GTK_OBJECT (button), "clicked", GTK_SIGNAL_FUNC (on_ok_button_clicked), NULL);
 
     button = gtk_button_new_with_label ("Cancel");
@@ -281,7 +281,7 @@ GuiSettings::GuiSettings ()
     gtk_object_set_data_full (GTK_OBJECT (window), "button", button, (GtkDestroyNotify) gtk_widget_unref);
     gtk_widget_show (button);
     gtk_container_add (GTK_CONTAINER (hbuttonbox), button);
-    GTK_WIDGET_SET_FLAGS (button, GTK_CAN_DEFAULT);
+    gtk_widget_set_can_default (button, TRUE);
     gtk_signal_connect (GTK_OBJECT (button), "clicked", GTK_SIGNAL_FUNC (on_close_settings), NULL);
 
     gtk_object_set_data (GTK_OBJECT (window), "tooltips", tooltips);

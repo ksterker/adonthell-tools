@@ -52,7 +52,8 @@ gint expose_event (GtkWidget * widget, GdkEventExpose * event, gpointer data)
 {
     GuiGraph *graph = (GuiGraph *) data;
 
-    gdk_draw_drawable (widget->window, widget->style->fg_gc[GTK_WIDGET_STATE (widget)],
+    GtkStyle *style = gtk_widget_get_style(widget);
+    gdk_draw_drawable (gtk_widget_get_window(widget), style->fg_gc[gtk_widget_get_state (widget)],
         graph->pixmap (), event->area.x, event->area.y, event->area.x, event->area.y,
         event->area.width, event->area.height);
 

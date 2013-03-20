@@ -44,7 +44,7 @@ GuiEdit::GuiEdit (GtkWidget *container)
     entry = gtk_text_buffer_new (NULL);
     view = gtk_text_view_new_with_buffer (entry);
     gtk_container_add (GTK_CONTAINER (scrolled), view);
-    GTK_WIDGET_SET_FLAGS (view, GTK_CAN_DEFAULT);
+    gtk_widget_set_can_default(view, TRUE);
     gtk_text_view_set_editable (GTK_TEXT_VIEW(view), TRUE);
     gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW(view), GTK_WRAP_WORD);
     gtk_widget_show (view);

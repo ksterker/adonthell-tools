@@ -120,7 +120,7 @@ GuiPreview::GuiPreview (GtkWidget *drawing_area, GtkEntry** shape_data, GtkTreeM
 {
 #ifdef __APPLE__
     // no need to use double buffering on OSX, but appears to be required elsewhere
-    GTK_WIDGET_UNSET_FLAGS (GTK_WIDGET (DrawingArea), GTK_DOUBLE_BUFFERED);
+    gtk_widget_set_double_buffered (GTK_WIDGET (DrawingArea), FALSE);
 #endif
 
     g_signal_connect (G_OBJECT (DrawingArea), "expose_event", G_CALLBACK(expose_event), this);

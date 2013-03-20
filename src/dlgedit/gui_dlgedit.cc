@@ -791,7 +791,7 @@ void GuiDlgedit::previewTranslation (const std::string &catalogue)
     DlgNode *node = module->deselectNode ();
     
     // update menuitem
-    gtk_label_set_text (GTK_LABEL (GTK_BIN (menuItem[PREVIEW])->child), "Exit Preview mode");
+    gtk_label_set_text (GTK_LABEL (gtk_bin_get_child (GTK_BIN(menuItem[PREVIEW]))), "Exit Preview mode");
     
     // set program mode
     setMode (L10N_PREVIEW);
@@ -822,7 +822,7 @@ void GuiDlgedit::exitPreview ()
     }
     
     // update menuitem
-    gtk_label_set_text (GTK_LABEL (GTK_BIN (menuItem[PREVIEW])->child), "Preview Translation");
+    gtk_label_set_text (GTK_LABEL (gtk_bin_get_child (GTK_BIN(menuItem[PREVIEW]))), "Preview Translation");
 
     // cleanup
     unlink ("/tmp/locale/xy/LC_MESSAGES/preview.mo");
