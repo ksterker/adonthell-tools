@@ -173,7 +173,7 @@ void GuiMapview::draw (const int & sx, const int & sy, const int & l, const int 
         // draw target with zoom factor
         gfx::surface *tmp = gfx::create_surface();
         tmp->resize(Target->length(), Target->height());
-        Target->scale(tmp, base::Scale);
+        Target->scale_up(tmp, base::Scale);
         tmp->draw (0, 0, &da, s);
         delete tmp;
     }
@@ -594,7 +594,7 @@ void GuiMapview::selectObj (MapEntity *ety)
         tmp->set_alpha (128, true);
         tmp->resize (l*base::Scale, h*base::Scale);
 
-        DrawObjSurface->scale(tmp, base::Scale);
+        DrawObjSurface->scale_up(tmp, base::Scale);
         delete DrawObjSurface;
         DrawObjSurface = tmp;
     }

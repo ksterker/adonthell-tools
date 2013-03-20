@@ -473,7 +473,7 @@ void GuiMapedit::setLocation (const int & x, const int & y, const int & z)
     gtk_statusbar_push (GTK_STATUSBAR(StatusCoordinates), 0, location.str().c_str());
 }
 
-// get the full path/name/extension of a dialogue
+// get the full path/name/extension of a map
 std::string GuiMapedit::filename () const
 {
     std::string fname = "";

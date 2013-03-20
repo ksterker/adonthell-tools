@@ -190,11 +190,25 @@ void surface_gtk::fillrect (s_int16 x, s_int16 y, u_int16 l, u_int16 h, u_int32 
 }
 
 // scaled blit onto target
-void surface_gtk::scale (surface *target, const u_int32 & factor) const
+void surface_gtk::scale_up (surface *target, const u_int32 & factor) const
 {
     cairo_t* cr = ((const surface_gtk *) target)->create_drawing_context ();
 
     cairo_scale (cr, factor, factor);
+    cairo_set_source_surface (cr, vis, 0, 0);
+    cairo_pattern_set_filter (cairo_get_source (cr), CAIRO_FILTER_FAST);
+    cairo_paint (cr);
+
+    // cleanup
+    cairo_destroy (cr);
+}
+
+// scaled blit onto target
+void surface_gtk::scale_down(surface *target, const u_int32 & factor) const
+{
+    cairo_t* cr = ((const surface_gtk *) target)->create_drawing_context ();
+
+    cairo_scale (cr, 1.0 / factor, 1.0 / factor);
     cairo_set_source_surface (cr, vis, 0, 0);
     cairo_pattern_set_filter (cairo_get_source (cr), CAIRO_FILTER_FAST);
     cairo_paint (cr);

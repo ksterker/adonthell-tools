@@ -93,7 +93,7 @@ bool DlgModuleEntry::loadQuests ()
     rpg::quest::cleanup ();
     
     // try loading quest tree
-    if (!rpg::quest::get_state ())
+    if (!rpg::quest::load ())
     {
         fprintf (stderr, "*** failed loading 'quest.data' from '%s/%s'\n", 
                  DlgCmdline::datadir.c_str(), project_.c_str());

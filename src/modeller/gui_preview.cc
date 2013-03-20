@@ -175,7 +175,7 @@ void GuiPreview::draw (const int & sx, const int & sy, const int & l, const int 
 
         gfx::surface *tmp = gfx::create_surface();
         tmp->resize(Target->length() * base::Scale, Target->height() * base::Scale);
-        Target->scale(tmp, base::Scale);
+        Target->scale_up(tmp, base::Scale);
         tmp->draw (x, y, &da, s);
         delete tmp;
     }

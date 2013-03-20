@@ -34,35 +34,36 @@ namespace gfx
 
         virtual ~surface_gtk (); 
 
-        virtual void resize (u_int16 l, u_int16 h);
+        void resize (u_int16 l, u_int16 h);
         
-        virtual void clear (); 
+        void clear ();
 
-        virtual void set_mask (bool m); 
+        void set_mask (bool m);
 
-        virtual void set_alpha (const u_int8 & surface_alpha, const bool & alpha_channel = false);
+        void set_alpha (const u_int8 & surface_alpha, const bool & alpha_channel = false);
 
-        virtual void draw (s_int16 x, s_int16 y, s_int16 sx, s_int16 sy, u_int16 sl,
+        void draw (s_int16 x, s_int16 y, s_int16 sx, s_int16 sy, u_int16 sl,
                            u_int16 sh, const drawing_area * da_opt = NULL,
                            surface * target = NULL) const;
 
-        virtual void fillrect (s_int16 x, s_int16 y, u_int16 l, u_int16 h,
+        void fillrect (s_int16 x, s_int16 y, u_int16 l, u_int16 h,
                                u_int32 col, drawing_area * da_opt = NULL);
 
-        virtual void scale(surface *target, const u_int32 & factor) const;
+        void scale_up(surface *target, const u_int32 & factor) const;
+        void scale_down(surface *target, const u_int32 & factor) const;
 
-        virtual void mirror(bool x, bool y);
+        void mirror(bool x, bool y);
 
-        virtual u_int32 map_color(const u_int8 & r, const u_int8 & g, const u_int8 & b, const u_int8 & a = 255) const;
-        virtual void unmap_color(u_int32 col, u_int8 & r, u_int8 & g, u_int8 & b, u_int8 & a) const;
+        u_int32 map_color(const u_int8 & r, const u_int8 & g, const u_int8 & b, const u_int8 & a = 255) const;
+        void unmap_color(u_int32 col, u_int8 & r, u_int8 & g, u_int8 & b, u_int8 & a) const;
         
-        virtual void lock () const;
-        virtual void unlock () const;
+        void lock () const;
+        void unlock () const;
         
-        virtual void put_pix (u_int16 x, u_int16 y, u_int32 col); 
-        virtual u_int32 get_pix (u_int16 x, u_int16 y) const; 
+        void put_pix (u_int16 x, u_int16 y, u_int32 col);
+        u_int32 get_pix (u_int16 x, u_int16 y) const;
 
-        virtual surface& operator = (const surface& src);         
+        surface& operator = (const surface& src);
 
         /**
          * @name Loading / Saving to PNGs
@@ -74,7 +75,7 @@ namespace gfx
          *  @return \e true in case of success, false otherwise.
          *  @sa load_png ()
          */
-        virtual bool get_png (std::ifstream & file);
+        bool get_png (std::ifstream & file);
         
         /** Saves an image into an opened file, in PNG format, without
          *  alpha and mask values.
@@ -83,7 +84,7 @@ namespace gfx
          *  @return \e true in case of success, false otherwise.
          *  @sa save_png ()
          */
-        virtual bool put_png (std::ofstream & file) const;
+        bool put_png (std::ofstream & file) const;
         //@}
         
     protected:
@@ -95,7 +96,7 @@ namespace gfx
         /**
          * Create the cairo context used to render onto this surface
          */
-        virtual cairo_t *create_drawing_context() const
+        cairo_t *create_drawing_context() const
         {
             return cairo_create (vis);
         }
@@ -108,17 +109,6 @@ namespace gfx
          *
          */
         void create_mask ();
-        
-        /** 
-         * Used internally for blitting operations with drawing_areas.
-         * @param x
-         * @param y
-         * @param draw_to
-         */
-        void setup_rects (u_int16 x, u_int16 y, const drawing_area * draw_to) const
-        {
-            setup_rects (x, y, 0, 0, length (), height (), draw_to); 
-        }
 
         /** 
          * Used internally for blitting operations with drawing_areas.
