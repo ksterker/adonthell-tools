@@ -34,9 +34,9 @@ namespace gfx
 
         virtual ~surface_gtk (); 
 
-        void resize (u_int16 l, u_int16 h);
+        virtual void resize (u_int16 l, u_int16 h);
         
-        void clear ();
+        virtual void clear ();
 
         void set_mask (bool m);
 

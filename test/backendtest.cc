@@ -22,12 +22,12 @@
 #include <unistd.h>
 #include <gtk/gtk.h>
 
-#include <base/base.h>
-#include <gfx/gfx.h>
-#include <world/area.h>
-#include <world/character.h>
-#include <world/object.h>
-#include <world/mapview.h>
+#include <adonthell/base/base.h>
+#include <adonthell/gfx/gfx.h>
+#include <adonthell/world/area_manager.h>
+#include <adonthell/world/character.h>
+#include <adonthell/world/object.h>
+#include <adonthell/world/mapview.h>
 
 #include "backend/gtk/screen_gtk.h"
 
@@ -39,6 +39,7 @@ public:
 	
     game_client()
     {
+        mchar = NULL;
     }
 
     void create_map ()
@@ -47,48 +48,57 @@ public:
         world::object * mobj;
 
 		// short grass, 1x1 at index 0
-        mobj = (world::object *) world.add_entity(world::OBJECT);
-        mobj->load("data/models/map/ground/outside/short-grass-tile.xml");
+        mobj = new world::object (world, "0");
+        world.add_entity(new world::entity(mobj));
+        mobj->load_model("models/map/ground/outside/short-grass-tile.xml");
         
         // long grass, 1.5x1.5 at index 1
-        mobj = (world::object *) world.add_entity(world::OBJECT);
-        mobj->load("data/models/map/ground/outside/long-grass-tile.xml");
+        mobj = new world::object (world, "1");
+        mobj->load_model("models/map/ground/outside/long-grass-tile.xml");
+        world.add_entity(new world::entity(mobj));
 
         // wooden planks, 1x1 at index 2
-        mobj = (world::object *) world.add_entity(world::OBJECT);
-        mobj->load("data/models/map/ground/outside/wood-1.xml");
+        mobj = new world::object (world, "2");
+        mobj->load_model("models/map/ground/outside/wood-1.xml");
+        world.add_entity(new world::entity(mobj));
 
         // wooden pole, left, height 40 at index 3
-        mobj = (world::object *) world.add_entity(world::OBJECT);
-        mobj->load("data/models/map/ground/outside/wood-pole-l.xml");
+        mobj = new world::object (world, "3");
+        mobj->load_model("models/map/ground/outside/wood-pole-l.xml");
+        world.add_entity(new world::entity(mobj));
 
         // wooden pole, right, height 40 at index 4 
-        mobj = (world::object *) world.add_entity(world::OBJECT);
-        mobj->load("data/models/map/ground/outside/wood-pole-r.xml");
+        mobj = new world::object (world, "4");
+        mobj->load_model("models/map/ground/outside/wood-pole-r.xml");
+        world.add_entity(new world::entity(mobj));
 
         // diagonal cliff, 40x45x75 at index 5
-        mobj = (world::object *) world.add_entity(world::OBJECT);
-        mobj->load("data/models/map/wall/outside/cliff-se.xml");
+        mobj = new world::object (world, "5");
+        mobj->load_model("models/map/wall/outside/cliff-se.xml");
+        world.add_entity(new world::entity(mobj));
 
         // diagonal cliff top, 40x45x5 at index 6
-        mobj = (world::object *) world.add_entity(world::OBJECT);
-        mobj->load("data/models/map/wall/outside/cliff-se-top.xml");
+        mobj = new world::object (world, "6");
+        mobj->load_model("models/map/wall/outside/cliff-se-top.xml");
+        world.add_entity(new world::entity(mobj));
         
         // cliff facing south, 80x5x80 at index 7
-        mobj = (world::object *) world.add_entity(world::OBJECT);
-        mobj->load("data/models/map/wall/outside/cliff-s.xml");
+        mobj = new world::object (world, "7");
+        mobj->load_model("models/map/wall/outside/cliff-s.xml");
+        world.add_entity(new world::entity(mobj));
 
         // Adding the map character at index 8
-        mchar = (world::character *) world.add_entity(world::CHARACTER, "Player");
-        mchar->load ("data/models/char/npc/ng.xml");
-        
+        mchar = new world::character (world, "8");
+        mchar->world::placeable::load_model("models/char/npc/ng.xml");
+        world.add_entity(new world::named_entity(mobj, "Player"));
+
         // set position and speed
         mchar->set_position (398, 322);
         mchar->set_z (0);
         
         // put character on map
-        world.put_entity (8, *mchar);
-        
+        world.place_entity(8, *mchar);
+
         world::coordinates mc;
         
         // create ground (grass tiles are 40x40)
@@ -96,27 +106,27 @@ public:
             for (u_int16 j = 0; j < 3; j++)
             {
                 world::coordinates mc (i*40, j*40, 80);
-                world.put_entity (0, mc);
+                world.place_entity (0, mc);
             }
                 
         for (u_int16 j = 0; j < 3; j++)
             for (u_int16 i = 0; i < 3-j; i++)
             {
                 world::coordinates mc (i*40, (j+3)*40, 80);
-                world.put_entity (0, mc);
+                world.place_entity (0, mc);
             }
                         
         
 		// 4 poles (left side)
         mc.set_x(400);mc.set_y(170);
-        world.put_entity(3, mc);  // that one is actually invisible 
+        world.place_entity(3, mc);  // that one is actually invisible
         mc.set_x(400);mc.set_y(240);
-        world.put_entity(3, mc);
+        world.place_entity(3, mc);
         // (right side)
         mc.set_x(470);mc.set_y(170);  // that one is actually invisible
-        world.put_entity(4, mc); 
+        world.place_entity(4, mc);
         mc.set_x(470);mc.set_y(240);
-        world.put_entity(4, mc); 
+        world.place_entity(4, mc);
 
 		// wooden platform
         for (int i = 10; i < 12; i++)
@@ -124,31 +134,31 @@ public:
             for (int j = 4; j < 6; j++)
             {
                 world::coordinates mc (i*40, j*40, 40);
-                world.put_entity (2, mc); 
+                world.place_entity (2, mc);
             }
         }
 
 		// 4 wooden poles
         mc.set_x(280);mc.set_y(280);
-        world.put_entity(3, mc); 
+        world.place_entity(3, mc);
         mc.set_z(40);
-        world.put_entity(3, mc); 
+        world.place_entity(3, mc);
         mc.set_x(280);mc.set_y(170);
         mc.set_z(0);
-        world.put_entity(3, mc); 
+        world.place_entity(3, mc);
         mc.set_z(40);
-        world.put_entity(3, mc); 
+        world.place_entity(3, mc);
         
         mc.set_z(0);
         mc.set_x(350);mc.set_y(280);
-        world.put_entity(4, mc); 
+        world.place_entity(4, mc);
         mc.set_z(40);
-        world.put_entity(4, mc); 
+        world.place_entity(4, mc);
         mc.set_x(350);mc.set_y(170);
         mc.set_z(0);
-        world.put_entity(4, mc); 
+        world.place_entity(4, mc);
         mc.set_z(40);
-        world.put_entity(4, mc); 
+        world.place_entity(4, mc);
 
 		// wooden platform
         for (int i = 7; i < 9; i++)
@@ -156,7 +166,7 @@ public:
             for (int j = 4; j < 7; j++)
             {
                 world::coordinates mc (i*40, j*40, 80);
-                world.put_entity (2, mc); 
+                world.place_entity (2, mc);
             }
         } 
 
@@ -164,11 +174,11 @@ public:
         for (int i = 4; i < 17; i++)
         {
             world::coordinates mc ((i/2) * 40 + (i%2) * 20, 360, 5 * (i-4));
-            world.put_entity (2, mc); 
+            world.place_entity (2, mc);
         }
 
         world::coordinates mc2 (120, 200, 0);
-        world.put_entity (2, mc2);
+        world.place_entity (2, mc2);
         
         // create ground (grass tiles are 60x60, but grid is 40x40)
         for (float i = 0; i < 16; i += 1.5)
@@ -178,7 +188,7 @@ public:
                 u_int16 y = (u_int16) (40 * j);
                 
                 world::coordinates mc (x, y, 0);
-                world.put_entity (1, mc); 
+                world.place_entity (1, mc);
             }
         
         
@@ -186,34 +196,34 @@ public:
         for (int i = 0; i < 4; i++)
         {
             world::coordinates mc (i*40, (6-i)*40, 0);
-            world.put_entity (5, mc); 
+            world.place_entity (5, mc);
             mc.set_z (80);
-            world.put_entity (6, mc);
+            world.place_entity (6, mc);
         }
         
         // create straight wall
         for (int i = 4; i < 16; i+=2)
         {
             world::coordinates mc (i*40, 120, 0);
-            world.put_entity (7, mc); 
+            world.place_entity (7, mc);
         }
+
+        world.save("/tmp/backendtest.amap");
+        world::area_manager::set_active_map("/tmp/backendtest.amap");
     }
 };
 
 // Redraw the screen from the backing pixmap
 gint expose_event (GtkWidget * widget, GdkEventExpose * event, gpointer data)
 {
-    game_client *gc = (game_client *) data;
-    
     // the renderer ...
     world::default_renderer rndr;
     world::mapview mv (800, 600, &rndr);
-    mv.set_map (&gc->world);
     mv.center_on (320, 240);
     
     // this is a GTK+ backed "screen" surface
     gfx::screen_surface_gtk *target = (gfx::screen_surface_gtk*) gfx::screen::get_surface();
-    target->set_drawable (widget->window);
+    target->set_drawable (gtk_widget_get_window(widget));
     target->fillrect (0, 0, 800, 600, 0xFF000000);
     
     // test clipping
@@ -227,9 +237,7 @@ gint expose_event (GtkWidget * widget, GdkEventExpose * event, gpointer data)
     target->fillrect (200, 300+150, 400, 2, 0xFFFF8888);
     target->fillrect (200, 150, 2, 300, 0xFFFF8888);
     target->fillrect (400+200, 150, 2, 300, 0xFFFF8888);
-                                          
-    // cleanup
-    delete target;
+
     return FALSE;
 }    
 
@@ -255,10 +263,13 @@ int main (int argc, char *argv[])
     // Init GTK+
     gtk_init (&argc, &argv);
 
-    // init base module
+    // Init base module
     base::init ("", userdatadir);
     base::configuration cfg;
-    
+
+    // Init event module
+    events::init(cfg);
+
     // Init GTK+ backend
     gfx::setup (cfg);
     gfx::init ("gtk");

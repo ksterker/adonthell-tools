@@ -1,6 +1,4 @@
 /*
- $Id: screen_gtk.h,v 1.3 2009/04/03 22:00:19 ksterker Exp $
- 
  Copyright (C) 2009 Kai Sterker <kai.sterker@gmail.com>
  Part of the Adonthell Project http://adonthell.linuxgames.com
  

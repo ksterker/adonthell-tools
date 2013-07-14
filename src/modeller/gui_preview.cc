@@ -427,7 +427,7 @@ void GuiPreview::updateShape (GtkEntry *entry)
     if (Shape == NULL) return;
      
     // do we have a valid value
-    int value;
+    s_int16 value;
     std::stringstream in (gtk_entry_get_text (entry));        
     in >> std::skipws >> value; 
     if (in.fail ()) return;

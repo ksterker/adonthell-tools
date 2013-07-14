@@ -197,6 +197,7 @@ int on_scroll_graph (gpointer data)
 Scrollable::Scrollable()
 {
     scrolling = false;
+    scroll_offset = { 0, 0 };
 
     createScrollCursor();
 }

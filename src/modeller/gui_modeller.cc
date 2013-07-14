@@ -190,6 +190,7 @@ static void connector_list_get_value (GtkTreeModel *self, GtkTreeIter *iter, int
         default:
         {
             g_assert_not_reached ();
+            break;
         }
     }
 }
@@ -712,12 +713,13 @@ GuiModeller::GuiModeller ()
     widget = gtk_builder_get_object (Ui, "model_area");
     GtkTreeModel *sprites = GTK_TREE_MODEL(gtk_builder_get_object (Ui, "sprite_list"));
     Preview = new GuiPreview (GTK_WIDGET (widget), shapeData, sprites);
-    setEditingMode(BBOX_MODE);
     
     // get reference to dialog window
     Window = GTK_WIDGET (gtk_builder_get_object (Ui, "main_window"));
     g_signal_connect (Window, "delete-event", G_CALLBACK (on_widget_destroy), (gpointer) NULL); 
     gtk_widget_show_all (Window);
+
+    setEditingMode(BBOX_MODE);
 
 #ifdef MAC_INTEGRATION
     GtkWidget* menu = GTK_WIDGET (gtk_builder_get_object (Ui, "menu_bar"));

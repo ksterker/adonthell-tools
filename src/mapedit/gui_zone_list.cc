@@ -153,6 +153,7 @@ static void zone_list_get_value (GtkTreeModel *self, GtkTreeIter *iter, int colu
 		default:
         {
 			g_assert_not_reached ();
+			break;
         }
 	}
 }
