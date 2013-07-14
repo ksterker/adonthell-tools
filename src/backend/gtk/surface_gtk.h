@@ -96,7 +96,7 @@ namespace gfx
         /**
          * Create the cairo context used to render onto this surface
          */
-        cairo_t *create_drawing_context() const
+        virtual cairo_t *create_drawing_context() const
         {
             return cairo_create (vis);
         }

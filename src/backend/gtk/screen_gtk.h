@@ -92,7 +92,7 @@ public:
     }
     
 protected:
-    virtual cairo_t *create_drawing_context() const
+    cairo_t *create_drawing_context() const
     {
         if (Drawable) return gdk_cairo_create (Drawable);
         fprintf (stderr, "*** screen::create_drawing_context: No drawable to draw on!\n");
