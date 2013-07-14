@@ -1,4 +1,4 @@
-nl **************************************************************
+dnl **************************************************************
 dnl Process this file with autoconf to produce a configure script.
 dnl **************************************************************
 
@@ -48,17 +48,6 @@ AC_LIBTOOL_DLOPEN
 AC_LIBTOOL_WIN32_DLL
 AC_PROG_LIBTOOL
 AC_CHECK_LIB(ltdl, lt_dlinit,,echo "Adonthell requires libltdl. Exitting...";exit 1)
-
-
-dnl ********************
-dnl Additional arguments
-dnl ********************
-AC_ARG_WITH(py-libs,
-[  --with-py-libs=DIR     Override Python libraries auto-detection],
-            pylibs="$withval", pylibs=none)
-AC_ARG_WITH(py-cflags,
-[  --with-py-cflags=DIR   Override Python cflags auto-detection],
-            pycflags="$withval", pycflags=none)
 
 
 dnl *****************
@@ -133,111 +122,11 @@ AM_CONDITIONAL(UPDATE_MIME, test "x$UPDATE_MIME_DATABASE" != "xno" -a "x$disable
 dnl ****************
 dnl Check for Python
 dnl ****************
-AM_PATH_PYTHON([2.0])
 
-dnl convert windows paths to cygwin paths
-case "$target" in
-	*-*-cygwin* | *-*-mingw32*)
-		pyexecdir=`cd $pyexecdir && pwd`
-		pythondir=`cd $pythondir && pwd`
-	;;
-esac
-
-   dnl Find the Python.h header file
-
-if test "x$pycflags" = xnone; then
-   AC_MSG_CHECKING(for Python header files)
-   changequote(<<, >>)
-   PYINCLUDE=`$PYTHON -c 'import sys ; print "%s/include/python%s" % (sys.prefix, sys.version[:3])'`
-   changequote([, ])
-   PYINCLUDE=`echo "$PYINCLUDE" | sed 's/\\\/\//g'`
-   
-   if test -r "$PYINCLUDE/Python.h"; then
-      PY_CFLAGS="-I$PYINCLUDE"
-      AC_SUBST(PY_CFLAGS)
-   else
-      AC_MSG_ERROR([Could not find Python.h in $PYINCLUDE])
-   fi
-   AC_MSG_RESULT(found)
-else
-   PY_CFLAGS=${pycflags}
-   AC_MSG_CHECKING(for Python cflags)
-   AC_MSG_RESULT($PY_CFLAGS)
-   AC_SUBST(PY_CFLAGS)
-fi
-
-   dnl Find the Python library
-
-if test "x$pylibs" = xnone; then
-   AC_MSG_CHECKING(for Python library)
-   PYLIB=""
-   changequote(<<, >>)
-   PYPREFIX=`$PYTHON -c 'import sys; print sys.prefix'`
-   PYLIBVER=`$PYTHON -c 'import sys; print sys.version[:3]'`
-   changequote([, ])
-
-   dnl look for a framework build of python first
-   fw=`echo "$PYPREFIX" | sed 's/.*\(Python\.framework\).*/\1/;'`
-   if test "x$fw" != x$PYPREFIX; then
-       PY_LIBS="-framework Python"
-       PY_FWDIR="$PYPREFIX/lib/python$PYLIBVER/site-packages"
-       PY_SPDIR="$libdir/python$PYLIBVER/site-packages"
-       AC_SUBST(PY_FWDIR)
-       AC_SUBST(PY_SPDIR)
-       AC_MSG_RESULT(found)
-   else
-       py_paths="$PYPREFIX/lib64/python$PYLIBVER/config $PYPREFIX/lib64 \
-	$PYPREFIX/lib/python$PYLIBVER/config $PYPREFIX/lib"
-
-       dnl Try for specific version first, then the generic version, then panic
-
-       for ppath in $py_paths ; do
-           if test -r "$ppath/libpython$PYLIBVER.so" -o \
-               -r "$ppath/libpython$PYLIBVER.a"; then
-               PYLIB="-L$ppath -lpython$PYLIBVER"
-               break
-           fi
-           if test -r "$ppath/libpython.so" -o \
-                   -r "$ppath/libpython.a"; then
-               PYLIB="-L$ppath -lpython"
-               break
-           fi
-       done
-
-       if test "x$PYLIB" != x ; then
-           PY_LIBS="$PYLIB $PY_LIBS"
-           AC_MSG_RESULT(found)
-       else
-           AC_MSG_ERROR([*** Python library not found])
-       fi
-   fi
-
-   dnl Get the libraries that a static python library depends on
-   AC_MSG_CHECKING(for Python's dependencies)
-
-   py_extradeps=`$PYTHON -c 'import distutils.sysconfig; print distutils.sysconfig.get_config_var("LIBS")'`
-   py_sysextradeps=`$PYTHON -c 'import distutils.sysconfig; print distutils.sysconfig.get_config_var("SYSLIBS")'`
-
-   PY_DEPS="$py_extradeps $py_sysextradeps"
-
-   AC_MSG_RESULT($PY_DEPS)
-
-   dnl only GNU ld seems to know -E flag
-   if $LD -v 2>&1 </dev/null | egrep '(GNU|with BFD)' 1>&5; then
-       PY_LIBS="-Wl,-E $PY_LIBS $PY_DEPS"
-   else
-       PY_LIBS="$PY_LIBS $PY_DEPS"
-   fi
-   AC_SUBST(PY_LIBS)
-
-else
-   PY_LIBS=${pylibs}
-   AC_MSG_CHECKING(for Python ld flags)
-   AC_MSG_RESULT($PY_LIBS)
-   AC_SUBST(PY_LIBS)
-fi
-
-AM_CONDITIONAL(PY_FRAMEWORK, test x$fw != x$PYPREFIX)
+PY_CFLAGS=`pkg-config --variable=pycflags adonthell`
+PY_LIBS=`pkg-config --variable=pylibs adonthell`
+AC_SUBST(PY_CFLAGS)
+AC_SUBST(PY_LIBS)
 
 
 AC_OUTPUT([ 
