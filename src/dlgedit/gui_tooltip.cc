@@ -1,6 +1,4 @@
 /*
-   $Id: gui_tooltip.cc,v 1.2 2007/08/11 14:05:41 ksterker Exp $
-
    Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
 
@@ -15,7 +13,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with Dlgedit; if not, write to the Free Software 
+   along with Dlgedit; if not, write to the Free Software
    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
@@ -39,7 +37,7 @@ GuiTooltip::GuiTooltip (DlgNode *n)
     std::string text;
 
     // the actual tooltip
-    tooltip = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+    tooltip = gtk_window_new (GTK_WINDOW_POPUP);
     gtk_window_set_keep_above (GTK_WINDOW (tooltip), FALSE);
     gtk_window_set_transient_for (GTK_WINDOW (tooltip), GTK_WINDOW (GuiDlgedit::window->getWindow ()));
     gtk_window_set_type_hint (GTK_WINDOW (tooltip), GDK_WINDOW_TYPE_HINT_NOTIFICATION);
@@ -93,10 +91,11 @@ void GuiTooltip::draw (GtkWidget *graph, DlgPoint &offset)
     if (node->type () == LINK) return;
 
     // get position and extension of dlgedit window    
-    int x, y, width, height;
+    int x, y;
+
     GdkWindow *window = gtk_widget_get_parent_window (graph);
     gdk_window_get_origin (window, &x, &y);
-    gdk_window_get_size (window, &width, &height);
+    int width = gdk_window_get_width(window);
     
     gtk_widget_realize (tooltip);
 

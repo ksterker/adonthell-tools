@@ -199,6 +199,10 @@ protected:
     
     DlgNode* getNode (std::list<DlgNode*>::iterator &it, 
         std::list<DlgNode*> &lst, query_type &pos, int &offset);
+
+    void drawPolygon (cairo_t *cr, const GdkColor *color, const bool & filled, const DlgPoint *points, const int &num_points);
+    void drawCircle (cairo_t *cr, const GdkColor *color, const bool & filled, const int & x, const int & y, const int & radius);
+    void drawRectangle (cairo_t *cr, const GdkColor *color, const bool & filled, const int & x, const int & y, const int & width, const int & height);
 };
 
 #endif // DLG_NODE_H

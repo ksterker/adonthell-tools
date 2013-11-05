@@ -52,10 +52,11 @@ gint expose_event (GtkWidget * widget, GdkEventExpose * event, gpointer data)
 {
     GuiGraph *graph = (GuiGraph *) data;
 
-    GtkStyle *style = gtk_widget_get_style(widget);
-    gdk_draw_drawable (gtk_widget_get_window(widget), style->fg_gc[gtk_widget_get_state (widget)],
-        graph->pixmap (), event->area.x, event->area.y, event->area.x, event->area.y,
-        event->area.width, event->area.height);
+    cairo_t *cr = gdk_cairo_create (GDK_DRAWABLE(gtk_widget_get_window(widget)));
+    gdk_cairo_set_source_pixmap (cr, graph->pixmap (), 0, 0);
+    gdk_cairo_rectangle (cr, &event->area);
+    cairo_fill (cr);
+    cairo_destroy(cr);
 
     return FALSE;
 }
@@ -294,7 +295,7 @@ guint key_press_notify_event (GtkWidget * widget, GdkEventKey * event, gpointer 
             if (GuiDlgedit::window->mode () == L10N_PREVIEW)
                 break;            
 
-            // get cursoer position
+            // get cursor position
             gtk_widget_get_pointer (graph->drawingArea (), &x, &y);
             DlgPoint point (x, y);                              
 

@@ -1,6 +1,4 @@
 /*
-   $Id: dlg_module.cc,v 1.3 2008/09/19 18:09:39 ksterker Exp $
-
    Copyright (C) 2002/2003 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
 
@@ -15,7 +13,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with Dlgedit; if not, write to the Free Software 
+   along with Dlgedit; if not, write to the Free Software
    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
@@ -284,19 +282,25 @@ void DlgModule::setChanged (bool changed)
 // draw the module
 void DlgModule::draw (GdkPixmap *surface, DlgPoint &offset, GtkWidget *widget)
 {
+    cairo_t *cr = gdk_cairo_create (GDK_DRAWABLE(surface));
+
     // get the color for drawing the circle
-    GdkGC *gc = GuiResources::getColor (mode_, type_);
+    const GdkColor *gc = GuiResources::getColor (mode_, type_);
 
     // offset circle
     DlgPoint position = topLeft ().offset (offset);
     DlgRect area (position, width () + 1, height () + 1);
 
     // draw everything to the surface
-    gdk_draw_rectangle (surface, GuiResources::getColor (GC_WHITE), TRUE, position.x (), position.y (), width (), height ());
-    gdk_draw_rectangle (surface, gc, FALSE, position.x (), position.y (), width (), height ());
+    drawRectangle (cr, GuiResources::getColor (GC_WHITE), TRUE, position.x (), position.y (), width (), height ());
+    drawRectangle (cr, gc, FALSE, position.x (), position.y (), width (), height ());
 
     // get the font to draw name
-    PangoLayout *font = GuiResources::font ();
+    const PangoFontDescription *desc = pango_layout_get_font_description (GuiResources::font ());
+
+    // create pango cairo compatible layout
+    PangoLayout *font = pango_cairo_create_layout(cr);
+    pango_layout_set_font_description (font, desc);
     pango_layout_set_text (font, name().c_str(), -1);
     
     // place text in module's center
@@ -305,10 +309,20 @@ void DlgModule::draw (GdkPixmap *surface, DlgPoint &offset, GtkWidget *widget)
     
     int x = position.x () + 5;
     int y = position.y () + (height () - h) / 2;
-    gdk_draw_layout (surface, gc, x, y, font);
+
+    // set font color and position
+    gdk_cairo_set_source_color(cr, gc);
+    pango_cairo_update_layout (cr, font);
+    cairo_move_to(cr, x, y);
+
+    // draw text
+    pango_cairo_show_layout (cr, font);
+    g_object_unref(font);
 
     // Update the drawing area
     update (widget, area);
+
+    cairo_destroy(cr);
 }
 
 // get toplevel module
@@ -504,6 +518,7 @@ void DlgModule::loadSubdialogue ()
 
                 top_left = DlgPoint (x, y);
                 bottom_right = DlgPoint (x + width + 10, y + 20);
+                break;
             }
 
            default: break;
@@ -533,26 +548,26 @@ bool DlgModule::save (std::string &path, std::string &name)
         << "# Produced by Adonthell Dlgedit v" << _VERSION_ << "\n"
         << "# (C) 2000/2001/2002/2003 The Adonthell Team & Kai Sterker\n#\n"
         << "# $I" << "d$\n\n"
-        << "Note §" << entry_.description () << "§\n\n";
+        << "Note ï¿½" << entry_.description () << "ï¿½\n\n";
 
     // Node ID
     out << "Id " << serial_ << "\n";
     
     // Save settings and stuff
     if (entry_.project () != "none")
-        out << "Proj §" << entry_.project () << "§\n";
+        out << "Proj ï¿½" << entry_.project () << "ï¿½\n";
     
     if (entry_.imports () != "")
-        out << "Inc  §" << entry_.imports () << "§\n";
+        out << "Inc  ï¿½" << entry_.imports () << "ï¿½\n";
     
     if (entry_.ctor () != "")
-        out << "Ctor §" << entry_.ctor () << "§\n";
+        out << "Ctor ï¿½" << entry_.ctor () << "ï¿½\n";
 
     if (entry_.dtor () != "")
-        out << "Dtor §" << entry_.dtor () << "§\n";
+        out << "Dtor ï¿½" << entry_.dtor () << "ï¿½\n";
     
     if (entry_.methods () != "")
-        out << "Func §" << entry_.methods () << "§\n";
+        out << "Func ï¿½" << entry_.methods () << "ï¿½\n";
     
     // Save Circles first, as arrows depend on them when loading later on
     for (std::vector<DlgNode*>::iterator i = nodes.begin (); i != nodes.end (); i++)

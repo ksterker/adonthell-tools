@@ -26,6 +26,7 @@
  * @brief Base class for the dialogue objects.
  */
 
+#include <math.h>
 #include "dlg_node.h"
 
 // Coonstructor
@@ -163,3 +164,30 @@ void DlgNode::draw (GdkPixmap *surface, DlgPoint &offset, GtkWidget *widget, mod
     mode_ = oldMode; 
 }
 
+void DlgNode::drawPolygon (cairo_t *cr, const GdkColor *color, const bool & filled, const DlgPoint *points, const int &num_points)
+{
+    gdk_cairo_set_source_color (cr, color);
+    cairo_set_line_width (cr, 0.6);
+    cairo_move_to (cr, points[0].x(), points[0].y());
+    for (int i = 1; i < num_points; i++)
+    {
+        cairo_line_to (cr, points[i].x(), points[i].y());
+    }
+    filled ? cairo_fill (cr) : cairo_stroke (cr);
+}
+
+void DlgNode::drawCircle (cairo_t *cr, const GdkColor *color, const bool & filled, const int & x, const int & y, const int & radius)
+{
+    gdk_cairo_set_source_color (cr, color);
+    cairo_set_line_width (cr, 0.6);
+    cairo_arc (cr, x, y, radius, 0, 2 * M_PI);
+    filled ? cairo_fill (cr) : cairo_stroke (cr);
+}
+
+void DlgNode::drawRectangle (cairo_t *cr, const GdkColor *color, const bool & filled, const int & x, const int & y, const int & width, const int & height)
+{
+    gdk_cairo_set_source_color (cr, color);
+    cairo_set_line_width (cr, 0.6);
+    cairo_rectangle (cr, x, y, width, height);
+    filled ? cairo_fill (cr) : cairo_stroke (cr);
+}

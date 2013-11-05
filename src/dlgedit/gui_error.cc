@@ -196,11 +196,14 @@ void GuiError::add (std::string error, DlgNode *node)
     GdkWindow *list_wnd;
     GdkColor color = { 0, 27500, 0, 0 };
 
-    int w = 380, h;
+    int w = 380;
 
     // get width to use for label
     list_wnd = gtk_widget_get_parent_window (list);
-    if (list_wnd) gdk_window_get_size (list_wnd, &w, &h);
+    if (list_wnd)
+    {
+        w = gdk_window_get_width(list_wnd);
+    }
 
     // create label    
     label = gtk_label_new (error.c_str ());

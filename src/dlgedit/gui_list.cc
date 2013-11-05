@@ -148,7 +148,8 @@ void GuiList::add (int mode, DlgCircle *circle)
     
     // get width to use for label
     list_wnd = gtk_widget_get_parent_window (list);
-    gdk_window_get_size (list_wnd, &w, &h);
+    w = gdk_window_get_width (list_wnd);
+    h = gdk_window_get_height(list_wnd);
 
     // create label    
     label = gtk_label_new (label_text.c_str ());

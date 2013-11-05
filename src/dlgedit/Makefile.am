@@ -78,9 +78,12 @@ adonthell_dlgedit_SOURCES = \
     lex.loadcfg.cc \
     lex.loadlg.cc \
     main.cc
+    
+# preparation for switching to GTK+ 3.0
+GTK_3_0_FLAGS = -DGSEAL_ENABLE
 
 INCLUDES = -I@top_srcdir@/src/common
-adonthell_dlgedit_CXXFLAGS = -DGSEAL_ENABLE -D_VERSION_=\"0.9pre\" $(GTK_CFLAGS) $(ADONTHELL_CFLAGS) $(PY_CFLAGS) $(IGE_MAC_CFLAGS)
+adonthell_dlgedit_CXXFLAGS = -D_VERSION_=\"0.9pre\" $(GTK_CFLAGS) $(GTK_3_0_FLAGS) $(ADONTHELL_CFLAGS) $(PY_CFLAGS) $(IGE_MAC_CFLAGS)
 adonthell_dlgedit_LDADD = ../common/libcommon.a $(GTK_LIBS) $(ADONTHELL_LIBS) $(PY_LIBS) $(IGE_MAC_LIBS)
 
 $(srcdir)/lex.loadlg.cc: $(top_srcdir)/src/dlgedit/loadlg.l

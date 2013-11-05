@@ -750,7 +750,7 @@ void GuiGraph::resizeSurface (GtkWidget *widget)
     gtk_widget_get_allocation (widget, &allocation);
 
     // delete the old surface
-    if (surface) gdk_pixmap_unref (surface);
+    if (surface) g_object_unref (surface);
     
     // create a new one with the proper size
     surface = gdk_pixmap_new (gtk_widget_get_window(widget), allocation.width, allocation.height, -1);
@@ -770,8 +770,11 @@ void GuiGraph::clear ()
     GtkAllocation allocation;
     gtk_widget_get_allocation (graph, &allocation);
 
-    gdk_draw_rectangle (surface, GuiResources::getColor (GC_GREY), 
-        TRUE, 0, 0, allocation.width, allocation.height);
+    cairo_t *cr = gdk_cairo_create (GDK_DRAWABLE(surface));
+    gdk_cairo_set_source_color(cr, GuiResources::getColor (GC_GREY));
+    cairo_rectangle(cr, 0, 0, allocation.width, allocation.height);
+    cairo_fill(cr);
+    cairo_destroy(cr);
 
     t.x = 0;
     t.y = 0;
@@ -800,7 +803,11 @@ void GuiGraph::draw ()
     DlgRect rect (t);
 
     // Clear graph
-    gdk_draw_rectangle (surface, GuiResources::getColor (GC_WHITE), TRUE, 0, 0, t.width, t.height);
+    cairo_t *cr = gdk_cairo_create (GDK_DRAWABLE(surface));
+    gdk_cairo_set_source_color(cr, GuiResources::getColor (GC_WHITE));
+    cairo_rectangle(cr, 0, 0, t.width, t.height);
+    cairo_fill(cr);
+    cairo_destroy(cr);
 
     // normalize rect
     t.x = 0;
@@ -846,7 +853,7 @@ void GuiGraph::mouseMoved (DlgPoint &point)
         }
         
         // then highlight the new one
-        if (node != NULL) 
+        if (node != NULL && gtk_window_is_active(GTK_WINDOW(gtk_widget_get_toplevel(graph))))
         {
             node->draw (surface, *offset, graph, NODE_HILIGHTED);
             tooltip = new GuiTooltip (node);

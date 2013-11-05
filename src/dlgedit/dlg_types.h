@@ -143,6 +143,7 @@ enum
  * The size of a DlgCircle.
  */
 #define CIRCLE_DIAMETER 20
+#define CIRCLE_RADIUS 10
 
 /**
  * File extension of dialogue source files.

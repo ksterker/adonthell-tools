@@ -201,26 +201,32 @@ DlgPoint DlgArrow::getIntersection (DlgPoint &start, DlgPoint &end, DlgRect &sha
 // draw the Arrow
 void DlgArrow::draw (GdkPixmap *surface, DlgPoint &point, GtkWidget *widget)
 {
-    GdkPoint l[2];
-    GdkPoint t[3];
-    GdkGC *gc = GuiResources::getColor (mode_, type_);
+    cairo_t *cr = gdk_cairo_create (GDK_DRAWABLE(surface));
+    const GdkColor *color = GuiResources::getColor (mode_, type_);
+
+    DlgPoint l[2];
+    DlgPoint t[3];
     DlgRect area = inflate (10, 10);
     
     // Current position
     area.move (point);
-    l[0] = (GdkPoint) DlgPoint (line[0]).offset (point);
-    l[1] = (GdkPoint) DlgPoint (line[1]).offset (point);
-    t[0] = (GdkPoint) DlgPoint (tip[0]).offset (point);
-    t[1] = (GdkPoint) DlgPoint (tip[1]).offset (point);
-    t[2] = (GdkPoint) DlgPoint (tip[2]).offset (point);
+
+    l[0] = DlgPoint (line[0]).offset (point);
+    l[1] = DlgPoint (line[1]).offset (point);
+    t[0] = DlgPoint (tip[0]).offset (point);
+    t[1] = DlgPoint (tip[1]).offset (point);
+    t[2] = DlgPoint (tip[2]).offset (point);
+    t[3] = DlgPoint (tip[0]).offset (point);
 
     // draw everything
-    gdk_draw_polygon (surface, gc, FALSE, l, 2);
-    gdk_draw_polygon (surface, GuiResources::getColor (GC_WHITE), TRUE, t, 3);
-    gdk_draw_polygon (surface, gc, FALSE, t, 3);
+    drawPolygon (cr, color, FALSE, l, 2);
+    drawPolygon (cr, GuiResources::getColor (GC_WHITE), TRUE, t, 3);
+    drawPolygon (cr, color, FALSE, t, 4);
 
     // update drawing area
     update (widget, area);
+
+    cairo_destroy(cr);
 }
     
 bool DlgArrow::operator== (DlgPoint &point)

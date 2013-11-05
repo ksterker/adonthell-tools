@@ -1,6 +1,4 @@
 /*
-   $Id: gui_resources.h,v 1.1 2004/07/25 15:52:23 ksterker Exp $
-
    Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
 
@@ -50,25 +48,25 @@ public:
     /**
      * Retrieve a colored 'pen' to draw onto a drawing area.
      * @param color the color to retrieve
-     * @return a GdkGC.
+     * @return a GdkColor.
      */
-    static GdkGC *getColor (int color);
+    static const GdkColor *getColor (int color);
     /**
      * Retrieve a colored 'pen' to draw onto a drawing area, depending
      * on the given mode and type.
      * @param mode the mode of a DlgNode
      * @param type the type of a DlgNode
-     * @return a GdkGC.
+     * @return a GdkColor.
      */
-    static GdkGC *getColor (mode_type mode, node_type type);
+    static const GdkColor *getColor (mode_type mode, node_type type);
     /**
      * Retrieve a color to fill drawn objects on a drawing area, 
      * depending on the given mode and type.
      * @param mode the mode of a DlgNode
      * @param type the type of a DlgNode
-     * @return a GdkGC.
+     * @return a GdkColor.
      */
-    static GdkGC *getFill (mode_type mode, node_type type);
+    static const GdkColor *getFill (mode_type mode, node_type type);
     /**
      * Retrieve the font used to draw text onto a drawing area.
      * @return a PangoLayout.
@@ -77,7 +75,7 @@ public:
 
 private:
     static PangoLayout *Font;       // font for text-output
-    static GdkGC *Color[MAX_GC];    // custom Pens    
+    static GdkColor Color[MAX_GC];  // custom colors
 };
 
 #endif // GUI_RESOURCES_H
