@@ -205,7 +205,7 @@ void DlgArrow::draw (GdkPixmap *surface, DlgPoint &point, GtkWidget *widget)
     const GdkColor *color = GuiResources::getColor (mode_, type_);
 
     DlgPoint l[2];
-    DlgPoint t[3];
+    DlgPoint t[4];
     DlgRect area = inflate (10, 10);
     
     // Current position
