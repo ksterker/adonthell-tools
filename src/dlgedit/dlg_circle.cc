@@ -78,9 +78,9 @@ bool DlgCircle::hasChild (DlgNode *child)
 }
 
 // draw the circle
-void DlgCircle::draw (GdkPixmap *surface, DlgPoint &os, GtkWidget *widget)
+void DlgCircle::draw (cairo_surface_t *surface, DlgPoint &os, GtkWidget *widget)
 {
-    cairo_t *cr = gdk_cairo_create (GDK_DRAWABLE(surface));
+    cairo_t *cr = cairo_create (surface);
 
     // get the color and fill for drawing the circle
     const GdkColor *gc  = GuiResources::getColor  (mode_, type_);

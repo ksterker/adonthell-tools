@@ -67,6 +67,7 @@ GuiGraph::GuiGraph (GtkWidget *paned) : Scrollable ()
 // dtor
 GuiGraph::~GuiGraph()
 {
+    cairo_surface_destroy(surface);
 }
 
 // attach a module
@@ -753,7 +754,7 @@ void GuiGraph::resizeSurface (GtkWidget *widget)
     if (surface) g_object_unref (surface);
     
     // create a new one with the proper size
-    surface = gdk_pixmap_new (gtk_widget_get_window(widget), allocation.width, allocation.height, -1);
+    surface = gdk_window_create_similar_surface (gtk_widget_get_window(widget), CAIRO_CONTENT_COLOR, allocation.width, allocation.height);
 
     // init the surface
     if (GuiResources::getColor (GC_GREY)) clear ();
@@ -770,7 +771,7 @@ void GuiGraph::clear ()
     GtkAllocation allocation;
     gtk_widget_get_allocation (graph, &allocation);
 
-    cairo_t *cr = gdk_cairo_create (GDK_DRAWABLE(surface));
+    cairo_t *cr = cairo_create (surface);
     gdk_cairo_set_source_color(cr, GuiResources::getColor (GC_GREY));
     cairo_rectangle(cr, 0, 0, allocation.width, allocation.height);
     cairo_fill(cr);
@@ -803,7 +804,7 @@ void GuiGraph::draw ()
     DlgRect rect (t);
 
     // Clear graph
-    cairo_t *cr = gdk_cairo_create (GDK_DRAWABLE(surface));
+    cairo_t *cr = cairo_create (surface);
     gdk_cairo_set_source_color(cr, GuiResources::getColor (GC_WHITE));
     cairo_rectangle(cr, 0, 0, t.width, t.height);
     cairo_fill(cr);

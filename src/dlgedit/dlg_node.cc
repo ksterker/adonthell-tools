@@ -151,7 +151,7 @@ void DlgNode::removePrev (DlgNode *node)
 }
 
 // draw the node (with a certain mode)
-void DlgNode::draw (GdkPixmap *surface, DlgPoint &offset, GtkWidget *widget, mode_type m)
+void DlgNode::draw (cairo_surface_t *surface, DlgPoint &offset, GtkWidget *widget, mode_type m)
 {
     // change the mode temporarily
     mode_type oldMode = mode_;

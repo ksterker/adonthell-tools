@@ -1,6 +1,4 @@
 /*
-   $Id: dlg_arrow.cc,v 1.1 2004/07/25 15:52:22 ksterker Exp $
-
    Copyright (C) 2002/2003 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
 
@@ -199,9 +197,9 @@ DlgPoint DlgArrow::getIntersection (DlgPoint &start, DlgPoint &end, DlgRect &sha
 }
 
 // draw the Arrow
-void DlgArrow::draw (GdkPixmap *surface, DlgPoint &point, GtkWidget *widget)
+void DlgArrow::draw (cairo_surface_t *surface, DlgPoint &point, GtkWidget *widget)
 {
-    cairo_t *cr = gdk_cairo_create (GDK_DRAWABLE(surface));
+    cairo_t *cr = cairo_create (surface);
     const GdkColor *color = GuiResources::getColor (mode_, type_);
 
     DlgPoint l[2];

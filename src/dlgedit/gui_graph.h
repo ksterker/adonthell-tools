@@ -257,7 +257,7 @@ public:
      * Return a pointer to the drawing surface.
      * @return the drawing surface
      */
-    GdkPixmap *pixmap ()        { return surface; }
+    cairo_surface_t *pixmap ()  { return surface; }
     /**
      * Return the attached dialogue module.
      * @return the DlgModule currently attached to the view 
@@ -281,7 +281,7 @@ private:
     DlgModule *module;      // Module assigned to the graph view
     DlgPoint *offset;       // Module's relative position to the origin
     GtkWidget *graph;       // Drawing Area
-    GdkPixmap *surface;     // Drawing surface
+    cairo_surface_t *surface;   // Drawing surface
     DlgRect drawing_area;   // Size of the Drawing Area
     GuiTooltip *tooltip;    // Tooltip for displaying node-text
 };

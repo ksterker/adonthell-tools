@@ -92,11 +92,11 @@ public:
     /**
      * Draw this node to the given surface with the specified offset. 
      * The node's current mode determines the color thw node is drawn with. 
-     * @param surface the GdkPixmap to draw to
+     * @param surface the cairo_surface_t to draw to
      * @param offset the DlgPoint to use as offset
      * @param widget the GtkWidget to update after drawing
      */
-    void draw (GdkPixmap *surface, DlgPoint &offset, GtkWidget *widget);
+    void draw (cairo_surface_t *surface, DlgPoint &offset, GtkWidget *widget);
     //@}
     
     /**

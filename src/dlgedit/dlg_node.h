@@ -1,6 +1,4 @@
 /*
-   $Id: dlg_node.h,v 1.1 2004/07/25 15:52:23 ksterker Exp $
-
    Copyright (C) 2002/2003 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
 
@@ -128,20 +126,20 @@ public:
     /**
      * Draw this node to the given surface. During drawing, the mode is
      * temporarily changed to the given mode.
-     * @param surface the GdkPixmap to draw to
+     * @param surface the cairo_surface_t to draw to
      * @param offset the DlgPoint to use as offset
      * @param widget the GtkWidget to update after drawing
      * @param mode the new mode of the node
      */
-    void draw (GdkPixmap *surface, DlgPoint &offset, GtkWidget *widget, mode_type mode);
+    void draw (cairo_surface_t *surface, DlgPoint &offset, GtkWidget *widget, mode_type mode);
     
     /**
      * Draw this node to the given surface.
-     * @param surface the GdkPixmap to draw to
+     * @param surface the cairo_surface_t to draw to
      * @param offset the DlgPoint to use as offset
      * @param widget the GtkWidget to update after drawing
      */
-    virtual void draw (GdkPixmap *surface, DlgPoint &offset, GtkWidget *widget)
+    virtual void draw (cairo_surface_t *surface, DlgPoint &offset, GtkWidget *widget)
     { 
     }
     

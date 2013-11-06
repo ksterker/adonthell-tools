@@ -280,9 +280,9 @@ void DlgModule::setChanged (bool changed)
 }
 
 // draw the module
-void DlgModule::draw (GdkPixmap *surface, DlgPoint &offset, GtkWidget *widget)
+void DlgModule::draw (cairo_surface_t *surface, DlgPoint &offset, GtkWidget *widget)
 {
-    cairo_t *cr = gdk_cairo_create (GDK_DRAWABLE(surface));
+    cairo_t *cr = cairo_create (surface);
 
     // get the color for drawing the circle
     const GdkColor *gc = GuiResources::getColor (mode_, type_);

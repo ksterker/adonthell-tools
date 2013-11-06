@@ -1,6 +1,4 @@
 /*
-   $Id: dlg_node_gfx.h,v 1.1 2004/07/25 15:52:23 ksterker Exp $
-
    Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
 
@@ -68,21 +66,21 @@ public:
     /**
      * Draw this node to the given surface with the specified offset. 
      * The node's current mode determines the color thw node is drawn with. 
-     * @param surface the GdkPixmap to draw to
+     * @param surface the cairo_surface_t to draw to
      * @param offset the DlgPoint to use as offset
      * @param widget the GtkWidget to update after drawing
      */
-    virtual void draw (GdkPixmap *surface, DlgPoint &offset, GtkWidget *widget) = 0;
+    virtual void draw (cairo_surface_t *surface, DlgPoint &offset, GtkWidget *widget) = 0;
 
     /**
      * Draw this node to the given surface. During drawing, the mode is
      * temporarily changed to the given mode.
-     * @param surface the GdkPixmap to draw to
+     * @param surface the cairo_surface_t to draw to
      * @param offset the DlgPoint to use as offset
      * @param widget the GtkWidget to update after drawing
      * @param mode the new mode of the node
      */
-    virtual void draw (GdkPixmap *surface, DlgPoint &offset, GtkWidget *widget, mode_type mode) = 0;
+    virtual void draw (cairo_surface_t *surface, DlgPoint &offset, GtkWidget *widget, mode_type mode) = 0;
        
     /**
      * Check whether the node is located at the given point.

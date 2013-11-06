@@ -53,7 +53,7 @@ gint expose_event (GtkWidget * widget, GdkEventExpose * event, gpointer data)
     GuiGraph *graph = (GuiGraph *) data;
 
     cairo_t *cr = gdk_cairo_create (GDK_DRAWABLE(gtk_widget_get_window(widget)));
-    gdk_cairo_set_source_pixmap (cr, graph->pixmap (), 0, 0);
+    cairo_set_source_surface (cr, graph->pixmap (), 0, 0);
     gdk_cairo_rectangle (cr, &event->area);
     cairo_fill (cr);
     cairo_destroy(cr);
