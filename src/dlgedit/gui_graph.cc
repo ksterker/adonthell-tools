@@ -749,7 +749,7 @@ void GuiGraph::resizeSurface (GtkWidget *widget)
     gtk_widget_get_allocation (widget, &allocation);
 
     // delete the old surface
-    if (surface) g_object_unref (surface);
+    if (surface) cairo_surface_destroy (surface);
     
     // create a new one with the proper size
     surface = gdk_window_create_similar_surface (gtk_widget_get_window(widget), CAIRO_CONTENT_COLOR, allocation.width, allocation.height);
