@@ -175,7 +175,7 @@ void on_window_activate (GtkMenuItem * menuitem, gpointer user_data)
 // Display help text associated with a menuitem to the statusbar 
 gboolean on_display_help (GtkWidget *widget, GdkEventCrossing *event, gpointer user_data)
 {
-    int id = GPOINTER_TO_INT (gtk_object_get_data (GTK_OBJECT (widget), "help-id"));
+    int id = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (widget), "help-id"));
     GuiMessages *message = (GuiMessages *) user_data;
     
     message->display (id);

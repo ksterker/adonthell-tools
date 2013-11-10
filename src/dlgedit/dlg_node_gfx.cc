@@ -1,6 +1,4 @@
 /*
-   $Id: dlg_node_gfx.cc,v 1.1 2004/07/25 15:52:23 ksterker Exp $
-
    Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
 
@@ -35,6 +33,6 @@ void DlgNodeGfx::update (GtkWidget *widget, DlgRect &area)
     if (widget)
     {
         GdkRectangle rect = (GdkRectangle) area;
-        gtk_widget_draw (widget, &rect);
+        gdk_window_invalidate_rect (gtk_widget_get_window(widget), &rect, FALSE);
     }
 }

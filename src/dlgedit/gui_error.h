@@ -1,6 +1,4 @@
 /*
-   $Id: gui_error.h,v 1.1 2004/07/25 15:52:23 ksterker Exp $ 
-
    Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
 
@@ -68,7 +66,6 @@ public:
 private:
     GtkWidget *window;      // The dialog window
     GtkWidget *list;        // The list widget
-    GList *items;           // The items in the list
 };
 
 #endif // GUI_ERROR_H

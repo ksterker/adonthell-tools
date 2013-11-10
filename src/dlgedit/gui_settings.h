@@ -114,9 +114,8 @@ private:
      * Read available projects from DlgCmdline::datadir and add
      * them to the project list. Also add the "none" entry for
      * modules that do not belong to a project yet.
-     * @param the menu widget of the drop-down list. 
      */
-    void populateProjects (GtkWidget *menu);
+    void populateProjects ();
 
     DlgModuleEntry *entry;  	// The module's settings
     GtkWidget *window;     	 	// The dialog window

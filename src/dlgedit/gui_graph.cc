@@ -1,6 +1,4 @@
 /*
-   $Id: gui_graph.cc,v 1.4 2009/04/03 22:00:34 ksterker Exp $
-
    Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
 
@@ -47,18 +45,18 @@ GuiGraph::GuiGraph (GtkWidget *paned) : Scrollable ()
     
     // create drawing area for the graph
     graph = gtk_drawing_area_new ();
-    gtk_drawing_area_size (GTK_DRAWING_AREA (graph), 200, 450);
+    gtk_widget_set_size_request (graph, 200, 450);
     gtk_paned_add2 (GTK_PANED (paned), graph);
     gtk_widget_show (graph);
     gtk_widget_grab_focus (graph);
     
     // register our event callbacks
-    gtk_signal_connect (GTK_OBJECT (graph), "expose_event", (GtkSignalFunc) expose_event, this);
-    gtk_signal_connect (GTK_OBJECT (graph), "configure_event", (GtkSignalFunc) configure_event, this);
-    gtk_signal_connect (GTK_OBJECT (graph), "button_press_event", (GtkSignalFunc) button_press_event, this);
-    gtk_signal_connect (GTK_OBJECT (graph), "button_release_event", (GtkSignalFunc) button_release_event, this);
-    gtk_signal_connect (GTK_OBJECT (graph), "motion_notify_event", (GtkSignalFunc) motion_notify_event, this);
-    gtk_signal_connect (GTK_OBJECT (GuiDlgedit::window->getWindow ()), "key_press_event", (GtkSignalFunc) key_press_notify_event, this);
+    g_signal_connect (G_OBJECT (graph), "expose_event", G_CALLBACK(expose_event), this);
+    g_signal_connect (G_OBJECT (graph), "configure_event", G_CALLBACK(configure_event), this);
+    g_signal_connect (G_OBJECT (graph), "button_press_event", G_CALLBACK(button_press_event), this);
+    g_signal_connect (G_OBJECT (graph), "button_release_event", G_CALLBACK(button_release_event), this);
+    g_signal_connect (G_OBJECT (graph), "motion_notify_event", G_CALLBACK(motion_notify_event), this);
+    g_signal_connect (G_OBJECT (GuiDlgedit::window->getWindow ()), "key_press_event", G_CALLBACK(key_press_notify_event), this);
     
     gtk_widget_set_events (graph, GDK_EXPOSURE_MASK | GDK_LEAVE_NOTIFY_MASK | GDK_BUTTON_PRESS_MASK |
         GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK | GDK_KEY_PRESS_MASK);
@@ -782,7 +780,7 @@ void GuiGraph::clear ()
     t.width = allocation.width;
     t.height = allocation.height;
 
-    gtk_widget_draw (graph, &t);        
+    gdk_window_invalidate_rect (gtk_widget_get_window (graph), &t, FALSE);
 }
 
 // draw the graph to the surface
@@ -821,7 +819,7 @@ void GuiGraph::draw ()
             (*i)->draw (surface, *offset, NULL);
 
     // draw backing image to screen
-    gtk_widget_draw (graph, &t);
+    gdk_window_invalidate_rect (gtk_widget_get_window (graph), &t, FALSE);
 }
 
 // the mouse has been moved

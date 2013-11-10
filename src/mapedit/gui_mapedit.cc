@@ -52,41 +52,6 @@
 #define MIME_TYPE "application/x-adonthell-map"
 
 /**
- * Icon of the main window
- */
-static const char * icon_xpm[] = {
-"16 16 13 1",
-" 	c None",
-".	c #888888",
-"+	c #777777",
-"@	c #999999",
-"#	c #111111",
-"$	c #222222",
-"%	c #000000",
-"&	c #333333",
-"*	c #555555",
-"=	c #666666",
-"-	c #444444",
-";	c #070707",
-">	c #AAAAAA",
-"     .+++.@     ",
-"    .#$%&**@    ",
-"    =%-#=  $*   ",
-"    #*+%+  .%-  ",
-"   .# .;+   *%= ",
-"   =- =;+   .## ",
-"   #= =#=    $%.",
-"  .%%##%$*==.&%+",
-"  +-  =%-@   *%*",
-"  #%%$#%$**=.&%+",
-"  %-++*#=    $%.",
-" =#+  =%+   .%& ",
-" -$   =%+   $%. ",
-"+%+   +%+  *#+  ",
-"-%.   =%-*=$.   ",
-"=*.   @=+..>    "};
-
-/**
  * Global pointer to the main window
  */
 GuiMapedit *GuiMapedit::window = NULL;
@@ -351,10 +316,6 @@ GuiMapedit::GuiMapedit ()
     gtk_widget_show (StatusCoordinates);
     gtk_box_pack_start (GTK_BOX (hbox), StatusCoordinates, FALSE, TRUE, 0);
     gtk_widget_set_size_request (StatusCoordinates, 150, -1);
-    
-    // set the editor's icon    
-    GdkPixbuf *icon = gdk_pixbuf_new_from_xpm_data ((const char**) icon_xpm);
-    gtk_window_set_icon (GTK_WINDOW(Wnd), icon);
     
     // Display MainWindow
     gtk_widget_show (Wnd);

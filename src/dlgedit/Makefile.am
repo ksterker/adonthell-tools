@@ -80,7 +80,7 @@ adonthell_dlgedit_SOURCES = \
     main.cc
     
 # preparation for switching to GTK+ 3.0
-GTK_3_0_FLAGS = -DGSEAL_ENABLE
+GTK_3_0_FLAGS = -DGSEAL_ENABLE -DGDK_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED
 
 INCLUDES = -I@top_srcdir@/src/common
 adonthell_dlgedit_CXXFLAGS = -D_VERSION_=\"0.9pre\" $(GTK_CFLAGS) $(GTK_3_0_FLAGS) $(ADONTHELL_CFLAGS) $(PY_CFLAGS) $(IGE_MAC_CFLAGS)

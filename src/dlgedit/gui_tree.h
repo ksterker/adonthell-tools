@@ -1,6 +1,4 @@
 /*
-   $Id: gui_tree.h,v 1.1 2004/07/25 15:52:23 ksterker Exp $
-
    Copyright (C) 2002/2003 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
 
@@ -133,13 +131,18 @@ public:
      * it will be deselected first.
      * @param node The node to be selected.
      */
-    void select (GtkCTreeNode *node);
+    void select (GtkTreeIter *node);
     /**
      * Select the given module in the tree. If a node is currently
      * selected, it will be deselected first.
      * @param module The module to select.
      */
     void select (DlgModule *module);
+    /**
+     * Deselect the given module in the tree.
+     * @param module The module to deselect.
+     */
+    void unselect (DlgModule *module);
     
 private:
     /**
@@ -147,42 +150,40 @@ private:
      * into the module's sub-dialogues, sub-sub-dialogues, and so on.
      * @param root The root of the (sub-)tree to be build.
      */
-    void build (GtkCTreeNode *root);
+    void build (GtkTreeIter root);
     /**
      * Insert a module into the tree, as child of the given parent.
      * @param parent The parent of the module to add.
-     * @param sibling The sibling after which module should be added.
      * @param module The module to add.
      * @return The node that has been added.
      */
-    GtkCTreeNode *insert (GtkCTreeNode *parent, GtkCTreeNode *sibling, DlgModule *module);
+    GtkTreeIter insert (GtkTreeIter parent, DlgModule *module);
     /**
      * Set the icon of the given node to the appropriate state.
      * @param node Node whose icon to change.
      * @param select Whether to use the selected or normal icon.
      * @param changed Whether the given node is saved or modified.
      */
-    void setIcon (GtkCTreeNode *node, bool select, bool changed);
+    void setIcon (GtkTreeIter node, bool select, bool changed);
     /**
      * Find the node associated with the given module.
      * @param module DlgModule whose node to retrieve.
-     * @return Node associated with the module, or NULL if it isn't found.
+     * @param node iterator set to the node associated with the module
+     * @return true if node associated with the module was found, false otherwise.
      */
-    GtkCTreeNode *locate (DlgModule *module);
+    bool locate (DlgModule *module, GtkTreeIter *node);
     /**
      * Find the node associated with the given project. If no such node
      * exists, it will be created.
      * @param project Name of the project
      * @return Node associated with project
      */
-    GtkCTreeNode *locateProject (const std::string &project);
-    
+    GtkTreeIter locateProject (const std::string &project);
+
     GtkWidget *tree;        // The actual GTK+ tree widget
-    GtkCTreeNode *selected; // The node currently 'selected'
     
     // Icons to display next to tree nodes
-    GdkPixmap *icon[MAX_ICONS];
-    GdkBitmap *mask[MAX_ICONS];
+    GdkPixbuf *icon[MAX_ICONS];
 };
 
 #endif // GUI_TREE_H

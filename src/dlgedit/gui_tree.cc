@@ -1,6 +1,4 @@
 /*
-   $Id: gui_tree.cc,v 1.1 2004/07/25 15:52:23 ksterker Exp $
-
    Copyright (C) 2002/2003 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
 
@@ -31,18 +29,14 @@
 #include "gui_tree.h"
 #include "gui_dlgedit.h"
 
-#define INSERT_NODE(parent,sibling,text,idx,is_leaf) \
-    gtk_ctree_insert_node (GTK_CTREE (tree), parent, sibling, text, 4, \
-        icon[idx], mask[idx], icon[idx], mask[idx], is_leaf, true)
-
 /* Icon for unselected dialogue */
 static const char * dlg_xpm[] = {
 "16 16 5 1",
-" 	c None",
-".	c #646464",
-"+	c #000000",
-"@	c #848484",
-"#	c #FFFFFF",
+"   c None",
+".  c #646464",
+"+  c #000000",
+"@  c #848484",
+"#  c #FFFFFF",
 "                ",
 "                ",
 "  .+++++++++.   ",
@@ -63,11 +57,11 @@ static const char * dlg_xpm[] = {
 /* Icon for selected dialogue */
 static const char * sel_xpm[] = {
 "16 16 5 1",
-" 	c None",
-".	c #446484",
-"+	c #000020",
-"@	c #6484A4",
-"#	c #CFEFEF",
+"   c None",
+".  c #446484",
+"+  c #000020",
+"@  c #6484A4",
+"#  c #CFEFEF",
 "                ",
 "                ",
 "  .+++++++++.   ",
@@ -88,11 +82,11 @@ static const char * sel_xpm[] = {
 /* Not selected and modified */
 static const char * dlg_mod_xpm[] = {
 "16 16 5 1",
-" 	c None",
-".	c #646464",
-"+	c #000000",
-"@	c #848484",
-"#	c #FFFFFF",
+"   c None",
+".  c #646464",
+"+  c #000000",
+"@  c #848484",
+"#  c #FFFFFF",
 "                ",
 "                ",
 "  .+++++++++.   ",
@@ -113,11 +107,11 @@ static const char * dlg_mod_xpm[] = {
 /* Selected and modified */
 static const char * sel_mod_xpm[] = {
 "16 16 5 1",
-" 	c None",
-".	c #446484",
-"+	c #000020",
-"@	c #6484A4",
-"#	c #CFEFEF",
+"   c None",
+".  c #446484",
+"+  c #000020",
+"@  c #6484A4",
+"#  c #CFEFEF",
 "                ",
 "                ",
 "  .+++++++++.   ",
@@ -138,15 +132,15 @@ static const char * sel_mod_xpm[] = {
 /* Project icon */
 static const char * project_xpm[] = {
 "16 16 9 1",
-" 	c None",
-".	c #004F8C",
-"+	c #000000",
-"@	c #EFE8EF",
-"#	c #C4D9FF",
-"$	c #93BCFF",
-"%	c #619CCC",
-"&	c #83A0D3",
-"*	c #013E63",
+"   c None",
+".  c #004F8C",
+"+  c #000000",
+"@  c #EFE8EF",
+"#  c #C4D9FF",
+"$  c #93BCFF",
+"%  c #619CCC",
+"&  c #83A0D3",
+"*  c #013E63",
 "                ",
 "  .....+        ",
 " .@##$$.+       ",
@@ -165,23 +159,35 @@ static const char * project_xpm[] = {
 "                "};
 
 // selection changed
-void on_tree_select_row (GtkCTree *ctree, GList *node, gint column, gpointer user_data)
+void on_tree_select_row (GtkTreeSelection *selection, gpointer user_data)
 {
-    gtk_ctree_unselect (ctree, GTK_CTREE_NODE (node));
+    GtkTreeModel *model;
+    GtkTreeIter iter;
     
-    DlgModule *module = (DlgModule *) gtk_ctree_node_get_row_data (ctree,
-        GTK_CTREE_NODE (node));
-    
-    DlgModule *current = GuiDlgedit::window->graph ()->getAttached ();
-    
-    if (module != current)
+    // anything selected at all?
+    if (gtk_tree_selection_get_selected (selection, &model, &iter))
     {
-        // unmark current selection
-        GuiTree *view = (GuiTree *) user_data;
-        view->select (GTK_CTREE_NODE (node));
-        
-        // display the newly selected module
-        GuiDlgedit::window->graph ()->switchModule (module);
+        DlgModule *module;
+        DlgModule *current = GuiDlgedit::window->graph ()->getAttached ();
+
+        gtk_tree_model_get (GTK_TREE_MODEL (model), &iter, 1, &module, -1);
+        if (module != NULL)
+        {
+            if (module != current)
+            {
+                // mark current selection
+                GuiTree *view = (GuiTree *) user_data;
+                view->unselect (current);
+                view->select (&iter);
+
+                // display the newly selected module
+                GuiDlgedit::window->graph ()->switchModule (module);
+            }
+        }
+        else
+        {
+            gtk_tree_selection_unselect_iter (selection, &iter);
+        }
     }
 }
 
@@ -192,42 +198,52 @@ GuiTree::GuiTree (GtkWidget *paned)
 
     // the scrolled window for the tree
     scrolledwindow = gtk_scrolled_window_new (NULL, NULL);
-    gtk_widget_ref (scrolledwindow);
-    gtk_object_set_data_full (GTK_OBJECT (paned), "scrolledwindow",
-        scrolledwindow, (GtkDestroyNotify) gtk_widget_unref);
+    g_object_ref (scrolledwindow);
+    g_object_set_data_full (G_OBJECT (paned), "scrolledwindow",
+        scrolledwindow, (GDestroyNotify)  g_object_unref);
     gtk_widget_show (scrolledwindow);
     gtk_paned_add1 (GTK_PANED (paned), scrolledwindow);
-    gtk_widget_set_usize (scrolledwindow, 160, -2);
+    gtk_widget_set_size_request (scrolledwindow, 160, -1);
     gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow),
         GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 
+    // the model
+    GtkTreeStore *model = gtk_tree_store_new(3, G_TYPE_STRING, G_TYPE_POINTER, GDK_TYPE_PIXBUF);
+
     // the tree widget
-    tree = gtk_ctree_new (1, 0);
-    gtk_widget_ref (tree);
-    gtk_object_set_data_full (GTK_OBJECT (paned), "tree", tree,
-        (GtkDestroyNotify) gtk_widget_unref);
-    gtk_widget_show (tree);
+    tree = gtk_tree_view_new_with_model (GTK_TREE_MODEL(model));
+    g_object_ref (tree);
+    g_object_set_data_full (G_OBJECT (paned), "tree", tree, (GDestroyNotify)  g_object_unref);
     gtk_container_add (GTK_CONTAINER (scrolledwindow), tree);
-    gtk_clist_set_column_width (GTK_CLIST (tree), 0, 80);
-    gtk_clist_column_titles_hide (GTK_CLIST (tree));
-    gtk_clist_set_shadow_type (GTK_CLIST (tree), GTK_SHADOW_IN);
+    gtk_tree_view_set_headers_visible (GTK_TREE_VIEW(tree), FALSE);
     gtk_widget_set_can_focus(tree, FALSE);
 
-    gtk_signal_connect (GTK_OBJECT (tree), "tree_select_row",
-        GTK_SIGNAL_FUNC (on_tree_select_row), this);
+    // create the columns
+    GtkTreeViewColumn *col = gtk_tree_view_column_new();
+    GtkCellRenderer *renderer = gtk_cell_renderer_pixbuf_new();
+    gtk_tree_view_column_pack_start(col, renderer, FALSE);
+    gtk_tree_view_column_set_attributes(col, renderer, "pixbuf", 2, NULL);
+
+    renderer = gtk_cell_renderer_text_new();
+    gtk_tree_view_column_pack_start(col, renderer, TRUE);
+    gtk_tree_view_column_set_attributes(col, renderer, "text", 0, NULL);
+
+    gtk_tree_view_append_column(GTK_TREE_VIEW(tree), col);
+    gtk_widget_show_all (tree);
+
+    // connect callbacks
+    GtkTreeSelection *selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(tree));
+    g_signal_connect (G_OBJECT (selection), "changed", G_CALLBACK(on_tree_select_row), this);
     
     // create pixmaps and masks
-    GdkWindow *wnd = gtk_widget_get_window(GuiDlgedit::window->getWindow ());
-	icon[BUBBLE] = gdk_pixmap_create_from_xpm_d (wnd, &mask[BUBBLE], NULL, (char**) dlg_xpm);
-	icon[BUBBLE_SEL] = gdk_pixmap_create_from_xpm_d (wnd, &mask[BUBBLE_SEL], NULL, (char**) sel_xpm);
-	icon[BUBBLE_MOD] = gdk_pixmap_create_from_xpm_d (wnd, &mask[BUBBLE_MOD], NULL, (char**) dlg_mod_xpm);
-	icon[BUBBLE_SEL_MOD] = gdk_pixmap_create_from_xpm_d (wnd, &mask[BUBBLE_SEL_MOD], NULL, (char**) sel_mod_xpm);
-	icon[PROJECT] = gdk_pixmap_create_from_xpm_d (wnd, &mask[PROJECT], NULL, (char**) project_xpm);
-    
-    selected = NULL;
-    
+	icon[BUBBLE] = gdk_pixbuf_new_from_xpm_data (dlg_xpm);
+	icon[BUBBLE_SEL] = gdk_pixbuf_new_from_xpm_data (sel_xpm);
+	icon[BUBBLE_MOD] = gdk_pixbuf_new_from_xpm_data (dlg_mod_xpm);
+	icon[BUBBLE_SEL_MOD] = gdk_pixbuf_new_from_xpm_data (sel_mod_xpm);
+	icon[PROJECT] = gdk_pixbuf_new_from_xpm_data (project_xpm);
+
     // add available projects to tree
-    addProjects ();    
+    addProjects ();
 }
 
 // dtor
@@ -239,38 +255,46 @@ GuiTree::~GuiTree ()
 // add the given module
 void GuiTree::addModule (DlgModule *module)
 {
+    GtkTreeIter node;
+
     // is module valid?
     if (module == NULL) return;
-    if (locate (module) != NULL) return;
+    if (locate (module, &node)) return;
     
     // locate the project node for this module
-    GtkCTreeNode* project = locateProject (module->entry ()->project ());
+    GtkTreeIter project = locateProject (module->entry ()->project ());
     
     // build the sub-tree
-    build (insert (project, NULL, module));
-    gtk_ctree_expand (GTK_CTREE (tree), project);
+    build (insert (project, module));
+
+    GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
+    GtkTreePath *path = gtk_tree_model_get_path(GTK_TREE_MODEL(model), &project);
+    gtk_tree_view_expand_to_path(GTK_TREE_VIEW(tree), path);
+
+    // cleanup
+    gtk_tree_path_free (path);
 }
 
 // find a given project
-GtkCTreeNode *GuiTree::locateProject (const std::string &project)
+GtkTreeIter GuiTree::locateProject (const std::string &project)
 {
-    // get the root node (which must be the "none" project!)
-    GtkCTreeNode *node, *root = gtk_ctree_node_nth (GTK_CTREE (tree), 0);
-    GList *projects = gtk_ctree_find_all_by_row_data (GTK_CTREE (tree), root, NULL);
-    gchar *text;
-    
-    for (; projects != NULL; projects = projects->next)
+    GtkTreeIter node;
+    GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
+
+    if (gtk_tree_model_get_iter_first (model, &node))
     {
-        node = (GtkCTreeNode *) projects->data;
-        gtk_ctree_get_node_info (GTK_CTREE (tree), node, &text, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-        if (project == text) return node;
+        gchar *text;
+        do
+        {
+            gtk_tree_model_get (model, &node, 0, &text, -1);
+            if (project == text) return node;
+        }
+        while (gtk_tree_model_iter_next(model, &node));
     }
-    
+
     // project not in tree yet -> add it
-    text = (char *) project.c_str ();
-    node = INSERT_NODE (NULL, NULL, &text, PROJECT, false);
-    gtk_ctree_node_set_row_data (GTK_CTREE (tree), node, (gpointer) NULL);
-    gtk_ctree_node_set_selectable (GTK_CTREE (tree), node, false);
+    gtk_tree_store_append(GTK_TREE_STORE(model), &node, NULL);
+    gtk_tree_store_set(GTK_TREE_STORE(model), &node, 0, project.c_str (), 1, NULL, 2, icon[PROJECT], -1);
     
     return node;
 }
@@ -280,28 +304,25 @@ void GuiTree::updateModule (DlgModule *module)
 {
     if (module == NULL) return;
 
-    GtkCTreeNode *node = locate (module);
-    if (node == NULL) return;
-    
-    GtkCTreeNode *parent = GTK_CTREE_ROW (node)->parent;
-    GtkCTreeNode *sibling = GTK_CTREE_ROW (node)->sibling;
-    
-    // update node
-    gtk_clist_freeze (GTK_CLIST (tree));
-    gtk_ctree_remove_node (GTK_CTREE (tree), node);
-    if (node == selected) selected = NULL;
+    GtkTreeIter node;
+    if (!locate (module, &node)) return;
     
     gchar *project;
-    gtk_ctree_get_node_info (GTK_CTREE (tree), parent, &project, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+    GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
+    gtk_tree_model_get (model, &node, 0, &project, -1);
 
-    // module still belongs to same project -> insert at old position
+    // module still belongs to same project -> nothing to do
     if (module->entry ()->project () == project)
-        build (insert (parent, sibling, module));
-    // otherwise just append to new project
+    {
+        return;
+    }
     else 
-        addModule (module);        
+    {
+        // otherwise just append to new project
+        gtk_tree_store_remove(GTK_TREE_STORE(model), &node);
 
-    gtk_clist_thaw (GTK_CLIST (tree));
+        addModule (module);
+    }
 }
 
 // remove the given module
@@ -309,20 +330,38 @@ void GuiTree::removeModule (DlgModule *module)
 {
     if (module == NULL) return;
 
-    GtkCTreeNode *node = locate (module);
-    if (node == NULL) return;
+    GtkTreeIter node;
+    if (!locate (module, &node)) return;
     
-    if (node == selected) selected = NULL;
-    gtk_ctree_remove_node (GTK_CTREE (tree), node);
+    GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
+    gtk_tree_store_remove(GTK_TREE_STORE (model), &node);
 }
 
 // locate the node corresponding to the given module
-GtkCTreeNode *GuiTree::locate (DlgModule *module)
+bool GuiTree::locate (DlgModule *module, GtkTreeIter *node)
 {
-    GtkCTreeNode *root = gtk_ctree_node_nth (GTK_CTREE (tree), 0);
-    if (root == NULL) return NULL;
+    GtkTreeIter root;
+    GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
 
-    return gtk_ctree_find_by_row_data (GTK_CTREE (tree), root, (gpointer) module);
+    if (gtk_tree_model_get_iter_first (model, &root))
+    {
+        DlgModule *data;
+        do
+        {
+            if (gtk_tree_model_iter_children(model, node, &root))
+            {
+                do
+                {
+                    gtk_tree_model_get (model, node, 1, &data, -1);
+                    if (module == data) return true;
+                }
+                while (gtk_tree_model_iter_next(model, node));
+            }
+        }
+        while (gtk_tree_model_iter_next(model, &root));
+    }
+
+    return false;
 }
 
 // add available projects to tree
@@ -330,32 +369,38 @@ void GuiTree::addProjects ()
 {
     std::vector<std::string> projects = CfgData::data->projectsFromDatadir ();
     std::vector<std::string>::iterator i;
-    GtkCTreeNode *node;
-    gchar *text;
+
+    GtkTreeIter node;
+    GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
     
     for (i = projects.begin (); i != projects.end (); i++)
     {
-        text = ((char *) (*i).c_str ());
-        node = INSERT_NODE (NULL, NULL, &text, PROJECT, false);
-        gtk_ctree_node_set_row_data (GTK_CTREE (tree), node, (gpointer) NULL);
-        gtk_ctree_node_set_selectable (GTK_CTREE (tree), node, false);
-    }    
+        gtk_tree_store_append(GTK_TREE_STORE(model), &node, NULL);
+        gtk_tree_store_set(GTK_TREE_STORE(model), &node, 0, i->c_str (), 1, NULL, 2, icon[PROJECT], -1);
+    }
 }
 
 // assign module to a different project
 void GuiTree::updateProject (DlgModule *module)
 {
-    GtkCTreeNode *project = locateProject (module->entry ()->project ());
-    GtkCTreeNode *node = locate (module);
-    
-    gtk_ctree_move (GTK_CTREE (tree), node, project, NULL);
-    gtk_ctree_expand (GTK_CTREE (tree), project);
+    GtkTreeIter node;
+    GtkTreeIter project = locateProject (module->entry ()->project ());
+
+    if (!locate (module, &node)) return;
+
+    GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
+    gtk_tree_store_remove(GTK_TREE_STORE(model), &node);
+
+    insert (project, module);
 }
 
 // build the initial tree
-void GuiTree::build (GtkCTreeNode *root)
+void GuiTree::build (GtkTreeIter root)
 {
-    DlgModule *module = (DlgModule *) gtk_ctree_node_get_row_data (GTK_CTREE (tree), root);
+    DlgModule *module;
+
+    GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
+    gtk_tree_model_get (model, &root, 1, &module, -1);
     std::vector<DlgNode*> nodes = module->getNodes ();
     
     // search through all nodes of the given module
@@ -363,21 +408,24 @@ void GuiTree::build (GtkCTreeNode *root)
         // if we find a sub-dialogue
         if ((*i)->type () == MODULE)
             // insert it into the tree and continue with its sub-dialogues
-            build (insert (root, NULL, (DlgModule *) *i));
+            build (insert (root, (DlgModule *) *i));
 }
 
 // insert a module into the tree       
-GtkCTreeNode *GuiTree::insert (GtkCTreeNode *parent, GtkCTreeNode *sibling, DlgModule *module)
+GtkTreeIter GuiTree::insert (GtkTreeIter parent, DlgModule *module)
 {
-    if (parent == NULL) return NULL;
-    
-    gchar *text = ((char*) module->name ().c_str ());
-    GtkCTreeNode *node = INSERT_NODE (parent, sibling, &text, BUBBLE, false);
-    gtk_ctree_node_set_row_data (GTK_CTREE (tree), node, (gpointer) module);
-    
+    GtkTreeIter node;
+    GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
+
+    gtk_tree_store_append(GTK_TREE_STORE(model), &node, &parent);
+    gtk_tree_store_set(GTK_TREE_STORE(model), &node, 0, module->name ().c_str (), 1, module, 2, icon[BUBBLE], -1);
+
     // display the module that has been in the view before
     if (module->displayed ())
-        on_tree_select_row (GTK_CTREE (tree), (GList*) node, 0, this); 
+    {
+        GtkTreeSelection *selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(tree));
+        gtk_tree_selection_select_iter(selection, &node);
+    }
     
     return node;
 }
@@ -385,106 +433,109 @@ GtkCTreeNode *GuiTree::insert (GtkCTreeNode *parent, GtkCTreeNode *sibling, DlgM
 // insert a module into the tree       
 void GuiTree::insert (DlgModule *parent, DlgModule *module)
 {
-    insert (locate (parent), NULL, module);
+    GtkTreeIter node;
+    if (!locate (parent, &node)) return;
+
+    insert (node, module);
 }
 
 // highlight node in view
-void GuiTree::select (GtkCTreeNode *node)
+void GuiTree::select (GtkTreeIter *node)
 {
-    DlgModule *module;
-    
-    if (node == selected) return;
+    GtkTreeSelection *selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(tree));
         
     // first of all, deselect old node
-    if (selected != NULL)
+    if (!gtk_tree_selection_iter_is_selected (selection, node) &&
+         gtk_tree_selection_count_selected_rows(selection) == 1)
     {
-        GdkColor black = { 0, 0, 0, 0 };
-        gtk_ctree_node_set_foreground (GTK_CTREE (tree), selected, &black);
-        module = (DlgModule *) gtk_ctree_node_get_row_data (GTK_CTREE (tree), selected);
+        DlgModule *module;
+        GtkTreeModel *model;
+        GtkTreeIter selected;
+
+        gtk_tree_selection_get_selected (selection, &model, &selected);
+        gtk_tree_model_get (GTK_TREE_MODEL (model), &selected, 1, &module, -1);
+
         setIcon (selected, false, module->changed ());
     }
     
     // then select the new node
     if (node != NULL)
     {
-        GdkColor blue = { 0, 0, 0, 65535 };
-        gtk_ctree_node_set_foreground (GTK_CTREE (tree), node, &blue);
-        module = (DlgModule *) gtk_ctree_node_get_row_data (GTK_CTREE (tree), node);
-        setIcon (node, true, module->changed ());
+        DlgModule *module;
+        GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
+
+        gtk_tree_model_get (GTK_TREE_MODEL (model), node, 1, &module, -1);
+        setIcon (*node, true, module->changed ());
         
-        // expand parent nodes, so that selected node becomes visible
-        GtkCTreeNode *parent = GTK_CTREE_ROW (node)->parent;
-        
-        while (parent != NULL)
+        if (!gtk_tree_selection_iter_is_selected (selection, node))
         {
-            gtk_ctree_expand (GTK_CTREE (tree), parent);
-            parent = GTK_CTREE_ROW (parent)->parent;
+            gtk_tree_selection_select_iter(selection, node);
+
+            // expand parent nodes, so that selected node becomes visible
+            GtkTreePath *path = gtk_tree_model_get_path(GTK_TREE_MODEL(model), node);
+            gtk_tree_view_expand_to_path(GTK_TREE_VIEW(tree), path);
+            gtk_tree_path_free (path);
         }
     }
-    
-    // remember selection
-    selected = node;
 }
 
 // change icon of node
-void GuiTree::setIcon (GtkCTreeNode *node, bool select, bool changed)
+void GuiTree::setIcon (GtkTreeIter node, bool select, bool changed)
 {
     int index;
-    gchar *text;
-    guint8 spacing;
-    gboolean is_leaf;
-    gboolean expanded;
-
-    gtk_ctree_get_node_info (GTK_CTREE (tree), node, &text, &spacing,
-        NULL, NULL, NULL, NULL, &is_leaf, &expanded);
 
     if (select) index = changed ? BUBBLE_SEL_MOD : BUBBLE_SEL;
     else index = changed ? BUBBLE_MOD : BUBBLE;
-        
-    gtk_ctree_set_node_info (GTK_CTREE (tree), node, text, spacing,
-        icon[index], mask[index], icon[index], mask[index], is_leaf, expanded); 
+
+    GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
+    gtk_tree_store_set (GTK_TREE_STORE (model), &node, 2, icon[index], -1);
 }
 
 // select the given module
 void GuiTree::select (DlgModule *module)
 {
-    select (locate (module));        
+    GtkTreeIter node;
+    if (!locate (module, &node)) return;
+    select (&node);
+}
+
+// deselect the given module
+void GuiTree::unselect (DlgModule *module)
+{
+    GtkTreeIter node;
+    if (!locate (module, &node)) return;
+
+    setIcon (node, false, module->changed ());
 }
 
 // set whether a module is modified or not
 void GuiTree::setChanged (DlgModule *module)
 {
     // locate module
-    GtkCTreeNode *node = locate (module);
-    if (node == NULL) return;
+    GtkTreeIter node;
+    if (!locate (module, &node)) return;
+
+    GtkTreeSelection *selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(tree));
 
     // set icon
-    setIcon (node, node == selected, module->changed ());
+    setIcon (node, gtk_tree_selection_iter_is_selected(selection, &node), module->changed ());
 }
 
 // update the name of the given module
 void GuiTree::setName (DlgModule *module)
 {
     // locate module
-    GtkCTreeNode *node = locate (module);
-    if (node == NULL) return;
+    GtkTreeIter node;
+    if (!locate (module, &node)) return;
     
     // set name
-    gchar *text = ((char*) module->name ().c_str ());
-    gtk_ctree_node_set_text (GTK_CTREE (tree), node, 0, text);
+    GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
+    gtk_tree_store_set (GTK_TREE_STORE (model), &node, 0, module->name ().c_str (), -1);
 }
 
 // remove everything from the tree
 void GuiTree::clear ()
 {
-    GtkCTreeNode *root = gtk_ctree_node_nth (GTK_CTREE (tree), 0);
-    
-    while (root != NULL)
-    {
-        gtk_ctree_remove_node (GTK_CTREE (tree), root);
-        root = gtk_ctree_node_nth (GTK_CTREE (tree), 0);
-    }
-    
-    // no tree, so nothing selected
-    selected = NULL;
+    GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
+    gtk_tree_store_clear(GTK_TREE_STORE(model));
 }

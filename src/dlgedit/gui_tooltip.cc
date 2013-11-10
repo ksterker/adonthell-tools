@@ -41,9 +41,10 @@ GuiTooltip::GuiTooltip (DlgNode *n)
     gtk_window_set_keep_above (GTK_WINDOW (tooltip), FALSE);
     gtk_window_set_transient_for (GTK_WINDOW (tooltip), GTK_WINDOW (GuiDlgedit::window->getWindow ()));
     gtk_window_set_type_hint (GTK_WINDOW (tooltip), GDK_WINDOW_TYPE_HINT_NOTIFICATION);
+    gtk_window_set_skip_taskbar_hint(GTK_WINDOW (tooltip), TRUE);
     gtk_window_set_opacity (GTK_WINDOW (tooltip), 0.9f);
     
-    gtk_object_set_data (GTK_OBJECT (tooltip), "tip_window", tooltip);
+    g_object_set_data (G_OBJECT (tooltip), "tip_window", tooltip);
     gtk_window_set_resizable (GTK_WINDOW (tooltip), FALSE);
 
     // get the text
@@ -66,8 +67,8 @@ GuiTooltip::GuiTooltip (DlgNode *n)
     
     // label with the text
     tip = gtk_label_new (text.c_str ());
-    gtk_widget_ref (tip);
-    gtk_object_set_data_full (GTK_OBJECT (tooltip), "tip", tip, (GtkDestroyNotify) gtk_widget_unref);
+    g_object_ref (tip);
+    g_object_set_data_full (G_OBJECT (tooltip), "tip", tip, (GDestroyNotify)  g_object_unref);
     gtk_widget_show (tip);
 
     gtk_container_add (GTK_CONTAINER (tooltip), tip);
@@ -116,6 +117,6 @@ void GuiTooltip::draw (GtkWidget *graph, DlgPoint &offset)
     y += node->y () + node->height ();
     
     // position and display the tooltip
-    gtk_widget_set_uposition (tooltip, x + offset.x (), y + offset.y ());
+    gtk_window_move (GTK_WINDOW(tooltip), x + offset.x (), y + offset.y ());
     gtk_widget_show (tooltip);
 }

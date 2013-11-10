@@ -1,6 +1,4 @@
 /*
-   $Id: gui_list_events.cc,v 1.1 2004/07/25 15:52:23 ksterker Exp $
-
    Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
 
@@ -31,13 +29,22 @@
 #include "gui_dlgedit.h"
 
 // Node selected in preview
-void on_list_select (GtkList *list, GtkWidget *widget, gpointer user_data)
+void on_list_select (GtkTreeSelection *selection, gpointer user_data)
 {
-    DlgCircle* circle = (DlgCircle *) gtk_object_get_user_data (GTK_OBJECT (widget));
-    GuiGraph *graph = GuiDlgedit::window->graph ();
+    GtkTreeModel *model;
+    GtkTreeIter iter;
     
-    // change selection in the graph view
-    graph->deselectNode ();
-    graph->selectNode (circle);
-    graph->centerNode ();
+    // anything selected at all?
+    if (gtk_tree_selection_get_selected (selection, &model, &iter))
+    {
+        DlgCircle* circle;
+        gtk_tree_model_get (GTK_TREE_MODEL (model), &iter, 1, &circle, -1);
+
+        GuiGraph *graph = GuiDlgedit::window->graph ();
+
+        // change selection in the graph view
+        graph->deselectNode ();
+        graph->selectNode (circle);
+        graph->centerNode ();
+    }
 }

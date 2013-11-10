@@ -1,6 +1,4 @@
 /*
-   $Id: gui_list_events.h,v 1.1 2004/07/25 15:52:23 ksterker Exp $
-
    Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
 
@@ -35,6 +33,6 @@
 /**
  * Callback notifying that the user selected one of the list items.
  */
-void on_list_select (GtkList *, GtkWidget *, gpointer);
+void on_list_select (GtkTreeSelection *selection, gpointer user_data);
 
 #endif // GUI_LIST_EVENTS_H

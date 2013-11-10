@@ -1,6 +1,4 @@
 /*
-   $Id: gui_list.h,v 1.1 2004/07/25 15:52:23 ksterker Exp $
-
    Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
 
@@ -75,7 +73,6 @@ private:
     void add (int mode, DlgCircle *circle);
 
     GtkWidget *list;        // The actual GTK+ list widget
-    GList *items;           // The items in the list
 };
 
 #endif // GUI_LIST_H

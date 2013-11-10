@@ -33,7 +33,6 @@
 
 void on_radio_button_pressed (GtkButton *button, gpointer user_data);
 void on_circle_ok_button_pressed (GtkButton *button, gpointer user_data);
-void on_switch_page (GtkNotebook*, GtkNotebookPage*, gint, gpointer user_data);
 
 #endif // GUI_CIRCLE_EVENTS_H
 

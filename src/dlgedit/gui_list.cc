@@ -1,6 +1,4 @@
 /*
-   $Id: gui_list.cc,v 1.1 2004/07/25 15:52:23 ksterker Exp $
-
    Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
 
@@ -38,17 +36,26 @@ GuiList::GuiList (GtkWidget *paned)
     gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
     gtk_widget_show (scrolled);
     
-    list = gtk_list_new ();
+    // the model
+    GtkListStore *model = gtk_list_store_new(3, G_TYPE_STRING, G_TYPE_POINTER, G_TYPE_STRING);
+
+    // the list
+    list = gtk_tree_view_new_with_model(GTK_TREE_MODEL(model));
+    g_object_ref (list);
+    gtk_tree_view_set_grid_lines(GTK_TREE_VIEW(list), GTK_TREE_VIEW_GRID_LINES_NONE);
+    gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(list), FALSE);
     gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (scrolled), list);
     gtk_widget_show (list);
     
+    // create the columns
+    GtkCellRenderer *renderer = gtk_cell_renderer_text_new ();
+    gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW(list), -1, "Errors", renderer, "text", 0, "foreground", 2, NULL);
+
+    // selection listener
+    GtkTreeSelection *selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(list));
+
     // connect callbacks
-    gtk_signal_connect (GTK_OBJECT (list), "select_child", (GtkSignalFunc) on_list_select, this);
-    
-    // GTK_WIDGET_UNSET_FLAGS (list, GTK_CAN_FOCUS);
-    
-    // no items in the list yet
-    items = NULL;
+    g_signal_connect (G_OBJECT (selection), "changed", G_CALLBACK(on_list_select), this);
 }
 
 // (re)draw the list
@@ -60,10 +67,11 @@ void GuiList::draw ()
 void GuiList::clear ()
 {
     gtk_widget_hide (list);
-    gtk_list_remove_items (GTK_LIST (list), items);
-    gtk_widget_show (list);
 
-    items = NULL;
+    GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(list));
+    gtk_list_store_clear (GTK_LIST_STORE(model));
+
+    gtk_widget_show (list);
 }
 
 // display instant preview for a given node
@@ -73,7 +81,10 @@ void GuiList::display (DlgNode *node)
     if (node == NULL || node->type() == MODULE) return;
     
     DlgCircle *circle, *c;
-   
+
+    // draw the new list
+    gtk_widget_hide (list);
+
     // clear the list
     clear ();
     
@@ -101,23 +112,15 @@ void GuiList::display (DlgNode *node)
         add (0, c);
         c = circle->child (NEXT);
     }
-    
-    // draw the new list
-    gtk_widget_hide (list);
-    gtk_list_append_items (GTK_LIST (list), items);
+
     gtk_widget_show (list);
 }
 
 // add an item to the list
 void GuiList::add (int mode, DlgCircle *circle)
 {
-    GtkWidget *label;
-    GtkWidget *list_item;
-    GdkWindow *list_wnd;
     GdkColor color;
-    GtkStyle *style = gtk_style_copy (gtk_widget_get_default_style ());
     std::string label_text = circle->text ();
-    int w, h;
     
     // see what sort of node we have
     if (mode == 1)
@@ -142,32 +145,9 @@ void GuiList::add (int mode, DlgCircle *circle)
         else color.blue = 35000;
     }
 
-    // Set list-item colors
-    style->fg[0] = color;
-    style->bg[2] = color;
-    
-    // get width to use for label
-    list_wnd = gtk_widget_get_parent_window (list);
-    w = gdk_window_get_width (list_wnd);
-    h = gdk_window_get_height(list_wnd);
-
-    // create label    
-    label = gtk_label_new (label_text.c_str ());
-    gtk_widget_set_style (label, style);
-    gtk_widget_set_usize (label, w - 10, 0);
-    gtk_label_set_justify ((GtkLabel *) label, GTK_JUSTIFY_LEFT);
-    gtk_label_set_line_wrap ((GtkLabel *) label, TRUE);
-    gtk_widget_show (label);
-
-    // add label to list-item
-    list_item = gtk_list_item_new ();
-    gtk_container_add (GTK_CONTAINER(list_item), label);
-    gtk_object_set_user_data (GTK_OBJECT (list_item), (gpointer) circle);
-    gtk_widget_set_can_focus(list_item, FALSE);
-    gtk_widget_show (list_item);
-    
     // add list-item to list
-    items = g_list_append (items, list_item);
-    
-    return;
+    GtkTreeIter iter;
+    GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(list));
+    gtk_list_store_append(GTK_LIST_STORE(model), &iter);
+    gtk_list_store_set (GTK_LIST_STORE(model), &iter, 0, label_text.c_str(), 1, circle, 2, gdk_color_to_string(&color), -1);
 }

@@ -30,43 +30,13 @@
 #include "gui_circle_events.h"
 #include "gui_circle.h"
 
-// When switching pages of the notebook, give Focus to first widget on the new page
-void on_switch_page (GtkNotebook *notebook, GtkNotebookPage *page, gint page_num, gpointer user_data)
-{
-/*
-    if (GTK_IS_CONTAINER (GTK_WIDGET(page)->child))
-    {
-        GList *children = gtk_container_get_children ((GtkContainer *) page->child);
-
-        while (children != NULL)
-        {
-            GtkWidget *widget = (GtkWidget*) g_list_first (children)->data;
-
-            if (GTK_IS_CONTAINER (widget))
-            {
-                children = gtk_container_children ((GtkContainer *) widget);
-                continue;
-            }
-
-            if (GTK_IS_WIDGET (widget))
-            {
-                gtk_widget_grab_focus (widget);
-                return;
-            }
-
-            children = (GList *) g_list_next (children);
-        }
-    }
-*/
-}
-
 // Colorize the dialogue text according to the character it is assigned to
 void on_radio_button_pressed (GtkButton * button, gpointer user_data)
 {
     GtkWidget *entry = (GtkWidget *) user_data;
     GtkTextBuffer *buf = gtk_text_view_get_buffer (GTK_TEXT_VIEW (entry));
     
-    int type = GPOINTER_TO_INT (gtk_object_get_data (GTK_OBJECT (button), "type"));
+    int type = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (button), "type"));
     GdkColor color = { 0, 0, 0, 0 };
 
     switch (type)

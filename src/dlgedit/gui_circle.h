@@ -62,7 +62,7 @@ public:
 
 private:
     const gchar *getOption (GtkComboBox * cbox);
-    void setOption (GtkOptionMenu *o, const gchar *label);
+    void setOption (GtkComboBox *o, const gchar *label);
 
     GuiEdit *cond_edit;             // Text entry for conditions
     GuiEdit *code_edit;             // Text entry for code
