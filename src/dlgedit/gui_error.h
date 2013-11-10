@@ -28,9 +28,6 @@
 #define GUI_ERROR_H
 
 #include <string>
-#include <gtk/gtkstyle.h>
-#include <gtk/gtklist.h>
-#include <gtk/gtkbutton.h>
 #include "dlg_node.h"
 
 /**

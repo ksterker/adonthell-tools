@@ -24,7 +24,6 @@
  * @brief View for the dialogue graph
  */
 
-#include <gtk/gtk.h>
 #include "cfg_data.h"
 #include "dlg_mover.h"
 #include "gui_dlgedit.h"

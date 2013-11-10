@@ -30,8 +30,6 @@
 #include "gui_entity_list.h"
 #include "gui_mapedit.h"
 #include "gui_mapview.h"
-#include "map_data.h"
-#include "map_entity.h"
 
 // static entity filter model instance used throughout mapedit
 GtkListStore *GuiFilterDialog::FilterModel = NULL;

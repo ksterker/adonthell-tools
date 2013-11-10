@@ -24,7 +24,6 @@
  * @brief Event-callbacks for the instant dialogue preview
  */
  
-#include <gtk/gtk.h>
 #include "gui_list_events.h"
 #include "gui_dlgedit.h"
 

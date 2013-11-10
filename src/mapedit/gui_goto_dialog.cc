@@ -24,7 +24,6 @@
  * @brief View and edit goto properties.
  */
 
-#include <gtk/gtk.h>
 #include <adonthell/base/base.h>
 
 #include "map_data.h"

@@ -1,6 +1,4 @@
 /*
-   $Id: gui_circle_events.cc,v 1.1 2004/07/25 15:52:23 ksterker Exp $
-
    Copyright (C) 2002/2004 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
 
@@ -26,7 +24,6 @@
  * @brief Callbacks of the Edit Circle dialog
  */
 
-#include <gtk/gtk.h>
 #include "gui_circle_events.h"
 #include "gui_circle.h"
 

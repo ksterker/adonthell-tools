@@ -1,6 +1,4 @@
 /*
-   $Id: surface_gtk.h,v 1.2 2009/03/08 11:16:56 ksterker Exp $
- 
    Copyright (C) 2009 Kai Sterker <kai.sterker@gmail.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
 
@@ -22,7 +20,7 @@
 #ifndef SURFACE_GTK_H
 #define SURFACE_GTK_H
 
-#include <cairo/cairo.h>
+#include <gdk/gdk.h>
 #include <adonthell/gfx/surface.h>
 
 namespace gfx
@@ -64,6 +62,34 @@ namespace gfx
         u_int32 get_pix (u_int16 x, u_int16 y) const;
 
         surface& operator = (const surface& src);
+
+        GdkPixbuf *to_pixbuf() const
+        {
+            if (!vis) return NULL;
+            // TODO GTK+3: return gdk_pixbuf_get_from_surface (vis, 0, 0, length(), height());
+
+            const guchar* data = cairo_image_surface_get_data(vis);
+            int stride = cairo_image_surface_get_stride(vis);
+
+            GdkPixbuf *result = gdk_pixbuf_new_from_data (data, GDK_COLORSPACE_RGB, alpha_channel_, 8, length(), height(), stride, NULL, NULL);
+
+            // swap red and blue, otherwise colors are off
+            guchar *pixels = gdk_pixbuf_get_pixels(result);
+            for (int j = height(); j > 0; --j)
+            {
+                guint8 *p = pixels;
+                guint8 *end = p + 4 * length();
+                while (p < end)
+                {
+                    guint8 tmp = p[0];
+                    p[0] = p[2]; p[2] = tmp;
+                    p += 4;
+                }
+                pixels += stride;
+            }
+
+            return result;
+        }
 
         /**
          * @name Loading / Saving to PNGs

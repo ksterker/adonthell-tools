@@ -1,6 +1,4 @@
 /*
-   $Id: gui_circle.h,v 1.2 2009/03/29 12:27:25 ksterker Exp $ 
-
    Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
 
@@ -31,7 +29,6 @@
 
 #include "dlg_circle_entry.h"
 #include "dlg_module_entry.h"
-#include "dlg_types.h"
 #include "gui_edit.h"
 #include "gui_modal_dialog.h"
 

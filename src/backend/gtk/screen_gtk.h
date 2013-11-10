@@ -21,8 +21,6 @@
 #ifndef GFX_GTK_SCREEN_H
 #define GFX_GTK_SCREEN_H
 
-#include <gdk/gdk.h>
-
 #include <adonthell/gfx/screen.h>
 #include "surface_gtk.h"
 
@@ -63,7 +61,7 @@ public:
         }
     }
     
-    void set_drawable (GdkDrawable *drawable) 
+    void set_drawable (GdkWindow *drawable)
     { 
         clear ();
 
@@ -72,10 +70,6 @@ public:
         {
             l = gdk_window_get_width (GDK_WINDOW (drawable));
             h = gdk_window_get_height (GDK_WINDOW (drawable));
-        }
-        else if (GDK_IS_PIXMAP (drawable))
-        {
-            gdk_pixmap_get_size (GDK_PIXMAP (drawable), &l, &h);
         }
         else
         {
@@ -101,7 +95,7 @@ protected:
 
 private:
     /// the gtk window to draw on.
-    GdkDrawable *Drawable;
+    GdkWindow *Drawable;
 };
 
 

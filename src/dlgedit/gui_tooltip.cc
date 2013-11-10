@@ -24,9 +24,6 @@
  * @brief A custom, tooltip-like widget
  */
 
-#include <gtk/gtk.h>
-#include "dlg_circle.h"
-#include "dlg_module.h"
 #include "gui_dlgedit.h"
 #include "gui_tooltip.h"
 

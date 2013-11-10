@@ -29,7 +29,7 @@
 #ifndef DLG_POINT_H
 #define DLG_POINT_H
 
-#include <gdk/gdktypes.h>
+#include <gdk/gdk.h>
 
 /**
  * The representation of a point, defined by its x and y coordinate. 

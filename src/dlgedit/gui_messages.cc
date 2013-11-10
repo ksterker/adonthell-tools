@@ -1,6 +1,4 @@
 /*
-   $Id: gui_messages.cc,v 1.3 2008/09/19 18:09:39 ksterker Exp $
-
    Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
 
@@ -27,7 +25,6 @@
  */
 
 #include <string>
-#include <gtk/gtk.h>
 #include "gui_messages.h"
 
 // define all the different messages

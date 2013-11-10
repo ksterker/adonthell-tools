@@ -28,7 +28,8 @@
 #ifndef GUI_PREVIEW_H
 #define GUI_PREVIEW_H
 
-#include "common/mdl_connector.h"
+#include <gtk/gtk.h>
+
 #include "gui_scrollable.h"
 #include "mdl_editor.h"
 #include "mdl_renderer.h"

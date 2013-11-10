@@ -30,7 +30,7 @@
 #define GUI_MESSAGES_H
 
 #include <map>
-#include <gtk/gtkstyle.h>
+#include <gtk/gtk.h>
 
 /**
  * operator< for use with the map

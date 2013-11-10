@@ -25,9 +25,7 @@
  */
 
 #include <string.h>
-#include <gtk/gtk.h>
 #include <sys/stat.h>
-#include <vector>
 #include <iostream>
 #include "cfg_data.h"
 #include "gui_file.h"

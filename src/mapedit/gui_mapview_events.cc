@@ -1,6 +1,4 @@
 /*
- $Id: gui_mapview_events.cc,v 1.6 2009/05/24 13:40:28 ksterker Exp $
- 
  Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
  Part of the Adonthell Project http://adonthell.linuxgames.com
  
@@ -26,9 +24,6 @@
  * @brief The Event callbacks used by the map view widget.
  */
 
-
-#include <gtk/gtk.h>
-#include <gdk/gdk.h>
 #include <gdk/gdkkeysyms.h>
 #include "gui_mapedit.h"
 #include "gui_mapview.h"

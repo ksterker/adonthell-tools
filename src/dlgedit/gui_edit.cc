@@ -1,6 +1,4 @@
 /*
-   $Id: gui_edit.cc,v 1.1 2004/07/25 15:52:23 ksterker Exp $ 
-
    Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
 
@@ -26,7 +24,6 @@
  * @brief Wrapper around the gtkeditor widget.
  */
 
-#include <gtk/gtk.h>
 #include <pango/pango-font.h>
 #include "gui_edit.h"
 

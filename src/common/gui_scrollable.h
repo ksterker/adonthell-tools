@@ -29,7 +29,7 @@
 #ifndef COMMON_SCROLLING_H
 #define COMMON_SCROLLING_H
 
-#include <gdk/gdktypes.h>
+#include <gdk/gdk.h>
 
 /**
  * Implements scrolling that is triggered by the mouse pointer

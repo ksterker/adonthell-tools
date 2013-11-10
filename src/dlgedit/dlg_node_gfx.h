@@ -27,7 +27,7 @@
 #ifndef DLG_NODE_GFX_H
 #define DLG_NODE_GFX_H
 
-#include <gtk/gtkstyle.h>
+#include <gtk/gtk.h>
 #include "dlg_rect.h"
 #include "dlg_types.h"
 

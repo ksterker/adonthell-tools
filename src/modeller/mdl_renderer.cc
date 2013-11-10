@@ -26,7 +26,6 @@
 
 #include <adonthell/gfx/gfx.h>
 
-#include "mdl_handle.h"
 #include "mdl_renderer.h"
 
 // ctor

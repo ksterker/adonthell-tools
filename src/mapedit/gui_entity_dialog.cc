@@ -24,8 +24,6 @@
  * @brief View and edit entity properties.
  */
 
-#include <gtk/gtk.h>
-
 #include <adonthell/world/character.h>
 
 #include "common/util.h"

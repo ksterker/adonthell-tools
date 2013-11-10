@@ -27,7 +27,6 @@
 #ifndef GUI_CONNECTORS_H_
 #define GUI_CONNECTORS_H_
 
-#include <gtk/gtk.h>
 #include "mdl_connector.h"
 #include "gui_modal_dialog.h"
 

@@ -1,6 +1,4 @@
 /*
-   $Id: dlg_compiler.cc,v 1.4 2008/09/19 18:09:39 ksterker Exp $
-
    Copyright (C) 2002/2006 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
 
@@ -32,7 +30,6 @@
 #include <algorithm>
 #include "dlg_cmdline.h"
 #include "dlg_compiler.h"
-#include "dlg_types.h"
 #include "dlg_arrow.h"
 #include "gui_error.h"
 

@@ -24,7 +24,6 @@
  * @brief View for the dialogue structure
  */
 
-#include <gtk/gtk.h>
 #include "cfg_data.h"
 #include "gui_tree.h"
 #include "gui_dlgedit.h"

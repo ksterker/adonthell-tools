@@ -24,16 +24,12 @@
  * @brief Screen for the map.
  */
 
-#include <gdk/gdk.h>
-#include <gtk/gtk.h>
-
 #include <adonthell/gfx/gfx.h>
 #include "backend/gtk/screen_gtk.h"
 
 #include "gui_entity_dialog.h"
 #include "gui_entity_list.h"
 #include "gui_filter_dialog.h"
-#include "gui_grid.h"
 #include "gui_mapedit.h"
 #include "gui_mapview.h"
 #include "gui_mapview_events.h"
@@ -359,8 +355,8 @@ void GuiMapview::mouseMoved (const GdkPoint * point)
             int sx = DrawObjPos.x() * base::Scale;
             int sy = DrawObjPos.y() * base::Scale;
 
+            GdkRectangle region;
             GdkRectangle rect1 = { sx, sy, DrawObjSurface->length(), DrawObjSurface->height() };
-            GdkRegion *region = gdk_region_rectangle (&rect1);
             
             // erase at previous position
             Overlay->fillrect (sx, sy, DrawObjSurface->length(), DrawObjSurface->height(), 0x0);
@@ -372,7 +368,7 @@ void GuiMapview::mouseMoved (const GdkPoint * point)
             DrawObjPos.set_y (DrawObjPos.y() - h);
 
             GdkRectangle rect2 = { DrawObjPos.x() * base::Scale, DrawObjPos.y() * base::Scale, DrawObjSurface->length(), DrawObjSurface->height() };
-            gdk_region_union_with_rect (region, &rect2);
+            gdk_rectangle_union(&rect1, &rect2, &region);
             
             // draw at new position
             DrawObjSurface->draw (DrawObjPos.x() * base::Scale, DrawObjPos.y() * base::Scale, NULL, Overlay);
@@ -381,8 +377,7 @@ void GuiMapview::mouseMoved (const GdkPoint * point)
             indicateOverlap ();
             
             // blit to screen
-            gdk_window_invalidate_region (gtk_widget_get_window (Screen), region, FALSE);
-            gdk_region_destroy (region);
+            gdk_window_invalidate_rect (gtk_widget_get_window (Screen), &region, FALSE);
         }
     }
 }

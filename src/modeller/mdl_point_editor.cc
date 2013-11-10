@@ -27,7 +27,6 @@
 #include <adonthell/base/base.h>
 
 #include "mdl_point_editor.h"
-#include "mdl_point_handles.h"
 
 /// indices of text fields
 enum

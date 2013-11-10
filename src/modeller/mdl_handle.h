@@ -66,17 +66,11 @@ public:
         for (u_int32 i = 0; i < Handles.size(); i++)
         {
             GdkRectangle rect = { Handles[i].x, Handles[i].y, HANDLE_SIZE, HANDLE_SIZE };
-            GdkRegion *region = gdk_region_rectangle (&rect);
-
-            // printf ("[%i, %i] <-> [%i, %i]\n", Handles[i].x, Handles[i].y, point->x, point->y);
-            if (gdk_region_point_in (region, point->x, point->y))
+            if (rect.x <= point->x && rect.y <= point->y && rect.x + rect.width >= point->x && rect.y + rect.height >= point->y)
             {
                 curHandle = i;
                 break;
             }
-
-            // cleanup
-            gdk_region_destroy (region);
         }
 
         if (curHandle != SelectedHandle)

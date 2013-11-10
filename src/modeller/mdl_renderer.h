@@ -28,7 +28,6 @@
 #ifndef MDL_RENDERER_H
 #define MDL_RENDERER_H
 
-#include <gdk/gdk.h>
 #include <adonthell/world/renderer.h>
 
 #include "common/mdl_connector.h"

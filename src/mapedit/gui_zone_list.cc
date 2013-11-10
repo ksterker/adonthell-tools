@@ -24,8 +24,6 @@
  * @brief Display zones used on the map.
  */
 
-#include <gtk/gtk.h>
-
 #include <adonthell/world/zone.h>
 
 #include "gui_mapedit.h"

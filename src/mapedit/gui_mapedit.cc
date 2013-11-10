@@ -1,6 +1,4 @@
 /*
-   $Id: gui_mapedit.cc,v 1.3 2009/05/21 14:28:18 ksterker Exp $
-
    Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
 
@@ -31,8 +29,6 @@
 #endif
 
 #include <sstream>
-#include <gtk/gtk.h>
-#include <gdk-pixbuf/gdk-pixbuf.h>
 #include <gdk/gdkkeysyms.h>
 
 #include <adonthell/base/base.h>
@@ -42,7 +38,6 @@
 #endif
 
 #include "mapedit/map_cmdline.h"
-#include "mapedit/map_data.h"
 #include "mapedit/gui_mapedit.h"
 #include "mapedit/gui_mapedit_events.h"
 #include "mapedit/gui_mapview.h"
@@ -75,7 +70,7 @@ GuiMapedit::GuiMapedit ()
 
     // Statusbar for displaying help and error messages
     GtkWidget *status_help = gtk_statusbar_new ();
-    gtk_statusbar_set_has_resize_grip (GTK_STATUSBAR(status_help), FALSE);
+    // gtk_statusbar_set_has_resize_grip (GTK_STATUSBAR(status_help), FALSE);
     // message = new GuiMessages (status_help);
         
     // Main Window

@@ -26,8 +26,8 @@
 
 #include <algorithm>
 #include <cctype>
-#include <gtk/gtk.h>
 
+#include <adonthell/gfx/gfx.h>
 #include <adonthell/world/renderer.h>
 #include <adonthell/world/object.h>
 #include <adonthell/world/character.h>
@@ -548,12 +548,7 @@ GdkPixbuf *MapEntity::get_icon (const u_int32 & size) const
     int h = Object->width() + Object->height();
     
     // create pixmap
-    GdkVisual *vis = gdk_visual_get_system();
-    GdkPixmap* pixmap = gdk_pixmap_new (NULL, l, h, gdk_visual_get_depth (vis));
-    gdk_drawable_set_colormap (GDK_DRAWABLE(pixmap), gdk_colormap_get_system ());
-    
-    // render entity onto a pixmap
-    gfx::screen_surface_gtk *surface = (gfx::screen_surface_gtk*) gfx::screen::get_surface();
+    gfx::surface_gtk *surface = (gfx::surface_gtk *) gfx::create_surface();
 
     // determine background color
     u_int32 color = 0xFFFFFFFF;
@@ -571,7 +566,6 @@ GdkPixbuf *MapEntity::get_icon (const u_int32 & size) const
         color = surface->map_color (0xFE, 0xB3, 0x80, 0xFF);
     }
     
-    surface->set_drawable (pixmap);
     surface->set_alpha (255, true);
     surface->resize (l, h);
     surface->fillrect (0, 0, l, h, color);
@@ -586,14 +580,14 @@ GdkPixbuf *MapEntity::get_icon (const u_int32 & size) const
     renderer.render (0, Object->height(), object_list, da, surface);
     
     // thumbnail of entity
-    GdkPixbuf *pixbuf = gdk_pixbuf_get_from_drawable (NULL, pixmap, gdk_colormap_get_system (), 0, 0, 0, 0, l, h);
+    GdkPixbuf *pixbuf = surface->to_pixbuf();
     int nl = l > h ? size : ((float) l / h) * size + 1;
     int nh = h > l ? size : ((float) h / l) * size + 1;
     GdkPixbuf *icon = gdk_pixbuf_scale_simple (pixbuf, nl, nh, GDK_INTERP_BILINEAR);
     
     // cleanup
-    g_object_unref (pixmap);
     g_object_unref (pixbuf);
+    delete surface;
     
     return icon;
 }

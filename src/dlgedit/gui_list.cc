@@ -24,7 +24,6 @@
  * @brief Instant dialogue preview widget
  */
 
-#include <gtk/gtk.h>
 #include "gui_list.h"
 #include "gui_list_events.h"
 

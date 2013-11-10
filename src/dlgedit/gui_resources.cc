@@ -24,7 +24,6 @@
  * @brief Provides fonts and Colors used throughout dlgedit.
  */
 
-#include <gtk/gtk.h>
 #include "gui_resources.h"
 
 /**
@@ -44,77 +43,66 @@ void GuiResources::init (GtkWidget *widget)
     Font = gtk_widget_create_pango_layout (widget, NULL);
     
     GdkColor *c;
-    GdkColormap *colormap = gtk_widget_get_colormap (widget);
   
     // Black
     c = &(Color[GC_BLACK]);
     c->red   = 0;
     c->green = 0;
     c->blue  = 0;
-    gdk_colormap_alloc_color (colormap, c, TRUE, TRUE);
     
     // White
     c = &(Color[GC_WHITE]);
     c->red   = 65535;
     c->green = 65535;
     c->blue  = 65535;
-    gdk_colormap_alloc_color (colormap, c, TRUE, TRUE);
 
     // Grey (for NPC node background)
     c = &(Color[GC_GREY]);
     c->red   = 55000;
     c->green = 55000;
     c->blue  = 55000;
-    gdk_colormap_alloc_color (colormap, c, TRUE, TRUE);
 
     // Dark Red (for selected nodes)
     c = &(Color[GC_DARK_RED]);
     c->red   = 65535;
     c->green = 0;
     c->blue  = 0;
-    gdk_colormap_alloc_color (colormap, c, TRUE, TRUE);
 
     // Red
     c = &(Color[GC_RED]);
     c->red   = 65535;
     c->green = 16350;
     c->blue  = 0;
-    gdk_colormap_alloc_color (colormap, c, TRUE, TRUE);
 
     // Green (for narrator node background)
     c = &(Color[GC_GREEN]);
     c->red   = 51117;
     c->green = 65355;
     c->blue  = 48496;
-    gdk_colormap_alloc_color (colormap, c, TRUE, TRUE);
 
     // Dark Green (for narrator nodes)
     c = &(Color[GC_DARK_GREEN]);
     c->red   = 0;
     c->green = 27300;
     c->blue  = 15600;
-    gdk_colormap_alloc_color (colormap, c, TRUE, TRUE);
 
     // Orange (for highlighting nodes)
     c = &(Color[GC_ORANGE]);
     c->red   = 62258;
     c->green = 43253;
     c->blue  = 9175;
-    gdk_colormap_alloc_color (colormap, c, TRUE, TRUE);
 
     // Dark Blue (for player nodes)
     c = &(Color[GC_DARK_BLUE]);
     c->red   = 0;
     c->green = 0;
     c->blue  = 60000;
-    gdk_colormap_alloc_color (colormap, c, TRUE, TRUE);
 
     // Blue - like the sky (for player node background)
     c = &(Color[GC_BLUE]);
     c->red   = 48496;
     c->green = 50461;
     c->blue  = 65535;
-    gdk_colormap_alloc_color (colormap, c, TRUE, TRUE);
 }
 
 // Get a certain predefined Color

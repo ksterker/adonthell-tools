@@ -1,6 +1,4 @@
 /*
-   $Id: main.cc,v 1.2 2009/05/18 21:21:24 ksterker Exp $
-   
    Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
 
@@ -30,7 +28,6 @@
 #include <config.h>
 #endif
 
-#include <gtk/gtk.h>
 #include <adonthell/base/base.h>
 #include <adonthell/gfx/gfx.h>
 #include <adonthell/python/python.h>

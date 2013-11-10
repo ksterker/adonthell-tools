@@ -27,8 +27,8 @@
  */
 
 #include <string>
-#include <gtk/gtkstyle.h>
-#include <gdk/gdktypes.h>
+#include <gtk/gtk.h>
+#include <gdk/gdk.h>
 
 /**
  * Provides a simple C++ interface to GtkText. The widget is initialised

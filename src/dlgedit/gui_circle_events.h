@@ -29,7 +29,7 @@
 #ifndef GUI_CIRCLE_EVENTS_H
 #define GUI_CIRCLE_EVENTS_H
 
-#include <gtk/gtkstyle.h>
+#include <gtk/gtk.h>
 
 void on_radio_button_pressed (GtkButton *button, gpointer user_data);
 void on_circle_ok_button_pressed (GtkButton *button, gpointer user_data);

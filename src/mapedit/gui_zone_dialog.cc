@@ -24,8 +24,6 @@
  * @brief View and edit zone properties.
  */
 
-#include <gtk/gtk.h>
-
 #include "gui_mapedit.h"
 #include "gui_mapview.h"
 #include "gui_zone.h"

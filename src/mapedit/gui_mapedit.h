@@ -1,6 +1,4 @@
 /*
-   $Id: gui_mapedit.h,v 1.2 2009/04/03 22:00:46 ksterker Exp $
-
    Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
 
@@ -29,7 +27,6 @@
 #ifndef GUI_MAPEDIT_H
 #define GUI_MAPEDIT_H
 
-#include <string>
 #include <vector>
 
 #include "common/gui_recent_files.h"

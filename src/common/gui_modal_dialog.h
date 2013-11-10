@@ -29,7 +29,7 @@
 #ifndef GUI_MODAL_DIALOG_H
 #define GUI_MODAL_DIALOG_H
 
-#include <gtk/gtkstyle.h>
+#include <gtk/gtk.h>
 
 /**
  * Encapsulates the most basic functionality a modal/transient dialog window needs.

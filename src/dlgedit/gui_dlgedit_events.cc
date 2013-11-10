@@ -1,6 +1,4 @@
 /*
-   $Id: gui_dlgedit_events.cc,v 1.4 2009/03/29 12:27:25 ksterker Exp $
-   
    Copyright (C) 1999/2002/2004 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
 
@@ -26,7 +24,6 @@
  * @brief The Events triggered via the Dialogue Editor's main window
  */
 
-#include <gtk/gtk.h>
 #include "cfg_data.h"
 #include "gui_dlgedit.h"
 #include "gui_file.h"

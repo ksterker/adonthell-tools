@@ -1,6 +1,4 @@
 /*
-   $Id: gui_graph_events.cc,v 1.2 2009/04/03 22:00:35 ksterker Exp $
-
    Copyright (C) 2002 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
 
@@ -26,7 +24,6 @@
  * @brief Event-callbacks for the dialogue graph view
  */
 
-#include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 #include "gui_dlgedit.h"
 
@@ -52,7 +49,7 @@ gint expose_event (GtkWidget * widget, GdkEventExpose * event, gpointer data)
 {
     GuiGraph *graph = (GuiGraph *) data;
 
-    cairo_t *cr = gdk_cairo_create (GDK_DRAWABLE(gtk_widget_get_window(widget)));
+    cairo_t *cr = gdk_cairo_create (GDK_WINDOW(gtk_widget_get_window(widget)));
     cairo_set_source_surface (cr, graph->pixmap (), 0, 0);
     gdk_cairo_rectangle (cr, &event->area);
     cairo_fill (cr);

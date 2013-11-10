@@ -27,8 +27,8 @@
 #ifndef GUI_MAPVIEW_EVENTS_H
 #define GUI_MAPVIEW_EVENTS_H
 
-#include <gtk/gtkstyle.h>
-#include <gdk/gdktypes.h>
+#include <gtk/gtk.h>
+#include <gdk/gdk.h>
 
 /**
  * Callback notifying that the widget's size has changed.

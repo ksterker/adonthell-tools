@@ -24,14 +24,11 @@
  * @brief Where the model is displayed and assembled.
  */
 
-#include <gtk/gtk.h>
-
 #include <adonthell/gfx/gfx.h>
 #include <adonthell/world/placeable_model.h>
 
 #include "backend/gtk/screen_gtk.h"
 
-#include "mdl_handle.h"
 #include "gui_preview.h"
 
 #define EDIT_OFFSET_X 0

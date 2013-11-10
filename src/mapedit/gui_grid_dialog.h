@@ -27,8 +27,6 @@
 #ifndef GUI_GRID_DIALOG_H
 #define GUI_GRID_DIALOG_H
 
-#include <gtk/gtk.h>
-
 #include "gui_modal_dialog.h"
 #include "gui_grid.h"
 

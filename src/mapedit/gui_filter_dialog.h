@@ -27,8 +27,6 @@
 #ifndef GUI_FILTER_DIALOG_H
 #define GUI_FILTER_DIALOG_H
 
-#include <gtk/gtk.h>
-
 #include <adonthell/base/callback.h>
 
 #include "gui_modal_dialog.h"

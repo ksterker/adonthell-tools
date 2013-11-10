@@ -18,7 +18,6 @@
 */
 
 #include <string.h>
-#include <gtk/gtk.h>
 #include "gui_circle.h"
 #include "gui_circle_events.h"
 

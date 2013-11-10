@@ -24,7 +24,6 @@
  * @brief The error console
  */
 
-#include <gtk/gtk.h>
 #include <pango/pango-font.h>
 #include "gui_dlgedit.h"
 #include "gui_error.h"

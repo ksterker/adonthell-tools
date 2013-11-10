@@ -26,7 +26,6 @@
 
 #include <algorithm>
 #include "dlg_module.h"
-#include "dlg_circle.h"
 #include "dlg_arrow.h"
 #include "gui_dlgedit.h"
 #include "gui_resources.h"

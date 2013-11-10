@@ -29,7 +29,7 @@
 #ifndef GUI_SETTINGS_H
 #define GUI_SETTINGS_H
 
-#include <gtk/gtkstyle.h>
+#include <gtk/gtk.h>
 #include "dlg_module_entry.h"
 
 /**

@@ -24,7 +24,6 @@
  * @brief The modeller main window.
  */
 
-#include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 
 #ifdef MAC_INTEGRATION

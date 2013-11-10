@@ -24,7 +24,6 @@
  * @brief Base class for a DlgNode's graphical representation.
  */
 
-#include <gtk/gtk.h>
 #include "dlg_node_gfx.h"
 
 // blit part of widget to the screen

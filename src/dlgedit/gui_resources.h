@@ -28,7 +28,7 @@
 #define GUI_RESOURCES_H
 
 #include <pango/pango.h>
-#include <gtk/gtkstyle.h>
+#include <gtk/gtk.h>
 #include "dlg_types.h"
 
 /**

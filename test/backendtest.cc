@@ -282,13 +282,13 @@ int main (int argc, char *argv[])
     
     // Main Window
     GtkWidget *wnd = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-    gtk_widget_set_usize (GTK_WIDGET (wnd), 800, 600);
+    gtk_widget_set_size_request (GTK_WIDGET (wnd), 800, 600);
     gtk_widget_realize (wnd);
     
     // Drawing area
     GtkWidget *graph = gtk_drawing_area_new ();
-    gtk_drawing_area_size (GTK_DRAWING_AREA (graph), 800, 600);
-    gtk_signal_connect (GTK_OBJECT (graph), "expose_event", (GtkSignalFunc) expose_event, &gc);
+    gtk_widget_set_size_request (graph, 800, 600);
+    g_signal_connect (G_OBJECT (graph), "expose_event", G_CALLBACK (expose_event), &gc);
     gtk_widget_set_events (graph, GDK_EXPOSURE_MASK /*| GDK_LEAVE_NOTIFY_MASK | GDK_BUTTON_PRESS_MASK |
         GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK | GDK_KEY_PRESS_MASK*/);
     

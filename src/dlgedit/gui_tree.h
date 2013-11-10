@@ -27,7 +27,6 @@
 #ifndef GUI_TREE_H
 #define GUI_TREE_H
 
-#include <gtk/gtkctree.h>
 #include "dlg_module.h"
 
 /**

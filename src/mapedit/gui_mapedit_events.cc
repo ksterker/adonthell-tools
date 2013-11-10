@@ -1,6 +1,4 @@
 /*
-   $Id: gui_mapedit_events.cc,v 1.1 2009/03/29 12:27:26 ksterker Exp $
-   
    Copyright (C) 2009 Kai Sterker <kaisterker@linuxgames.com>
    Part of the Adonthell Project http://adonthell.linuxgames.com
 
@@ -26,15 +24,11 @@
  * @brief The Events triggered via the Map Editor's main window
  */
 
-#include <string>
-#include <gtk/gtk.h>
-
 #include <adonthell/base/base.h>
 
 #include "gui_mapedit.h"
 #include "gui_mapview.h"
 #include "gui_goto_dialog.h"
-#include "gui_grid.h"
 #include "gui_grid_dialog.h"
 #include "gui_file.h"
 
